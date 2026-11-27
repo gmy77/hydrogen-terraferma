@@ -13,6 +13,7 @@ il parroco propone la sua devozione, tutti votano con le ballotte e poi si apre 
 Oppure scarica il repo e apri `index.html` con un browser recente (Chrome, Edge o Firefox).
 Il borgo si salva da solo nel browser: riaprendo la pagina la cronaca riprende da dove era rimasta.
 Per ricominciare usa il pulsante **Nuovo borgo** oppure apri `index.html?nuovo`.
+(HYDROGEN 3 usa un salvataggio nuovo: i borghi salvati con la versione 2 ripartono da capo.)
 
 ## Il ciclo bisogno → idea → vicinia → cantiere → verifica
 
@@ -35,6 +36,35 @@ Per ricominciare usa il pulsante **Nuovo borgo** oppure apri `index.html?nuovo`.
 - **I cantieri sono vivi.** Ponteggi, gru a ruota, paesani che portano pietre e travi, polvere, martelli;
   all'inaugurazione suonano le campane e parte la girandola di fuochi.
 - **Cronaca del Borgo.** Ogni fatto importante viene annotato con la data («Adì 7 maggio 1532 …»).
+
+## Stagioni e generazioni (HYDROGEN 3)
+
+- **Calendario lungo.** Ogni giorno simulato vale 15 giorni del calendario: un anno dura circa 39 minuti a velocità 1×,
+  e con **Velocità 30× o 100×** («Secoli») passano decenni in pochi minuti.
+- **Quattro stagioni.** L'erba ingiallisce d'estate e si arrossa d'autunno; d'inverno nevica e la neve si posa su tetti e campi.
+  Il meteo segue la stagione (estati secche, autunni piovosi), d'inverno non si ara, il freddo pesa sulla salute e la fame sul granaio.
+- **Famiglie vere.** Ogni paesano ha nome, cognome, età e sesso. Ci si sposa, nascono figli, si invecchia (capelli bianchi, bastone) e si muore,
+  con una mortalità simile a quella delle campagne del Cinquecento, che cresce con febbri, fame e inverni duri.
+- **Il sapere passa di generazione in generazione.** A 14 anni i figli prendono il mestiere del genitore e ne ereditano parte del sapere.
+  I segreti di mestiere (murare, mulino, lanterne, erbe…) si passano solo in famiglia, tra colleghi o lavorando insieme al cantiere.
+  Ciò che si è solo sentito dire si può dimenticare; ciò che si è imparato sbagliando resta.
+  Se muore l'ultimo che sapeva una cosa, quel sapere si perde: la cronaca lo annota.
+- **I ruoli passano di mano.** Quando muore il bifolco, la lavandaia, lo speziale o il parroco, il posto va a un figlio o a un altro paesano;
+  se non c'è nessuno arriva qualcuno da Vicenza. Quando il borgo si svuota, arriva gente dalla campagna dei colli Berici.
+
+## Osservatorio del Borgo
+
+Il pulsante **📊 Osservatorio** (o `index.html#osservatorio`) apre una pagina di grafici:
+
+- **Borgo:** popolazione e bambini, piramide delle età, nascite e morti, età media, fede media, regole apprese,
+  regole conosciute, i cinque bisogni e le opere costruite, giorno per giorno.
+- **Persone:** l'elenco di tutti, vivi e defunti, ordinabile e con ricerca. Per ognuno: gli aspetti di oggi (energia, sete, fede, prudenza,
+  regole sapute, errori, regole dimenticate), la famiglia (genitori, coniuge, figli), la sua storia in grafico e una
+  **simulazione di 1000 vite possibili** da oggi, con probabilità di essere vivo a ogni età, età attesa alla morte,
+  rischio di morire entro un anno e probabilità di sposarsi o avere un figlio.
+- **Sapere:** come si diffonde ogni regola nel tempo, chi l'ha scoperta per primo e quanti la sanno oggi.
+
+Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre direttamente la sua pagina.
 
 ## Grafica
 

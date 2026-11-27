@@ -235,6 +235,74 @@
     position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     color: #f2e6cf; font-size: 16px; text-align: center; padding: 30px; line-height: 1.6;
   }
+  /* Osservatorio del Borgo: grafici e schede di ogni persona (palette scura validata) */
+  #obs {
+    position: fixed; inset: 0; z-index: 40; display: none; flex-direction: column;
+    background: #121211; color: #f0efec; font-family: Georgia, 'Times New Roman', serif; user-select: text;
+  }
+  #obs.visible { display: flex; }
+  #obs > header { display: flex; align-items: center; gap: 14px; padding: 10px 16px; border-bottom: 1px solid #3a3936; background: #1a1a19; flex-wrap: wrap; }
+  #obs header h2 { font-size: 18px; color: #f0c375; letter-spacing: 1px; font-weight: normal; }
+  #obs nav { display: flex; gap: 6px; }
+  #obs nav button { background: none; border: 1px solid #3a3936; color: #c3c2b7; border-radius: 6px; padding: 4px 12px; font-family: inherit; cursor: pointer; font-size: 13px; }
+  #obs nav button.on { background: #2b2a27; color: #f0efec; border-color: #f0c375; }
+  #obs .date { color: #c3c2b7; font-style: italic; font-size: 13px; margin-left: auto; }
+  #obs .x { background: none; border: none; color: #c3c2b7; font-size: 26px; cursor: pointer; line-height: 1; }
+  #obs section { flex: 1; overflow: auto; padding: 14px 16px 24px; display: none; min-height: 0; }
+  #obs section.on { display: block; }
+  #obs .intro { color: #a9a79f; font-size: 12.5px; font-style: italic; margin: -2px 0 12px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .tile { background: #1a1a19; border: 1px solid #2e2d2a; border-radius: 8px; padding: 9px 12px; }
+  .tile b { display: block; font-size: 24px; font-weight: normal; color: #f0efec; font-family: 'Courier New', monospace; }
+  .tile span { font-size: 12px; color: #a9a79f; }
+  .vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px; }
+  .vgrid.small { grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); }
+  .vcard { background: #1a1a19; border: 1px solid #2e2d2a; border-radius: 8px; padding: 10px 12px 8px; }
+  .vcard h4 { font-size: 14px; font-weight: normal; color: #f0efec; }
+  .vcard .sub { font-size: 11.5px; color: #a9a79f; margin-top: 1px; }
+  .vcard .lg { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: #c3c2b7; margin: 6px 0 2px; }
+  .vcard .lg:empty { display: none; }
+  .vcard .lg i, .tip i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .plot { position: relative; height: 170px; margin-top: 4px; }
+  .plot.tall { height: 230px; }
+  .plot.small { height: 110px; }
+  .plot canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+  .tip { position: absolute; top: 6px; display: none; pointer-events: none; background: #262624; border: 1px solid #45443f; border-radius: 6px;
+    padding: 6px 9px; font-size: 12px; color: #f0efec; min-width: 150px; box-shadow: 0 6px 18px rgba(0,0,0,0.5); z-index: 2; white-space: nowrap; }
+  .tip .tt { color: #c3c2b7; font-style: italic; margin-bottom: 3px; }
+  .ppl { display: grid; grid-template-columns: minmax(380px, 1fr) minmax(440px, 1.3fr); gap: 16px; height: 100%; }
+  .ppl-left { display: flex; flex-direction: column; min-height: 0; }
+  .tools { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; font-size: 13px; color: #c3c2b7; flex-wrap: wrap; }
+  .tools input[type=text] { background: #1a1a19; border: 1px solid #3a3936; color: #f0efec; border-radius: 6px; padding: 5px 9px; font-family: inherit; width: 190px; }
+  .tbl-wrap { overflow: auto; border: 1px solid #2e2d2a; border-radius: 8px; flex: 1; min-height: 0; }
+  table.ptab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .ptab th { position: sticky; top: 0; background: #22211f; color: #c3c2b7; text-align: left; font-weight: normal; padding: 7px 8px; cursor: pointer; white-space: nowrap; border-bottom: 1px solid #3a3936; }
+  .ptab th.on { color: #f0c375; }
+  .ptab td { padding: 6px 8px; border-bottom: 1px solid #262624; white-space: nowrap; }
+  .ptab tr:hover td { background: #22211f; cursor: pointer; }
+  .ptab tr.sel td { background: #2f2a20; }
+  .ptab tr.dead td { color: #8f8d86; }
+  .ptab .num { text-align: right; font-family: 'Courier New', monospace; }
+  .det { overflow: auto; min-height: 0; padding-right: 4px; }
+  .det h3 { font-size: 22px; font-weight: normal; color: #f0c375; }
+  .det .meta { color: #c3c2b7; font-style: italic; font-size: 13px; margin: 2px 0 8px; }
+  .det h5 { font-size: 12px; font-weight: normal; color: #a9a79f; letter-spacing: 1.5px; text-transform: uppercase; margin: 16px 0 6px; }
+  .det .speech { font-style: italic; color: #e4dccb; font-size: 13.5px; border-left: 3px solid #f0c375; padding: 4px 10px; margin: 6px 0; }
+  .aspects { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px; }
+  .asp { font-size: 12.5px; color: #c3c2b7; }
+  .asp b { float: right; color: #f0efec; font-weight: normal; font-family: 'Courier New', monospace; }
+  .asp .bar { height: 6px; background: #2e2d2a; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+  .asp .bar div { height: 100%; border-radius: 3px; background: #3987e5; }
+  .fam { font-size: 13px; color: #c3c2b7; line-height: 1.7; }
+  .pl { color: #8fb8f0; cursor: pointer; text-decoration: underline dotted; }
+  .rules { list-style: none; }
+  .rules li { font-size: 12.5px; color: #d6d3ca; margin: 4px 0; padding-left: 14px; position: relative; }
+  .rules li::before { content: '•'; position: absolute; left: 2px; color: #f0c375; }
+  .rules li i { color: #8f8d86; }
+  .btnrow { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .btnrow button { background: #2b2a27; color: #f0efec; border: 1px solid #45443f; border-radius: 6px; padding: 5px 12px; font-family: inherit; cursor: pointer; }
+  .muted { color: #8f8d86; font-style: italic; }
+  @media (max-width: 980px) { .ppl { grid-template-columns: 1fr; height: auto; } .tbl-wrap { max-height: 45vh; } }
   @media (max-width: 900px) {
     #hud-left { max-width: calc(100vw - 20px); }
     #brain-log { display: none; }
@@ -274,6 +342,7 @@
     <button id="btn-tilt" class="active">Effetto plastico: ON</button>
     <button id="btn-audio">Audio: OFF</button>
     <button id="btn-chron">📜 Cronaca</button>
+    <button id="btn-obs">📊 Osservatorio</button>
     <button id="btn-reset">Nuovo borgo</button>
   </div>
   <div class="panel" id="needs-panel">
@@ -305,6 +374,22 @@
   <div id="chron-list"></div>
 </div>
 
+<div id="obs" role="dialog" aria-label="Osservatorio del Borgo">
+  <header>
+    <h2>📊 Osservatorio del Borgo</h2>
+    <nav>
+      <button data-tab="borgo">Borgo</button>
+      <button data-tab="persone">Persone</button>
+      <button data-tab="sapere">Sapere</button>
+    </nav>
+    <span class="date" id="obs-date"></span>
+    <button class="x" id="obs-close" title="Chiudi (Esc)">×</button>
+  </header>
+  <section id="obs-borgo"></section>
+  <section id="obs-persone"></section>
+  <section id="obs-sapere"></section>
+</div>
+
 <div id="citizen-card">
   <div class="cc-top">
     <div>
@@ -312,6 +397,7 @@
       <span class="cc-role" id="cc-role"></span>
     </div>
     <div class="cc-actions">
+      <button class="cc-btn" id="btn-obs-person">📊 Scheda completa</button>
       <button class="cc-btn" id="btn-follow">Segui con camera</button>
       <button class="cc-close" id="cc-close" title="Chiudi">×</button>
     </div>
@@ -393,6 +479,7 @@
   precision highp sampler2DShadow;
   in vec3 vWorldPos; in vec3 vNorm; in vec3 vColor; in vec4 vMeta;
   uniform float uTime, uHour, uDaylight, uRainAmount, uCloudCover, uFesta, uLightning, uShadowOn, uMoon, uMist;
+  uniform float uSnow, uDry, uAutumn, uWinterTint;
   uniform vec3 uSunColor, uSkyTop, uSkyHorizon, uLightDir, uViewDir;
   uniform mat4 uLightVP;
   uniform sampler2DShadow uShadowMap;
@@ -491,6 +578,16 @@
     vec3 ambient = mix(nightAmb, mix(dayAmb, stormAmb, uCloudCover), uDaylight);
 
     vec3 baseCol = vColor;
+    // Stagioni: l'erba ingiallisce d'estate, si arrossa d'autunno, si spegne d'inverno
+    if (vColor.g > vColor.r * 1.04 && vColor.g > vColor.b * 1.12) {
+      baseCol = mix(baseCol, vec3(0.56, 0.50, 0.28), uDry * 0.55);
+      baseCol = mix(baseCol, vec3(0.66, 0.40, 0.16), uAutumn * 0.6);
+      baseCol = mix(baseCol, vec3(0.36, 0.38, 0.30), uWinterTint * 0.5);
+    }
+    // Neve sulle superfici rivolte in alto (solo edifici e terreno, non le persone)
+    if (uSnow > 0.01 && mType < 0.5 && vMeta.w > 0.5) {
+      baseCol = mix(baseCol, vec3(0.93, 0.95, 0.98), smoothstep(0.5, 0.9, vNorm.y) * uSnow);
+    }
     if (uRainAmount > 0.05) {
       float wetness = uRainAmount * (0.35 + 0.65 * max(vNorm.y, 0.0));
       baseCol *= (1.0 - 0.26 * wetness);
@@ -632,7 +729,7 @@
     return { p, u };
   }
   const MAIN = makeProgram(VS_VOXEL, FS_VOXEL, ['uViewProj', 'uTime', 'uHour', 'uDaylight', 'uRainAmount', 'uCloudCover', 'uFesta',
-    'uLightning', 'uShadowOn', 'uMoon', 'uMist', 'uSunColor', 'uSkyTop', 'uSkyHorizon', 'uLightDir', 'uViewDir', 'uLightVP', 'uShadowMap']);
+    'uLightning', 'uShadowOn', 'uMoon', 'uMist', 'uSnow', 'uDry', 'uAutumn', 'uWinterTint', 'uSunColor', 'uSkyTop', 'uSkyHorizon', 'uLightDir', 'uViewDir', 'uLightVP', 'uShadowMap']);
   const SHADOW = makeProgram(VS_SHADOW, FS_SHADOW, ['uLightVP', 'uFesta']);
   const DOWN = makeProgram(VS_QUAD, FS_DOWN, ['uTex', 'uTexel', 'uMode']);
   const BLUR = makeProgram(VS_QUAD, FS_BLUR, ['uTex', 'uDir']);
@@ -1318,7 +1415,9 @@
     if ((simTick - (a.lastShareTick || -999)) < 10.0) return;
     for (const lesson of a.lessons) {
       if (!b.learnedSet.has(lesson.id)) {
+        if (TECH_LESSONS.has(lesson.id) && !canTeachTech(a, b)) continue;   // i segreti di mestiere non si dicono a tutti
         a.lastShareTick = simTick;
+        if (rng() > 0.35) return;                                            // non ogni chiacchierata insegna qualcosa
         addLesson(b, lesson.id, `Appreso da ${a.name}`);
         applyLessonEffect(b, lesson.id, true);
         b.lastThought = `${a.name} mi ha insegnato: ${lesson.title}`;
@@ -1524,10 +1623,396 @@
   }
   const goHome = (v) => { v.x = v.homeX; v.y = v.homeY; v.z = v.homeZ; };
   updateTotalWisdom();
-  const priest = villagers.find(v => v.kind === 'priest');
-  const lorenzo = villagers.find(v => v.name === 'Lorenzo');
-  const zuanne = villagers.find(v => v.name === 'Zuanne');
+  const getPriest = () => villagers.find(v => v.kind === 'priest');
+  const speziale = () => villagers.find(v => v.role === 'Speziale');
+  const vignaiolo = () => villagers.find(v => v.kind === 'vineyard');
   const byName = (n) => villagers.find(v => v.name === n);
+
+  // ======================================================================
+  //  Calendario e stagioni (1 giorno simulato = 15 giorni del calendario)
+  // ======================================================================
+  const DAYS_PER_SIMDAY = 15;
+  const SIM_SEC_PER_YEAR = 96 * 365 / DAYS_PER_SIMDAY;      // circa 39 minuti a velocità 1×
+  function calDate(day = dayCount) { return new Date(1532, 4, 1 + (day - 1) * DAYS_PER_SIMDAY); }
+  const seasonW = { primavera: 1, estate: 0, autunno: 0, inverno: 0 };
+  let seasonName = 'primavera', snowCover = 0, snowing = false;
+  const SEASON_CENTERS = { inverno: 15, primavera: 105, estate: 196, autunno: 288 };   // giorno dell'anno
+  function updateSeason() {
+    const simDayF = (5.0 + simClock / 4.0) / 24.0;
+    const doy = (120 + simDayF * DAYS_PER_SIMDAY) % 365;   // il 1 maggio è il giorno 120
+    let best = -1;
+    for (const k of Object.keys(SEASON_CENTERS)) {
+      let d = Math.abs(doy - SEASON_CENTERS[k]);
+      d = Math.min(d, 365 - d);
+      seasonW[k] = Math.max(0, 1 - d / 91.25);
+      if (seasonW[k] > best) { best = seasonW[k]; seasonName = k; }
+    }
+  }
+  // probabilità di siccità / sereno / pioggia / temporale in ogni stagione
+  const SEASON_WEATHER = {
+    inverno:   [0.04, 0.38, 0.38, 0.20],
+    primavera: [0.10, 0.42, 0.33, 0.15],
+    estate:    [0.42, 0.33, 0.10, 0.15],
+    autunno:   [0.10, 0.36, 0.40, 0.14],
+  };
+  function seasonalWeather(slot) {
+    const r = ((Math.sin(slot * 127.1 + 11.7) * 43758.5453) % 1 + 1) % 1;
+    const w = [0, 0, 0, 0];
+    for (const k of Object.keys(seasonW)) for (let i = 0; i < 4; i++) w[i] += seasonW[k] * SEASON_WEATHER[k][i];
+    const tot = w[0] + w[1] + w[2] + w[3];
+    let acc = 0;
+    for (let i = 0; i < 4; i++) { acc += w[i] / tot; if (r < acc) return i; }
+    return 1;
+  }
+  function weatherName() {
+    if (snowing) return currentWeatherIdx === 3 ? 'Bufera di neve' : 'Neve';
+    return WEATHER_STATES[currentWeatherIdx].name;
+  }
+
+  // ======================================================================
+  //  Generazioni: famiglie, nozze, nascite, morti, mestieri che passano di mano
+  // ======================================================================
+  const NOMI_M = ['Bortolo', 'Nane', 'Zuanne', 'Marco', 'Giacomo', 'Lorenzo', 'Matteo', 'Beppe', 'Domenico', 'Battista', 'Alvise', 'Silvestro',
+    'Piero', 'Gasparo', 'Bastian', 'Isepo', 'Tonin', 'Antonio', 'Francesco', 'Zorzi', 'Andrea', 'Nicolò', 'Bernardin', 'Valentin',
+    'Gregorio', 'Vettor', 'Polo', 'Simon', 'Lunardo', 'Girolamo', 'Agostin', 'Mattio', 'Stefano', 'Orazio'];
+  const NOMI_F = ['Margherita', 'Caterina', 'Elena', 'Lucia', 'Chiara', 'Rosa', 'Teresa', 'Maddalena', 'Agnese', 'Orsola', 'Menega',
+    'Bettina', 'Marietta', 'Cecilia', 'Pasqua', 'Anzola', 'Isabetta', 'Lucrezia', 'Zanetta', 'Franceschina', 'Giustina', 'Paola',
+    'Cristina', 'Santa', 'Laura', 'Dorotea', 'Vittoria', 'Benvenuta'];
+  const COGNOMI = ['Dalla Costa', 'Zanon', 'Bortolan', 'Pegoraro', 'Rigon', 'Marchetto', 'Cracco', 'Dal Molin', 'Fabris', 'Zordan',
+    'Toniolo', 'Basso', 'Carraro', 'Zamberlan', 'Sartori', 'Pozza'];
+  const FEMALE = new Set(NOMI_F);
+  const people = new Map();             // tutte le persone, vive e morte, per id
+  let nextId = 1;
+  const POP_CAP = 72;
+  const BIRTH_RATE = 0.6;   // figli all'anno per coppia fertile (in pratica uno ogni due-tre anni)
+  const SPECIAL_KINDS = ['ox_driver', 'washer', 'vineyard', 'guard', 'townfolk', 'priest'];
+  const ETA = { priest: [50, 58], guard: [26, 36], ox_driver: [30, 48], washer: [22, 44], vineyard: [38, 50], townfolk: [34, 56], citizen: [17, 58] };
+  world.hist = []; world.births = 0; world.deaths = 0; world.dead = [];
+
+  const SPEAK = { citizen: villagers.find(v => v.kind === 'citizen').speak };
+  SPEAK.child = function () {
+    if (snowCover > 0.3) return '«Guarda quanta neve sui coppi! Facciamo a palle di neve prima che la mamma mi chiami!»';
+    const par = people.get(this.sex === 'F' ? this.motherId : this.fatherId) || people.get(this.fatherId) || people.get(this.motherId);
+    return `«Gioco con gli altri bambini della contrada. ${par && par.mestiere ? `Da grande imparerò il mestiere di ${par.sex === 'F' ? 'mia madre' : 'mio padre'} ${par.name}: ${lc(par.mestiere)}.` : 'Da grande voglio imparare un mestiere.'}»`;
+  };
+
+  function registerPerson(v) {
+    v.id = nextId++;
+    v.children = v.children || [];
+    v.hist = v.hist || [];
+    v.alive = true;
+    people.set(v.id, v);
+    return v;
+  }
+  function freeName(sex) {
+    const used = new Set(villagers.map(v => v.name));
+    const pool = (sex === 'F' ? NOMI_F : NOMI_M).filter(n => !used.has(n));
+    if (pool.length) return pick(pool);
+    return pick(sex === 'F' ? NOMI_F : NOMI_M) + ' ' + pick(['il Giovane', 'Secondo', 'detto Moro', 'detto Rosso']);
+  }
+  const birthDayFor = (age) => dayCount - Math.round(age * 365 / DAYS_PER_SIMDAY);
+
+  // i fondatori del borgo: sesso, cognome, età e posto in famiglia
+  for (const v of villagers) {
+    registerPerson(v);
+    v.sex = FEMALE.has(v.name) ? 'F' : 'M';
+    v.cognome = pick(COGNOMI);
+    const er = ETA[v.kind] || [20, 50];
+    v.age = randRange(er[0], er[1]);
+    v.fatherId = null; v.motherId = null; v.spouseId = null;
+    v.speakKey = v.kind === 'citizen' ? 'citizen' : v.name;
+    if (v.kind !== 'citizen') SPEAK[v.speakKey] = v.speak;
+    v.mestiere = v.role;
+    v.homePath = v.path || pick(WALK_PATHS);
+    v.bornDay = birthDayFor(v.age);
+  }
+
+  const related = (a, b) => a.id === b.fatherId || a.id === b.motherId || b.id === a.fatherId || b.id === a.motherId ||
+    (a.fatherId && a.fatherId === b.fatherId) || (a.motherId && a.motherId === b.motherId);
+  function findSpouse(v) {
+    const c = villagers.filter(o => o !== v && o.sex !== v.sex && !o.spouseId && o.kind !== 'priest' && o.kind !== 'child' &&
+      o.age >= 17 && o.age <= 55 && Math.abs(o.age - v.age) < 14 && !related(o, v));
+    if (!c.length) return null;
+    c.sort((a, b) => Math.abs(a.age - v.age) - Math.abs(b.age - v.age));
+    return c[Math.min(c.length - 1, Math.floor(rng() * 2))];
+  }
+  function marry(a, b, silent) {
+    a.spouseId = b.id; b.spouseId = a.id;
+    const wife = a.sex === 'F' ? a : b, husb = a.sex === 'F' ? b : a;
+    wife.cognomeNascita = wife.cognomeNascita || wife.cognome;
+    if (!silent) {
+      chronicle(`Si sposarono ${husb.name} ${husb.cognome}, ${lc(husb.role)}, e ${wife.name} ${wife.cognomeNascita}, ${lc(wife.role)}.`);
+      pushBrainLog(`💍 Nozze: <b>${husb.name}</b> e <b>${wife.name}</b>`, 'social');
+    }
+    wife.cognome = husb.cognome;     // la sposa entra nella casa del marito
+  }
+  function makeChild(mother, father, age = 0) {
+    const sex = rng() < 0.5 ? 'F' : 'M';
+    const home = mother.homePath || (father && father.homePath) || pick(WALK_PATHS);
+    const c = registerPerson({
+      name: freeName(sex), sex, cognome: father ? father.cognome : mother.cognome, age,
+      fatherId: father ? father.id : null, motherId: mother.id, spouseId: null,
+      role: sex === 'F' ? 'Bambina' : 'Bambino', mestiere: null, place: 'Contrade del borgo murato', kind: 'child', speakKey: 'child',
+      path: home, homePath: home, phase: rng(), speed: randRange(0.02, 0.04) * (rng() < 0.5 ? 1 : -1), zOff: randRange(-0.25, 0.25),
+      tunic: pick(TUNIC_COLS), hose: [0.25, 0.24, 0.22], hat: null, x: 0, y: home.y, z: home.z,
+    });
+    c.speak = SPEAK.child;
+    const base = father ? (mother.faith + father.faith) / 2 : mother.faith;
+    initAgentBrain(c, clamp(base + randRange(-0.12, 0.12), 0.1, 0.95));
+    c.homeX = c.x; c.homeY = c.y; c.homeZ = c.z;
+    c.bornDay = birthDayFor(age);
+    mother.children.push(c.id);
+    if (father) father.children.push(c.id);
+    villagers.push(c);
+    return c;
+  }
+  const MESTIERI_F = ['Filatrice', 'Tessitrice', 'Ortolana', 'Lavandaia', 'Merlettaia'];
+  const MESTIERI_M = ['Contadino', 'Garzone', 'Bracciante', 'Muratore', 'Falegname'];
+  function comeOfAge(c) {
+    const f = people.get(c.fatherId), m = people.get(c.motherId);
+    const same = c.sex === 'F' ? m : f;
+    let mest = same && same.mestiere ? same.mestiere : pick(c.sex === 'F' ? MESTIERI_F : MESTIERI_M);
+    if (mest === 'Moglie del fabbro') mest = 'Lavandaia';
+    if (mest.startsWith('Parroco')) mest = 'Garzone';
+    c.kind = 'citizen'; c.speakKey = 'citizen'; c.speak = SPEAK.citizen;
+    c.role = mest; c.mestiere = mest;
+    c.speed = randRange(0.032, 0.056) * (rng() < 0.5 ? 1 : -1);
+    // eredità del sapere: il mestiere da chi ha lo stesso mestiere, il resto con meno probabilità
+    let got = 0;
+    for (const par of [f, m]) {
+      if (!par) continue;
+      for (const l of par.lessons) {
+        if (c.learnedSet.has(l.id)) continue;
+        const prob = par === same ? 0.8 : 0.35;
+        if (rng() < prob) {
+          addLesson(c, l.id, `Insegnato ${par.sex === 'F' ? 'dalla madre' : 'dal padre'} ${par.name}`);
+          applyLessonEffect(c, l.id, true);
+          got++;
+        }
+      }
+    }
+    pushBrainLog(`🎓 <b>${c.name} ${c.cognome}</b> compie 14 anni e diventa ${lc(mest)}${got ? ` (porta con sé ${got} regole di famiglia)` : ''}`, 'social');
+    updateTotalWisdom();
+  }
+
+  // Rischio di morte in un anno, per età (all'incirca come nelle campagne del Cinquecento)
+  function mortality(age) {
+    if (age < 1) return 0.16;
+    if (age < 5) return 0.045;
+    if (age < 15) return 0.008;
+    return Math.min(0.95, 0.006 * Math.exp(0.072 * (age - 20)));
+  }
+  function hazardMul() {
+    return (1 + need.salute / 120) * (1 + seasonW.inverno * 0.15) * (world.turbid ? 1.15 : 1) * (has('orto') ? 0.85 : 1) * (need.cibo > 80 ? 1.25 : 1);
+  }
+  function newcomer(sex, role) {
+    const wp = pick(WALK_PATHS);
+    const v = registerPerson({
+      name: freeName(sex), sex, cognome: pick(COGNOMI), age: randRange(24, 40), role, mestiere: role,
+      place: 'Contrade del borgo murato', kind: 'citizen', speakKey: 'citizen', fatherId: null, motherId: null, spouseId: null,
+      path: wp, homePath: wp, phase: rng(), speed: randRange(0.032, 0.056) * (rng() < 0.5 ? 1 : -1), zOff: randRange(-0.22, 0.22),
+      tunic: pick(TUNIC_COLS), hose: [0.25, 0.24, 0.22], hat: rng() < 0.45 ? [0.46, 0.34, 0.22] : null, x: 0, y: wp.y, z: wp.z, newcomer: true,
+    });
+    v.speak = SPEAK.citizen;
+    initAgentBrain(v, randRange(0.35, 0.8));
+    v.homeX = v.x; v.homeY = v.y; v.homeZ = v.z;
+    v.bornDay = birthDayFor(v.age);
+    villagers.push(v);
+    return v;
+  }
+  // nel Cinquecento certi mestieri erano solo da uomini o solo da donne
+  const ROLE_SEX = { ox_driver: 'M', washer: 'F', guard: 'M', vineyard: 'M', priest: 'M' };
+  function succeed(dead) {
+    if (!SPECIAL_KINDS.includes(dead.kind)) return;
+    let heir = null;
+    const need_sex = ROLE_SEX[dead.kind];
+    const okSex = (c) => !need_sex || c.sex === need_sex;
+    if (dead.kind !== 'priest') {
+      const kids = dead.children.map(id => people.get(id)).filter(c => c && c.alive && c.kind === 'citizen' && c.age >= 15 && okSex(c));
+      kids.sort((a, b) => ((b.sex === dead.sex) - (a.sex === dead.sex)) || (b.age - a.age));
+      heir = kids[0] || null;
+      if (!heir) {
+        const c = villagers.filter(x => x.kind === 'citizen' && x.age >= 18 && x.age < 55 && okSex(x));
+        heir = c.length ? pick(c) : null;
+      }
+    }
+    const fromKids = heir && dead.children.includes(heir.id);
+    if (!heir) {
+      heir = newcomer(need_sex || dead.sex, dead.role);
+      if (dead.kind === 'priest') {
+        heir.name = 'Don ' + pick(NOMI_M.filter(n => !villagers.some(v => v.name === 'Don ' + n)));
+        heir.age = randRange(32, 45); heir.faith = 0.95; heir.bornDay = birthDayFor(heir.age);
+      }
+      chronicle(`Arrivò da Vicenza ${heir.name} ${heir.cognome} per prendere il posto di ${dead.name} come ${lc(dead.role)}.`);
+    } else {
+      chronicle(`${heir.name} ${heir.cognome} prese il posto di ${dead.name} come ${lc(dead.role)}${fromKids ? `: il mestiere passò ${dead.sex === 'F' ? 'dalla madre' : 'dal padre'} ${heir.sex === 'F' ? 'alla figlia' : 'al figlio'}` : ''}.`);
+    }
+    for (const k of ['kind', 'place', 'oxIdx', 'speakKey', 'faceX', 'faceZ', 'homeX', 'homeY', 'homeZ']) heir[k] = dead[k];
+    heir.role = dead.kind === 'washer' ? 'Lavandaia' : dead.role;
+    heir.mestiere = heir.role;
+    heir.predecessor = dead.name;
+    if (SPEAK['heir_' + dead.kind]) heir.speakKey = 'heir_' + dead.kind;
+    heir.speak = SPEAK[heir.speakKey] || SPEAK.citizen;
+    if (heir.task === 'worker') heir.task = null;
+    pushBrainLog(`🔑 <b>${heir.name}</b> è il nuovo ${lc(heir.role)}`, 'social');
+  }
+  const gEta = (v, m, f) => (v.sex === 'F' ? f : m);
+  function die(v) {
+    const i = villagers.indexOf(v);
+    if (i < 0) return;
+    villagers.splice(i, 1);
+    v.alive = false; v.visible = false; v.deathDay = dayCount; v.task = null;
+    world.deaths++;
+    const sp = people.get(v.spouseId);
+    if (sp && sp.alive) { sp.spouseId = null; sp.widowed = true; }
+    if (selectedVillager === v) closeCard();
+    const c = world.council;
+    if (c) { c.parts = c.parts.filter(x => x !== v); c.order = c.order.filter(x => x !== v); }
+    let causa = '';
+    if (v.age < 2) causa = ', ancora in fasce';
+    else if (v.age < 10) causa = gEta(v, ', ancora bambino', ', ancora bambina');
+    else if (need.salute > 50) causa = ', per le febbri';
+    else if (seasonW.inverno > 0.6) causa = ', nel freddo dell’inverno';
+    else if (v.age > 60) causa = ', di vecchiaia';
+    const lost = v.lessons.filter(l => !villagers.some(o => o.learnedSet.has(l.id))).map(l => l.title);
+    const etaTxt = v.age < 1 ? 'di pochi mesi' : v.age < 2 ? 'a un anno' : `a ${Math.floor(v.age)} anni`;
+    chronicle(`Morì ${v.name} ${v.cognome}, ${lc(v.role)}, ${etaTxt}${causa}.${lost.length ? ` Con ${v.sex === 'F' ? 'lei' : 'lui'} si perse un sapere che nessun altro aveva: «${lost.join('», «')}».` : ''}`);
+    pushBrainLog(`✝ Morto <b>${v.name} ${v.cognome}</b> (${Math.floor(v.age)} anni)${lost.length ? ` — sapere perduto: <i>${lost.join(', ')}</i>` : ''}`, 'mistake');
+    world.dead.push(v);
+    if (world.dead.length > 220) people.delete(world.dead.shift().id);
+    succeed(v);
+    updateTotalWisdom();
+  }
+  function birth(mother) {
+    const father = people.get(mother.spouseId);
+    const c = makeChild(mother, father, 0);
+    world.births++;
+    chronicle(`Nacque ${c.sex === 'F' ? 'una bambina' : 'un bambino'}, ${c.name} ${c.cognome}, ${c.sex === 'F' ? 'figlia' : 'figlio'} di ${father ? father.name + ' e di ' : ''}${mother.name}.`);
+    pushBrainLog(`👶 Nato <b>${c.name} ${c.cognome}</b>`, 'social');
+  }
+  // Saperi di mestiere: passano in famiglia, tra chi fa lo stesso lavoro o tra chi lavora insieme al cantiere
+  const TECH_LESSONS = new Set(['masonry', 'carpentry', 'mill', 'iron_lantern', 'granary', 'herbs', 'sand_filter']);
+  function canTeachTech(a, b) {
+    return (a.task && b.task) || a.id === b.fatherId || a.id === b.motherId || b.id === a.fatherId || b.id === a.motherId ||
+      a.spouseId === b.id || (a.mestiere && a.mestiere === b.mestiere);
+  }
+  // Ciò che si è solo sentito dire si può dimenticare; ciò che si è imparato sbagliando o col mestiere resta
+  function maybeForget(v, yearDt) {
+    if (!v.lessons.length || rng() > 0.06 * v.lessons.length * yearDt * (v.age > 65 ? 2 : 1)) return;
+    const l = v.lessons[Math.floor(rng() * v.lessons.length)];
+    if (!/^(Appreso|Insegnato)/.test(l.source)) return;
+    v.lessons.splice(v.lessons.indexOf(l), 1);
+    v.learnedSet.delete(l.id);
+    v.forgot = (v.forgot || 0) + 1;
+    if (rng() < 0.25) pushBrainLog(`🌫 <b>${v.name}</b> ha dimenticato: <i>${l.title}</i>`, 'mistake');
+  }
+  const priestName = () => (getPriest() || { name: 'il parroco' }).name;
+  const speakOf = (v) => {
+    const t = contextSpeech(v) || v.speak(currentHour, currentWeatherIdx, festaActive);
+    const pn = priestName();
+    return pn === 'Don Girolamo' ? t : t.split('Don Girolamo').join(pn);
+  };
+  SPEAK.heir_ox_driver = function () {
+    if (this.lockedOut) return `«I portoni sono già sbarrati! ${has('barchessa') ? 'Dormirò nella barchessa coi buoi.' : 'Stanotte al freddo, coi lupi che ululano.'}»`;
+    if (this.resting) return '«Fermi i buoi: un sorso dal fiasco e si riparte.»';
+    return `«Ho preso l’aratro di ${this.predecessor || 'chi c’era prima'}: ${this.learnedSet.has('curfew_gate') ? 'stacco sempre prima dell’Ave Maria, come mi hanno insegnato.' : 'lavoro finché c’è luce.'}»`;
+  };
+  SPEAK.heir_washer = function (h, w) {
+    return w >= 2 ? '«Con la pioggia i panni restano umidi, ma sotto la tettoia si lavora lo stesso.»'
+      : `«Al lavatoio ho preso il posto di ${this.predecessor || 'chi c’era prima'}: si sbattono i panni e si sentono tutte le notizie del borgo.»`;
+  };
+  SPEAK.heir_townfolk = function () {
+    return this.role === 'Speziale'
+      ? `«Come ${this.predecessor || 'il vecchio speziale'} prima di me, annoto i fatti nel libro: chi impara dagli errori rende il borgo più sicuro.»`
+      : `«All’Osteria del Moro adesso servo io il vino, come faceva ${this.predecessor || 'il vecchio oste'}. Sotto il pergolato si sente tutto.»`;
+  };
+  function updateDemography(dt) {
+    if (dt <= 0) return;
+    const yearDt = dt / SIM_SEC_PER_YEAR;
+    const capF = clamp(1.25 - villagers.length / POP_CAP, 0, 1);
+    const hm = hazardMul();
+    for (let i = villagers.length - 1; i >= 0; i--) {
+      const v = villagers[i];
+      if (!v) continue;
+      v.age += yearDt;
+      if (v.kind === 'child' && v.age >= 14) comeOfAge(v);
+      maybeForget(v, yearDt);
+      if (rng() < mortality(v.age) * hm * yearDt) { die(v); continue; }
+      if (v.sex === 'F' && v.spouseId && v.age >= 18 && v.age <= 43) {
+        const h = people.get(v.spouseId);
+        if (h && h.alive && rng() < BIRTH_RATE * capF * (need.cibo > 70 ? 0.6 : 1) * yearDt) birth(v);
+      }
+      if (!v.spouseId && v.kind !== 'priest' && v.kind !== 'child' && v.age >= 17 && v.age <= 45 && rng() < 0.45 * yearDt) {
+        const s = findSpouse(v);
+        if (s) marry(v, s, false);
+      }
+    }
+    // quando il borgo si svuota, arriva gente dalla campagna e dai colli
+    if (villagers.length < 36 && rng() < 0.4 * (36 - villagers.length) * yearDt) {
+      const sex = rng() < 0.5 ? 'F' : 'M';
+      const nv = newcomer(sex, pick(sex === 'F' ? MESTIERI_F : MESTIERI_M));
+      nv.age = randRange(17, 30); nv.bornDay = birthDayFor(nv.age);
+      chronicle(`Venne ad abitare nel borgo ${nv.name} ${nv.cognome}, ${lc(nv.role)}, dalla campagna dei colli Berici.`);
+      pushBrainLog(`🧳 Arriva <b>${nv.name} ${nv.cognome}</b> dalla campagna`, 'social');
+    }
+  }
+
+  // le famiglie dei fondatori: il fabbro e sua moglie, poi altre coppie e qualche figlio già nato
+  {
+    const mat = byName('Matteo'), cat = byName('Caterina');
+    if (mat && cat) { cat.age = clamp(mat.age - randRange(2, 6), 20, 50); marry(mat, cat, true); }
+    const adults = villagers.filter(v => !v.spouseId && v.kind !== 'priest' && v.age < 50);
+    for (const v of adults) {
+      if (v.spouseId || rng() > 0.55) continue;
+      const s = findSpouse(v);
+      if (s) marry(v, s, true);
+    }
+    for (const w of villagers.slice()) {
+      if (w.sex !== 'F' || !w.spouseId || w.age < 21) continue;
+      const h = people.get(w.spouseId);
+      const n = Math.floor(rng() * 3.2);
+      for (let k = 0; k < n; k++) {
+        const maxAge = Math.min(13.5, w.age - 18);
+        if (maxAge < 0.5) break;
+        makeChild(w, h, randRange(0.3, maxAge));
+      }
+    }
+  }
+
+  // Storia del borgo, un campione per ogni giorno simulato
+  let lastSampleDay = 0;
+  const KNOW_IDS = Object.keys(LESSONS);
+  function thin(arr, max) {
+    if (arr.length <= max) return;
+    const keep = arr.filter((_, i) => i % 2 === 0 || i === arr.length - 1);
+    arr.length = 0;
+    arr.push(...keep);
+  }
+  function sampleHistory() {
+    if (dayCount === lastSampleDay) return;
+    lastSampleDay = dayCount;
+    const adults = villagers.filter(v => v.age >= 15);
+    const kn = {};
+    for (const id of KNOW_IDS) kn[id] = 0;
+    let lsum = 0;
+    for (const v of villagers) { lsum += v.lessons.length; for (const l of v.lessons) kn[l.id]++; }
+    const r1 = (x) => Math.round(x * 10) / 10;
+    world.hist.push({
+      d: dayCount, pop: villagers.length, kids: villagers.filter(v => v.kind === 'child').length,
+      nati: world.births, morti: world.deaths,
+      fede: r1(adults.length ? adults.reduce((a, v) => a + v.faith, 0) / adults.length * 100 : 0),
+      lez: r1(villagers.length ? lsum / villagers.length : 0),
+      noti: KNOW_IDS.filter(id => kn[id] > 0).length, kn,
+      acqua: r1(need.acqua), riparo: r1(need.riparo), sicurezza: r1(need.sicurezza), cibo: r1(need.cibo), salute: r1(need.salute),
+      opere: Object.keys(world.built).filter(id => !BUILDINGS[id].faith).length,
+      eta: r1(villagers.reduce((a, v) => a + v.age, 0) / Math.max(1, villagers.length)),
+    });
+    thin(world.hist, 500);
+    for (const v of villagers) {
+      v.hist.push([dayCount, Math.round(v.faith * 100), Math.round(v.energy), Math.round(v.thirst), v.lessons.length, r1(v.age)]);
+      thin(v.hist, 240);
+    }
+  }
 
   // Gocce di pioggia e lucciole
   const RAIN_COUNT = 280;
@@ -1767,7 +2252,7 @@
     btnFesta.classList.toggle('active', festaActive);
     btnFesta.textContent = festaActive ? 'Festa del Vino: ON' : 'Festa del Vino: OFF';
   });
-  const SPEEDS = [1, 3, 8, 0.25];
+  const SPEEDS = [1, 3, 8, 30, 100, 0.25];
   const btnSpeed = document.getElementById('btn-speed');
   btnSpeed.addEventListener('click', () => {
     timeSpeed = SPEEDS[(SPEEDS.indexOf(timeSpeed) + 1) % SPEEDS.length];
@@ -1852,7 +2337,7 @@
   // ======================================================================
   const MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno', 'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
   function dataCronaca(day = dayCount) {
-    const d = new Date(1532, 4, day);
+    const d = calDate(day);
     return `Adì ${d.getDate()} ${MESI[d.getMonth()]} ${d.getFullYear()}`;
   }
   const chronList = document.getElementById('chron-list');
@@ -1899,6 +2384,9 @@
       const b = BUILDINGS[p.id];
       return `«L’ho proposto io in vicinia: ${b.name}. Ora sorveglio che sia fatto a regola d’arte: siamo al ${Math.round(p.progress * 100)}%.»`;
     }
+    if (v.age > 64 && Math.floor(currentHour) % 3 === 0) {
+      return `«Ho ${Math.floor(v.age)} anni e ne ho viste tante. ${v.lessons.length ? 'Ai giovani ripeto sempre: ' + lc(v.lessons[0].title) + '.' : 'Ormai lascio il lavoro ai giovani.'}»`;
+    }
     const mine = Object.keys(world.built).find(id => world.built[id].by === v.name);
     if (mine && Math.floor(currentHour * 2) % 3 === 0) {
       return BUILDINGS[mine].faith
@@ -1913,11 +2401,11 @@
     if (!selectedVillager) return;
     const v = selectedVillager;
     cardEl.classList.remove('building');
-    document.getElementById('cc-name').textContent = v.name;
+    document.getElementById('cc-name').textContent = `${v.name} ${v.cognome || ''}`;
     const taskTxt = v.task === 'worker' ? ' · al cantiere' : v.task === 'capo' ? ' · capomastro' : '';
-    document.getElementById('cc-role').textContent = `— ${v.role} (${v.visible ? v.place : 'In casa al riparo'}${taskTxt})`;
+    document.getElementById('cc-role').textContent = `— ${v.role}, ${Math.floor(v.age)} anni (${v.visible ? v.place : 'In casa al riparo'}${taskTxt})`;
     const speech = v.visible
-      ? (contextSpeech(v) || v.speak(currentHour, currentWeatherIdx, festaActive))
+      ? speakOf(v)
       : '«Sono rientrato in casa: dopo cena si spegne la candela e si dorme al sicuro dentro le mura fino all’alba.»';
     document.getElementById('cc-speech').textContent = speech;
 
@@ -2074,8 +2562,10 @@
       if (id === 'filtro' && !world.turbid) continue;
       if (b.faith) {
         if (world.faithTried[needId]) continue;
-        opts.push({ id, proposer: priest, votes: 0 });
-        used.add(priest);
+        const pr = getPriest();
+        if (!pr) continue;
+        opts.push({ id, proposer: pr, votes: 0 });
+        used.add(pr);
       } else {
         const knowers = villagers.filter(v => v.learnedSet.has(b.req) && !used.has(v));
         if (!knowers.length) continue;
@@ -2095,7 +2585,7 @@
   }
 
   function startCouncil(needId, options) {
-    const parts = villagers.filter(v => ['citizen', 'townfolk', 'priest'].includes(v.kind) || options.some(o => o.proposer === v));
+    const parts = villagers.filter(v => (['citizen', 'townfolk', 'priest'].includes(v.kind) && v.age >= 18) || options.some(o => o.proposer === v)).slice(0, 44);
     parts.forEach((v, k) => {
       const a = k / parts.length * Math.PI * 2;
       v.councilPos = { x: 0.5 + Math.cos(a) * 2.3, z: -0.4 + Math.sin(a) * 1.8 };
@@ -2179,7 +2669,7 @@
       hammerT: 0,
     };
     // squadra di lavoro: prima chi sa murare o armare il legno
-    const crew = villagers.filter(v => v.kind === 'citizen' && !v.task && v !== opt.proposer)
+    const crew = villagers.filter(v => v.kind === 'citizen' && !v.task && v !== opt.proposer && v.age >= 15 && v.age <= 62)
       .map(v => ({ v, s: (v.learnedSet.has('masonry') ? 2 : 0) + (v.learnedSet.has('carpentry') ? 1.5 : 0) + rng() }))
       .sort((a, c) => c.s - a.s).slice(0, b.faith ? 3 : 5).map(o => o.v);
     crew.forEach((v, k) => { v.task = 'worker'; v.crewIdx = k; });
@@ -2205,7 +2695,7 @@
     showToast(b.name, `proposto da ${p.proposer.name}, ${lc(p.proposer.role)} · ${dataCronaca()}`);
     flyTo(s.x, s.z, 0.7);
     if (b.faith) {
-      chronicle(`Don Girolamo benedisse ${art(p.id)} davanti a tutto il popolo. Si pregò perché il bisogno di ${NEED_NAME[b.need].toLowerCase()} avesse fine.`);
+      chronicle(`${priestName()} benedisse ${art(p.id)} davanti a tutto il popolo. Si pregò perché il bisogno di ${NEED_NAME[b.need].toLowerCase()} avesse fine.`);
       world.faithCheck = { id: p.id, need: b.need, t0: simClock, start: need[b.need], voters: p.voters.map(v => v.name) };
     } else {
       chronicle(`${plur(p.id) ? 'Si inaugurarono' : 'Si inaugurò'} ${art(p.id)}. ${b.effect}${p.id === 'cisterna' && world.turbid ? ' Ma nessuno pensò di mettere la sabbia sotto il selciato.' : ''}`);
@@ -2221,7 +2711,7 @@
     const voters = f.voters.map(byName).filter(Boolean);
     if (need[f.need] <= f.start - 15) {
       for (const v of voters) if (v.kind !== 'priest') v.faith = Math.min(0.98, v.faith + 0.08);
-      chronicle(`Il bisogno di ${NEED_NAME[f.need].toLowerCase()} si placò, e molti dissero che era grazia ottenuta grazie ${alArt(f.id)}. Lorenzo speziale annotò che era cambiato il tempo.`);
+      chronicle(`Il bisogno di ${NEED_NAME[f.need].toLowerCase()} si placò, e molti dissero che era grazia ottenuta grazie ${alArt(f.id)}. ${(speziale() || { name: 'Lo speziale' }).name} annotò che era cambiato il tempo.`);
       pushBrainLog(`Il bisogno è calato: i devoti lo attribuiscono a: <b>${b.short}</b> (fede rafforzata)`, 'faith');
     } else {
       for (const v of voters) {
@@ -2298,13 +2788,15 @@
   }
 
   function drawPerson(v, yaw, stride, armPhase, toolType, t, carry = null) {
+    const k = v.age < 15 ? 0.5 + v.age * 0.033 : 1;          // i bambini sono più piccoli
     if (v === selectedVillager) pushDyn(v.x, v.y + 0.03, v.z, 0.58, 0.04, 0.58, [0.98, 0.78, 0.28], t * 1.6, 2);
-    pushDyn(v.x + stride, v.y + 0.14, v.z - 0.05, 0.08, 0.28, 0.08, v.hose, yaw);
-    pushDyn(v.x - stride, v.y + 0.14, v.z + 0.05, 0.08, 0.28, 0.08, v.hose, yaw);
-    pushDyn(v.x, v.y + 0.43, v.z, 0.21, 0.32, 0.16, v.tunic, yaw);
+    pushDyn(v.x + stride, v.y + 0.14 * k, v.z - 0.05, 0.08 * k, 0.28 * k, 0.08 * k, v.hose, yaw);
+    pushDyn(v.x - stride, v.y + 0.14 * k, v.z + 0.05, 0.08 * k, 0.28 * k, 0.08 * k, v.hose, yaw);
+    pushDyn(v.x, v.y + 0.43 * k, v.z, 0.21 * k, 0.32 * k, 0.16 * k, v.tunic, yaw);
     const bob = Math.abs(Math.sin(armPhase)) * 0.02;
-    pushDyn(v.x, v.y + 0.67 - bob, v.z, 0.15, 0.15, 0.15, [0.80, 0.64, 0.52], yaw);
-    if (v.hat) pushDyn(v.x, v.y + 0.76 - bob, v.z, 0.21, 0.06, 0.21, v.hat, yaw);
+    pushDyn(v.x, v.y + (0.67 - bob) * k, v.z, 0.15 * Math.max(k, 0.8), 0.15 * Math.max(k, 0.8), 0.15 * Math.max(k, 0.8), [0.80, 0.64, 0.52], yaw);
+    if (v.age > 62) pushDyn(v.x, v.y + 0.75, v.z, 0.16, 0.03, 0.16, [0.86, 0.86, 0.84], yaw);   // capelli bianchi
+    if (v.hat) pushDyn(v.x, v.y + (0.76 - bob) * k, v.z, 0.21 * k, 0.06, 0.21 * k, v.hat, yaw);
 
     if (toolType === 'beater') {
       const beatY = 0.45 + Math.sin(t * 7.5 + v.x) * 0.14;
@@ -2350,6 +2842,13 @@
     let hPos = (world.turbid ? 1.2 : 0) + (need.acqua > 70 ? 0.25 : 0) + (w === 3 ? 0.2 : 0);
     hPos *= has('orto') ? 0.5 : 1;
     need.salute += (hPos - 0.3 - (has('orto') ? 0.2 : 0)) * sd;
+    // Stagioni: inverno di fame e freddo, estate assetata, autunno di raccolto
+    need.cibo += (seasonW.inverno * 0.2 - seasonW.autunno * 0.18) * sd;
+    need.salute += seasonW.inverno * 0.14 * sd;
+    need.acqua += seasonW.estate * 0.2 * sd;
+    // più bocche da sfamare, più bisogni
+    const folla = Math.max(0, villagers.length - 29) / 29;
+    need.cibo += folla * 0.08 * sd; need.acqua += folla * 0.05 * sd;
     for (const n of NEEDS) need[n.id] = clamp(need[n.id], 0, 100);
   }
 
@@ -2360,11 +2859,13 @@
   function knowledgeEvents(dt, w, isNight) {
     const day = !isNight && currentHour > 6.5 && currentHour < 19;
     if ((w === 2 || w === 3) && need.acqua > 35 && day && rng() < dt * 0.15) {
-      const v = (!lorenzo.learnedSet.has('rain_collect') && lorenzo.visible && rng() < 0.5) ? lorenzo : randomVisibleCitizen('rain_collect');
+      const lz = speziale();
+      const v = (lz && !lz.learnedSet.has('rain_collect') && lz.visible && rng() < 0.5) ? lz : randomVisibleCitizen('rain_collect');
       if (v) recordMistakeAndLearn(v, 'rain_collect', 'L’acqua piovana scorre via mentre il pozzo è quasi secco', simClock);
     }
-    if (w === 0 && need.acqua > 30 && zuanne.visible && rng() < dt * 0.12) {
-      recordMistakeAndLearn(zuanne, 'vine_drought', 'Viti seccate dalla siccità', simClock);
+    const zn = vignaiolo();
+    if (zn && w === 0 && need.acqua > 30 && zn.visible && rng() < dt * 0.12) {
+      recordMistakeAndLearn(zn, 'vine_drought', 'Viti seccate dalla siccità', simClock);
     }
     if (w === 3 && need.cibo > 40 && day && rng() < dt * 0.08) {
       const v = randomVisibleCitizen('granary');
@@ -2374,8 +2875,9 @@
       const v = randomVisibleCitizen('herbs');
       if (v) recordMistakeAndLearn(v, 'herbs', 'Febbri curate solo con le preghiere', simClock);
     }
-    if (world.turbid && need.salute > 28 && rng() < dt * 0.2) {
-      recordMistakeAndLearn(lorenzo, 'sand_filter', 'Acqua torbida nella cisterna nuova: febbri nel borgo', simClock);
+    const lz2 = speziale() || randomVisibleCitizen('sand_filter');
+    if (lz2 && world.turbid && need.salute > 28 && rng() < dt * 0.2) {
+      recordMistakeAndLearn(lz2, 'sand_filter', 'Acqua torbida nella cisterna nuova: febbri nel borgo', simClock);
     }
   }
 
@@ -2399,17 +2901,49 @@
   // ======================================================================
   //  Salvataggio nel browser
   // ======================================================================
-  const SAVE_KEY = 'hydrogen-terraferma-v2';
+  const SAVE_KEY = 'hydrogen-terraferma-v3';
   let skipSave = false;
+  const PERSON_KEYS = ['id', 'name', 'cognome', 'cognomeNascita', 'sex', 'kind', 'role', 'mestiere', 'place', 'oxIdx', 'speakKey',
+    'phase', 'speed', 'zOff', 'tunic', 'hose', 'hat', 'faceX', 'faceZ', 'homeX', 'homeY', 'homeZ', 'fatherId', 'motherId', 'spouseId',
+    'widowed', 'predecessor', 'forgot', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
+  function packPerson(v, histMax) {
+    const o = {};
+    for (const k of PERSON_KEYS) if (v[k] !== undefined && v[k] !== null) o[k] = v[k];
+    o.age = Math.round(v.age * 1000) / 1000;
+    o.faith = Math.round(v.faith * 1000) / 1000;
+    o.energy = Math.round(v.energy); o.thirst = Math.round(v.thirst);
+    o.pathIdx = WALK_PATHS.indexOf(v.path);
+    o.homeIdx = WALK_PATHS.indexOf(v.homePath);
+    o.hist = histMax ? v.hist.slice(-histMax) : v.hist;
+    return o;
+  }
+  function unpackPerson(o) {
+    const v = Object.assign({}, o);
+    v.path = WALK_PATHS[o.pathIdx] || null;
+    v.homePath = WALK_PATHS[o.homeIdx] || WALK_PATHS[0];
+    if (!v.path && (v.kind === 'citizen' || v.kind === 'child')) v.path = v.homePath;
+    v.speak = SPEAK[v.speakKey] || SPEAK.citizen;
+    v.lessons = []; v.learnedSet = new Set();
+    for (const l of o.lessons || []) if (LESSONS[l.id]) { v.lessons.push({ id: l.id, title: LESSONS[l.id], source: l.source }); v.learnedSet.add(l.id); }
+    v.children = o.children || []; v.hist = o.hist || [];
+    v.fatherId = o.fatherId ?? null; v.motherId = o.motherId ?? null; v.spouseId = o.spouseId ?? null;
+    v.hat = o.hat || null;
+    v.lastErrorTick = -999; v.lastThought = 'Riprendo la giornata.'; v.task = null;
+    v.x = v.homeX ?? 0; v.y = v.homeY ?? 0; v.z = v.homeZ ?? 0;
+    if (v.path) { v.y = v.path.y; v.z = v.path.z; }
+    return v;
+  }
   function saveState() {
     if (skipSave) return;
     try {
       const p = world.project;
       const data = {
-        v: 2, simClock, need,
+        v: 3, simClock, need, nextId, snowCover,
         built: world.built, turbid: world.turbid, faithTried: world.faithTried, chron: world.chron, firstKnown,
-        project: p ? { id: p.id, progress: p.progress, proposer: p.proposer.name, withFilter: p.withFilter } : null,
-        villagers: villagers.map(v => ({ name: v.name, lessons: v.lessons, faith: v.faith, mistakes: v.mistakes, curfewBuffer: v.curfewBuffer, rainCaution: v.rainCaution, restRatio: v.restRatio })),
+        births: world.births, deaths: world.deaths, hist: world.hist,
+        project: p ? { id: p.id, progress: p.progress, proposer: p.proposer.id, withFilter: p.withFilter } : null,
+        living: villagers.map(v => packPerson(v)),
+        dead: world.dead.slice(-160).map(v => packPerson(v, 40)),
       };
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch (e) { /* salvataggio non disponibile */ }
@@ -2418,13 +2952,23 @@
     if (/[?&]nuovo\b/.test(location.search)) return false;   // index.html?nuovo = parti da un borgo nuovo
     let data = null;
     try { data = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { data = null; }
-    if (!data || data.v !== 2) return false;
+    if (!data || data.v !== 3) return false;
     try {
+      const living = (data.living || []).map(o => Object.assign(unpackPerson(o), { alive: true }));
+      const dead = (data.dead || []).map(o => Object.assign(unpackPerson(o), { alive: false }));
+      if (!living.length) return false;
+      people.clear(); villagers.length = 0; world.dead.length = 0;
+      for (const v of dead) { people.set(v.id, v); world.dead.push(v); }
+      for (const v of living) { people.set(v.id, v); villagers.push(v); }
+      nextId = data.nextId || (Math.max(...people.keys()) + 1);
       simClock = data.simClock || simClock;
+      snowCover = data.snowCover || 0;
       Object.assign(need, data.need || {});
       world.turbid = !!data.turbid;
       world.faithTried = data.faithTried || {};
       world.chron = data.chron || [];
+      world.births = data.births || 0; world.deaths = data.deaths || 0;
+      world.hist = data.hist || [];
       Object.assign(firstKnown, data.firstKnown || {});
       for (const id of Object.keys(data.built || {})) {
         if (!BUILDINGS[id]) continue;
@@ -2432,22 +2976,17 @@
         if (world.built[id].faith) world.faithTried[BUILDINGS[id].need] = true;
         BUILDINGS[id].build((px, py, pz, sx, sy, sz, col, rotY = 0, t = 0, sl = 21, wk = 5.5) => builtVoxels.push(px, py, pz, sx, sy, sz, col[0], col[1], col[2], rotY, t, sl, wk), BUILDINGS[id].site);
       }
-      for (const sv of data.villagers || []) {
-        const v = byName(sv.name);
-        if (!v) continue;
-        v.lessons = []; v.learnedSet = new Set();
-        for (const l of sv.lessons || []) if (LESSONS[l.id]) { v.lessons.push({ id: l.id, title: LESSONS[l.id], source: l.source }); v.learnedSet.add(l.id); }
-        v.faith = sv.faith; v.mistakes = sv.mistakes || 0;
-        v.curfewBuffer = sv.curfewBuffer || 0; v.rainCaution = sv.rainCaution || 0.72; v.restRatio = sv.restRatio || 0.25;
-      }
+      updateTotalWisdom();
       if (data.project && BUILDINGS[data.project.id] && !world.built[data.project.id]) {
-        const prop = byName(data.project.proposer) || priest;
-        startProject({ id: data.project.id, proposer: prop, votes: 0 }, null);
+        const prop = people.get(data.project.proposer);
+        const proposer = prop && prop.alive ? prop : (getPriest() || villagers[0]);
+        startProject({ id: data.project.id, proposer, votes: 0 }, null);
         world.project.progress = data.project.progress || 0;
         world.project.withFilter = data.project.withFilter !== false;
       }
       return true;
     } catch (e) {
+      console.error('Salvataggio non leggibile:', e);
       return false;
     }
   }
@@ -2473,7 +3012,10 @@
     dayCount = 1 + Math.floor((5.0 + simClock / 4.0) / 24.0);
     currentHour = timeMode === 'auto' ? (5.0 + simClock / 4.0) % 24.0 : timeMode;
 
-    currentWeatherIdx = (weatherMode === 'auto') ? Math.floor(((simClock + 12.0) / 22.0) % 4) : weatherMode;
+    updateSeason();
+    currentWeatherIdx = (weatherMode === 'auto') ? seasonalWeather(Math.floor((simClock + 12.0) / 22.0)) : weatherMode;
+    snowing = seasonW.inverno > 0.5 && (currentWeatherIdx === 2 || currentWeatherIdx === 3);
+    snowCover = clamp(snowCover + (snowing ? 0.035 : -(seasonW.inverno > 0.5 ? 0.004 : 0.03)) * scaledDt, 0, 1);
     const targetW = WEATHER_STATES[currentWeatherIdx];
     const blend = Math.min(1.0, dt * 1.8);
     smoothWeather.sun = lerp(smoothWeather.sun, targetW.sun, blend);
@@ -2524,8 +3066,8 @@
     else if (currentHour >= 7.0 && currentHour < 12.5) phaseName = 'Mattino';
     else if (currentHour >= 12.5 && currentHour < 18.0) phaseName = 'Pomeriggio';
     else if (currentHour >= 18.0 && currentHour < 20.5) phaseName = 'Sera (Cena)';
-    const d = new Date(1532, 4, dayCount);
-    clockLabel.textContent = `${d.getDate()} ${MESI[d.getMonth()]} 1532 · ${hh}:${mm} · ${phaseName} · ${WEATHER_STATES[currentWeatherIdx].name}`;
+    const d = calDate(dayCount);
+    clockLabel.textContent = `${d.getDate()} ${MESI[d.getMonth()]} ${d.getFullYear()} · ${seasonName} · ${hh}:${mm} · ${phaseName} · ${weatherName()}`;
 
     dynPtr = 0;
     const isNight = (currentHour >= 19.2 || currentHour < 4.75);
@@ -2533,6 +3075,8 @@
 
     // --- Bisogni, scoperte, vicinia ---
     updateNeeds(scaledDt, currentWeatherIdx, isNight);
+    updateDemography(scaledDt);
+    sampleHistory();
     knowledgeEvents(scaledDt, currentWeatherIdx, isNight);
     if (councilTimer > 1.0) { councilTimer = 0; councilCheck(); }
     if (world.council) updateCouncil(scaledDt);
@@ -2559,9 +3103,10 @@
     // 3. Buoi con l'aratro: ognuno col suo bifolco e il suo orario appreso
     for (let i = 0; i < oxTeams.length; i++) {
       const ot = oxTeams[i];
-      const driver = villagers[i];
+      const driver = villagers.find(v => v.kind === 'ox_driver' && v.oxIdx === i);
+      if (!driver) { ot.active = false; continue; }
       const stopH = 19.3 - driver.curfewBuffer;
-      ot.active = currentHour >= 4.75 && currentHour <= stopH && smoothWeather.rain < 0.78;
+      ot.active = currentHour >= 4.75 && currentHour <= stopH && smoothWeather.rain < 0.78 && seasonW.inverno < 0.55 && snowCover < 0.2;
       driver.lockedOut = ot.active && currentHour >= 19.0;
       if (driver.lockedOut && ot.lockDay !== dayCount && timeMode === 'auto') {
         ot.lockDay = dayCount;
@@ -2733,7 +3278,7 @@
         const moving = Math.hypot(v.x - ox, v.z - oz) > 0.002;
         yaw = Math.atan2(-(-0.4 - v.z), 0.5 - v.x);
         stride = moving ? Math.sin(simClock * 8.2 + i) * 0.07 : 0;
-        if (v.kind === 'priest') toolType = 'staff';
+        if (v.kind === 'priest' || v.age > 65) toolType = 'staff';
         drawPerson(v, yaw, stride, armPhase, toolType, simClock, null);
         if (v.vote) pushDyn(v.x, v.y + 1.0 + Math.sin(simClock * 3 + i) * 0.04, v.z, 0.13, 0.13, 0.13, v.vote.col, simClock, 7);
         const mine = council.t >= 3 && council.options.find(o => o.proposer === v);
@@ -2800,6 +3345,19 @@
         if (isNight || smoothWeather.rain > 0.75) { v.visible = false; continue; }
         goHome(v);
         yaw = Math.atan2(-(v.faceZ - v.z), v.faceX - v.x);
+      } else if (v.kind === 'child') {
+        // I bambini giocano in strada di giorno; d'inverno escono a giocare con la neve
+        if (v.age < 3 || isNight || currentHour < 7.2 || currentHour > 18.6 || smoothWeather.rain > 0.3) { v.visible = false; continue; }
+        let u = (v.phase + simClock * v.speed * 1.7) % 1.0;
+        if (u < 0) u += 1.0;
+        const movingRight = u < 0.5;
+        const tri = movingRight ? (u * 2.0) : (2.0 - u * 2.0);
+        const mid = (v.path.x0 + v.path.x1) / 2, span = (v.path.x1 - v.path.x0) * 0.45;
+        v.x = mid + (tri - 0.5) * span;
+        v.y = v.path.y;
+        v.z = v.path.z + v.zOff + Math.sin(simClock * 3 + v.phase * 9) * 0.15;
+        yaw = movingRight ? 0.0 : Math.PI;
+        stride = Math.sin(simClock * 11 + v.phase * 10.0) * 0.05;
       } else {
         // Di notte si è già in casa: prima si guarda l'ora, poi il cielo
         if (isNight || currentHour < 6.2) { v.visible = false; continue; }
@@ -2825,7 +3383,8 @@
           v.y = v.path.y;
           v.z = v.path.z + v.zOff;
           yaw = movingRight ? 0.0 : Math.PI;
-          stride = Math.sin(simClock * 8.2 + v.phase * 10.0) * 0.07;
+          stride = Math.sin(simClock * 8.2 + v.phase * 10.0) * 0.07 * (v.age > 65 ? 0.5 : 1);
+          if (v.age > 65) toolType = 'staff';
         }
       }
       drawPerson(v, yaw, stride, armPhase, toolType, simClock, carry);
@@ -2872,6 +3431,7 @@
       updateCitizenCard();
       updateNeedsPanel();
       renderCouncil();
+      obsTick(0.35);
     }
     if (saveTimer > 8) { saveTimer = 0; saveState(); }
 
@@ -2879,8 +3439,13 @@
     const activeDrops = Math.floor(RAIN_COUNT * smoothWeather.rain);
     for (let i = 0; i < activeDrops; i++) {
       const dr = rainDrops[i];
-      const ry = 18.0 - ((simClock * dr.speed + dr.phase) % 17.5);
-      pushDyn(dr.x, ry, dr.z, 0.026, 0.40, 0.026, [0.65, 0.74, 0.84], 0.08, 4);
+      if (snowing) {
+        const ry = 18.0 - ((simClock * dr.speed * 0.16 + dr.phase) % 17.5);
+        pushDyn(dr.x + Math.sin(simClock * 1.3 + dr.phase) * 0.4, ry, dr.z, 0.07, 0.07, 0.07, [0.95, 0.96, 1.0], dr.phase, 0);
+      } else {
+        const ry = 18.0 - ((simClock * dr.speed + dr.phase) % 17.5);
+        pushDyn(dr.x, ry, dr.z, 0.026, 0.40, 0.026, [0.65, 0.74, 0.84], 0.08, 4);
+      }
     }
     endLabels();
 
@@ -2929,6 +3494,10 @@
     gl.uniform1f(U.uShadowOn, shadowsOn ? 1.0 : 0.0);
     gl.uniform1f(U.uMoon, moon);
     gl.uniform1f(U.uMist, mist);
+    gl.uniform1f(U.uSnow, snowCover);
+    gl.uniform1f(U.uDry, seasonW.estate * (currentWeatherIdx === 0 ? 1 : 0.6));
+    gl.uniform1f(U.uAutumn, seasonW.autunno);
+    gl.uniform1f(U.uWinterTint, seasonW.inverno);
     gl.uniform3fv(U.uSunColor, sunCol);
     gl.uniform3fv(U.uSkyTop, effSkyTop);
     gl.uniform3fv(U.uSkyHorizon, effSkyHor);
@@ -2978,13 +3547,506 @@
   }
 
   // ======================================================================
+  //  Osservatorio del Borgo: grafici del borgo, scheda di ogni persona, sapere
+  // ======================================================================
+  const obsEl = document.getElementById('obs');
+  const secBorgo = document.getElementById('obs-borgo');
+  const secPersone = document.getElementById('obs-persone');
+  const secSapere = document.getElementById('obs-sapere');
+  // palette categoriale scura validata (ordine fisso, mai ciclato)
+  const OBS_COLS = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#0ca30c', '#9085e9', '#e66767'];
+  const MESI_B = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
+  let obsOpen = false, obsTab = 'borgo', obsPerson = null, obsShowDead = false, obsQuery = '', obsT = 0;
+  const obsSort = { key: 'age', dir: -1 };
+  const built = { borgo: false, persone: false, sapere: false };
+
+  const fmtDay = (d) => { const t = calDate(d); return `${MESI_B[t.getMonth()]} ${t.getFullYear()}`; };
+  const fmtNum = (v) => Math.abs(v) >= 100 ? String(Math.round(v)) : Math.abs(v) >= 10 ? String(Math.round(v * 10) / 10) : String(Math.round(v * 100) / 100);
+  const fmtPct = (v) => `${Math.round(v)}%`;
+  const fmtInt = (v) => String(Math.round(v));
+  const pname = (v) => v ? `${v.name} ${v.cognome}` : '—';
+  function niceMax(v) {
+    if (!(v > 0)) return 1;
+    const p = Math.pow(10, Math.floor(Math.log10(v)));
+    const n = v / p;
+    return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+  }
+  function setupCanvas(cv) {
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = Math.max(10, cv.clientWidth), H = Math.max(10, cv.clientHeight);
+    if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const ctx = cv.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    return { ctx, W, H };
+  }
+  function cardHtml(id, title, sub = '', size = '') {
+    return `<div class="vcard" id="${id}"><h4>${title}</h4>${sub ? `<div class="sub">${sub}</div>` : ''}<div class="lg"></div>
+      <div class="plot ${size}"><canvas></canvas><div class="tip"></div></div></div>`;
+  }
+  function hookHover(card, redraw) {
+    const cv = card.querySelector('canvas');
+    if (cv._hooked) return;
+    cv._hooked = true;
+    cv.addEventListener('mousemove', (e) => { card._hx = e.offsetX; card._hy = e.offsetY; redraw(); });
+    cv.addEventListener('mouseleave', () => { card._hx = null; card._hy = null; card.querySelector('.tip').style.display = 'none'; redraw(); });
+  }
+  function setLegend(card, items) {
+    const lg = card.querySelector('.lg');
+    const h = items.length > 1 ? items.map(s => `<span><i style="background:${s.col}"></i>${s.name}</span>`).join('') : '';
+    if (lg._h !== h) { lg.innerHTML = h; lg._h = h; }
+  }
+  function placeTip(card, x, W, html) {
+    const tip = card.querySelector('.tip');
+    tip.innerHTML = html;
+    tip.style.display = 'block';
+    const tw = tip.offsetWidth || 160;
+    tip.style.left = (x + 14 + tw > W ? Math.max(0, x - tw - 14) : x + 14) + 'px';
+  }
+
+  // Grafico a linee: una sola scala verticale, linee da 2 px, mirino e riquadro al passaggio del mouse
+  function lineChart(card, cfg) {
+    if (!card) return;
+    card._cfg = cfg;
+    hookHover(card, () => lineChart(card, card._cfg));
+    const { ctx, W, H } = setupCanvas(card.querySelector('canvas'));
+    setLegend(card, cfg.series);
+    const L = 40, Rm = 12, T = 8, B = 20, pw = W - L - Rm, ph = H - T - B;
+    const all = cfg.series.flatMap(s => s.pts);
+    ctx.font = '11px Georgia';
+    if (all.length < 2) {
+      ctx.fillStyle = '#8f8d86'; ctx.textBaseline = 'middle';
+      ctx.fillText(cfg.empty || 'Servono almeno due giorni di dati…', L, T + ph / 2);
+      return;
+    }
+    let xMin = Infinity, xMax = -Infinity, yHi = -Infinity;
+    for (const p of all) { xMin = Math.min(xMin, p[0]); xMax = Math.max(xMax, p[0]); yHi = Math.max(yHi, p[1]); }
+    if (xMax === xMin) xMax = xMin + 1;
+    const yMin = cfg.yMin ?? 0;
+    const yMax = cfg.yMax ?? niceMax(Math.max(yHi, 0.0001) * 1.05);
+    const X = (x) => L + (x - xMin) / (xMax - xMin) * pw;
+    const Y = (y) => T + ph - (y - yMin) / (yMax - yMin) * ph;
+    const yF = cfg.yFmt || fmtNum, xF = cfg.xFmt || fmtDay;
+    ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+      const yv = yMin + (yMax - yMin) * i / 4, y = Math.round(Y(yv)) + 0.5;
+      ctx.strokeStyle = i === 0 ? 'rgba(240,239,236,0.22)' : 'rgba(240,239,236,0.07)';
+      ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + pw, y); ctx.stroke();
+      ctx.fillStyle = '#a9a79f'; ctx.fillText(yF(yv), L - 6, y);
+    }
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const ticks = Math.min(5, Math.max(2, Math.floor(pw / 105)));
+    for (let i = 0; i <= ticks; i++) {
+      const xv = xMin + (xMax - xMin) * i / ticks;
+      ctx.fillStyle = '#a9a79f';
+      ctx.textAlign = i === 0 ? 'left' : i === ticks ? 'right' : 'center';
+      ctx.fillText(xF(Math.round(xv)), X(xv), T + ph + 5);
+    }
+    for (const s of cfg.series) {
+      if (!s.pts.length) continue;
+      ctx.strokeStyle = s.col; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.beginPath();
+      s.pts.forEach((p, i) => (i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1]))));
+      ctx.stroke();
+    }
+    if (card._hx != null && card._hx >= L - 4 && card._hx <= L + pw + 4) {
+      const hx = clamp(card._hx, L, L + pw);
+      const xv = xMin + (hx - L) / pw * (xMax - xMin);
+      let rows = '', xl = null, sx = hx;
+      for (const s of cfg.series) {
+        if (!s.pts.length) continue;
+        let best = s.pts[0];
+        for (const p of s.pts) if (Math.abs(p[0] - xv) < Math.abs(best[0] - xv)) best = p;
+        xl = best[0]; sx = X(best[0]);
+        rows += `<div><i style="background:${s.col}"></i>${s.name}: <b>${yF(best[1])}</b></div>`;
+      }
+      ctx.strokeStyle = 'rgba(240,239,236,0.35)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(Math.round(sx) + 0.5, T); ctx.lineTo(Math.round(sx) + 0.5, T + ph); ctx.stroke();
+      for (const s of cfg.series) {
+        if (!s.pts.length) continue;
+        let best = s.pts[0];
+        for (const p of s.pts) if (Math.abs(p[0] - xv) < Math.abs(best[0] - xv)) best = p;
+        ctx.fillStyle = s.col; ctx.strokeStyle = '#1a1a19'; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(X(best[0]), Y(best[1]), 4.5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
+      placeTip(card, sx, W, `<div class="tt">${(cfg.xTip || dataCronaca)(xl)}</div>${rows}`);
+    } else {
+      // segno sull'ultimo valore
+      for (const s of cfg.series) {
+        if (!s.pts.length) continue;
+        const lp = s.pts[s.pts.length - 1];
+        ctx.fillStyle = s.col; ctx.beginPath(); ctx.arc(X(lp[0]), Y(lp[1]), 3.5, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  // Istogramma verticale (una sola serie), con riquadro al passaggio del mouse
+  function barChart(card, cfg) {
+    if (!card) return;
+    card._cfg = cfg;
+    hookHover(card, () => barChart(card, card._cfg));
+    const { ctx, W, H } = setupCanvas(card.querySelector('canvas'));
+    setLegend(card, []);
+    const L = 34, Rm = 8, T = 8, B = 20, pw = W - L - Rm, ph = H - T - B;
+    const n = cfg.bins.length;
+    if (!n) return;
+    const yMax = niceMax(Math.max(...cfg.bins.map(b => b.v), 0.0001) * 1.05);
+    const bw = pw / n, gap = Math.max(2, bw * 0.18);
+    ctx.font = '11px Georgia'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (let i = 0; i <= 4; i++) {
+      const yv = yMax * i / 4, y = Math.round(T + ph - yv / yMax * ph) + 0.5;
+      ctx.strokeStyle = i === 0 ? 'rgba(240,239,236,0.22)' : 'rgba(240,239,236,0.07)';
+      ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(L + pw, y); ctx.stroke();
+      ctx.fillStyle = '#a9a79f'; ctx.fillText((cfg.yFmt || fmtNum)(yv), L - 6, y);
+    }
+    const hi = card._hx != null ? Math.floor((card._hx - L) / bw) : -1;
+    cfg.bins.forEach((b, i) => {
+      const h = b.v / yMax * ph, x = L + i * bw + gap / 2, w = bw - gap;
+      ctx.fillStyle = cfg.col;
+      ctx.globalAlpha = hi >= 0 && hi !== i ? 0.55 : 1;
+      if (h > 0.5) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, T + ph - h, w, h, [Math.min(4, w / 2), Math.min(4, w / 2), 0, 0]) : ctx.rect(x, T + ph - h, w, h); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      if (i % Math.max(1, Math.ceil(n / 8)) === 0) { ctx.fillStyle = '#a9a79f'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(b.label, x + w / 2, T + ph + 5); }
+    });
+    if (cfg.mark != null) {
+      const mx = L + cfg.mark * bw;
+      ctx.strokeStyle = '#f0efec'; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(mx, T); ctx.lineTo(mx, T + ph); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = '#f0efec'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(cfg.markLabel || '', mx + 4, T + 2);
+    }
+    if (hi >= 0 && hi < n) placeTip(card, L + hi * bw + bw / 2, W, `<div class="tt">${cfg.bins[hi].label}</div><div>${cfg.bins[hi].tip}</div>`);
+  }
+
+  // Piramide delle età: uomini a sinistra, donne a destra
+  function pyramid(card) {
+    if (!card) return;
+    hookHover(card, () => pyramid(card));
+    const { ctx, W, H } = setupCanvas(card.querySelector('canvas'));
+    const ser = [{ name: 'Uomini', col: OBS_COLS[0] }, { name: 'Donne', col: OBS_COLS[1] }];
+    setLegend(card, ser);
+    const bins = [];
+    for (let a = 0; a < 80; a += 10) bins.push({ label: `${a}–${a + 9}`, m: 0, f: 0 });
+    bins.push({ label: '80+', m: 0, f: 0 });
+    for (const v of villagers) { const b = bins[Math.min(8, Math.floor(v.age / 10))]; if (v.sex === 'F') b.f++; else b.m++; }
+    const mx = niceMax(Math.max(1, ...bins.map(b => Math.max(b.m, b.f))));
+    const CL = 46, T = 4, B = 16, mid = W / 2, half = (W - CL) / 2 - 6, ph = H - T - B, rh = ph / bins.length;
+    const hi = card._hy != null ? bins.length - 1 - Math.floor((card._hy - T) / rh) : -1;
+    ctx.font = '11px Georgia';
+    bins.forEach((b, i) => {
+      const y = T + (bins.length - 1 - i) * rh, bh = Math.max(3, rh * 0.66), yy = y + (rh - bh) / 2;
+      ctx.globalAlpha = hi >= 0 && hi !== i ? 0.55 : 1;
+      const wm = b.m / mx * half, wf = b.f / mx * half;
+      ctx.fillStyle = ser[0].col;
+      if (wm > 0.5) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(mid - CL / 2 - wm, yy, wm, bh, [4, 0, 0, 4]) : ctx.rect(mid - CL / 2 - wm, yy, wm, bh); ctx.fill(); }
+      ctx.fillStyle = ser[1].col;
+      if (wf > 0.5) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(mid + CL / 2, yy, wf, bh, [0, 4, 4, 0]) : ctx.rect(mid + CL / 2, yy, wf, bh); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#c3c2b7'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(b.label, mid, y + rh / 2);
+    });
+    ctx.fillStyle = '#a9a79f'; ctx.textBaseline = 'top';
+    ctx.textAlign = 'left'; ctx.fillText(String(mx), 2, T + ph + 3);
+    ctx.textAlign = 'right'; ctx.fillText(String(mx), W - 2, T + ph + 3);
+    if (hi >= 0 && hi < bins.length) {
+      const b = bins[hi];
+      placeTip(card, mid, W, `<div class="tt">Età ${b.label}</div><div><i style="background:${ser[0].col}"></i>Uomini: <b>${b.m}</b></div><div><i style="background:${ser[1].col}"></i>Donne: <b>${b.f}</b></div>`);
+    }
+  }
+
+  // ---------------- Pagina «Borgo» ----------------
+  const TILES = [
+    { k: 'pop', label: 'abitanti' }, { k: 'kids', label: 'bambini' }, { k: 'eta', label: 'età media' },
+    { k: 'nati', label: 'nati dall’inizio' }, { k: 'morti', label: 'morti dall’inizio' }, { k: 'coppie', label: 'coppie sposate' },
+    { k: 'opere', label: 'opere costruite' }, { k: 'noti', label: 'regole conosciute' },
+  ];
+  function buildBorgo() {
+    secBorgo.innerHTML = `<p class="intro">Un campione per ogni giorno simulato (ogni giorno sono 15 giorni di calendario). Passa il mouse sui grafici per leggere i valori.</p>
+      <div class="tiles">${TILES.map(t => `<div class="tile"><b data-k="${t.k}">–</b><span>${t.label}</span></div>`).join('')}</div>
+      <div class="vgrid">
+        ${cardHtml('ob-pop', 'Popolazione', 'abitanti vivi, e quanti di loro sono bambini')}
+        ${cardHtml('ob-pyr', 'Piramide delle età', 'oggi, per decenni di età', 'tall')}
+        ${cardHtml('ob-vita', 'Nascite e morti', 'totale dall’inizio della cronaca')}
+        ${cardHtml('ob-eta', 'Età media', 'di tutti gli abitanti vivi')}
+        ${cardHtml('ob-fede', 'Fede media degli adulti', '0% = tutto pratica · 100% = tutto devozione')}
+        ${cardHtml('ob-lez', 'Regole apprese per persona', 'quante regole conosce in media ogni abitante')}
+        ${cardHtml('ob-noti', 'Regole conosciute nel borgo', `quante delle ${KNOW_IDS.length} regole sono note ad almeno una persona viva`)}
+        ${cardHtml('ob-bis', 'Bisogni del borgo', 'pressione 0–100 · oltre 55 si riunisce la vicinia', 'tall')}
+        ${cardHtml('ob-opere', 'Opere pratiche costruite', 'cisterne, rogge, granai, portici…')}
+      </div>`;
+    built.borgo = true;
+  }
+  function renderBorgo() {
+    if (!built.borgo) buildBorgo();
+    const H = world.hist;
+    const tv = {
+      pop: villagers.length, kids: villagers.filter(v => v.kind === 'child').length,
+      eta: (villagers.reduce((a, v) => a + v.age, 0) / Math.max(1, villagers.length)).toFixed(1),
+      nati: world.births, morti: world.deaths, coppie: villagers.filter(v => v.sex === 'F' && v.spouseId).length,
+      opere: Object.keys(world.built).filter(id => !BUILDINGS[id].faith).length,
+      noti: `${KNOW_IDS.filter(id => villagers.some(v => v.learnedSet.has(id))).length}/${KNOW_IDS.length}`,
+    };
+    secBorgo.querySelectorAll('[data-k]').forEach(el => { el.textContent = tv[el.dataset.k]; });
+    const ser = (key) => H.map(h => [h.d, h[key]]);
+    const $ = (id) => document.getElementById(id);
+    lineChart($('ob-pop'), { series: [{ name: 'Abitanti', col: OBS_COLS[0], pts: ser('pop') }, { name: 'Bambini', col: OBS_COLS[1], pts: ser('kids') }], yFmt: fmtInt });
+    pyramid($('ob-pyr'));
+    lineChart($('ob-vita'), { series: [{ name: 'Nati', col: OBS_COLS[0], pts: ser('nati') }, { name: 'Morti', col: OBS_COLS[1], pts: ser('morti') }], yFmt: fmtInt });
+    lineChart($('ob-eta'), { series: [{ name: 'Età media', col: OBS_COLS[0], pts: ser('eta') }], yFmt: (v) => `${fmtNum(v)} a` });
+    lineChart($('ob-fede'), { series: [{ name: 'Fede media', col: OBS_COLS[0], pts: ser('fede') }], yMax: 100, yFmt: fmtPct });
+    lineChart($('ob-lez'), { series: [{ name: 'Regole per persona', col: OBS_COLS[0], pts: ser('lez') }] });
+    lineChart($('ob-noti'), { series: [{ name: 'Regole conosciute', col: OBS_COLS[0], pts: ser('noti') }], yMax: KNOW_IDS.length, yFmt: fmtInt });
+    lineChart($('ob-bis'), { series: NEEDS.map((n, i) => ({ name: n.name, col: OBS_COLS[i], pts: ser(n.id) })), yMax: 100, yFmt: fmtInt });
+    lineChart($('ob-opere'), { series: [{ name: 'Opere', col: OBS_COLS[0], pts: ser('opere') }], yFmt: fmtInt });
+  }
+
+  // ---------------- Pagina «Persone» ----------------
+  const COLS = [
+    { k: 'name', t: 'Nome' }, { k: 'age', t: 'Età', num: 1 }, { k: 'role', t: 'Mestiere' }, { k: 'faith', t: 'Fede', num: 1 },
+    { k: 'lez', t: 'Regole', num: 1 }, { k: 'mistakes', t: 'Errori', num: 1 }, { k: 'figli', t: 'Figli', num: 1 }, { k: 'stato', t: 'Stato' },
+  ];
+  const gEnd = (v, m, f) => (v.sex === 'F' ? f : m);
+  function statoOf(v) {
+    if (!v.alive) return gEnd(v, 'morto', 'morta');
+    if (v.kind === 'child') return gEnd(v, 'bambino', 'bambina');
+    if (v.spouseId) return gEnd(v, 'sposato', 'sposata');
+    if (v.widowed) return gEnd(v, 'vedovo', 'vedova');
+    return v.kind === 'priest' ? 'sacerdote' : gEnd(v, 'celibe', 'nubile');
+  }
+  function colVal(v, k) {
+    if (k === 'name') return `${v.name} ${v.cognome}`;
+    if (k === 'lez') return v.lessons.length;
+    if (k === 'figli') return v.children.length;
+    if (k === 'stato') return statoOf(v);
+    return v[k];
+  }
+  function buildPersone() {
+    secPersone.innerHTML = `<div class="ppl"><div class="ppl-left">
+        <div class="tools"><input type="text" id="obs-q" placeholder="Cerca nome, cognome, mestiere…">
+          <label><input type="checkbox" id="obs-dead"> mostra anche i defunti</label><span id="obs-count"></span></div>
+        <div class="tbl-wrap"><table class="ptab"><thead><tr>${COLS.map(c => `<th data-sort="${c.k}" class="${c.num ? 'num' : ''}">${c.t}</th>`).join('')}</tr></thead><tbody></tbody></table></div>
+      </div><div class="det" id="obs-det"></div></div>`;
+    const q = document.getElementById('obs-q');
+    q.value = obsQuery;
+    q.addEventListener('input', () => { obsQuery = q.value.trim().toLowerCase(); renderTable(); });
+    const cb = document.getElementById('obs-dead');
+    cb.checked = obsShowDead;
+    cb.addEventListener('change', () => { obsShowDead = cb.checked; renderTable(); });
+    secPersone.querySelector('thead').addEventListener('click', (e) => {
+      const th = e.target.closest('th'); if (!th) return;
+      const k = th.dataset.sort;
+      if (obsSort.key === k) obsSort.dir *= -1; else { obsSort.key = k; obsSort.dir = (k === 'name' || k === 'role' || k === 'stato') ? 1 : -1; }
+      renderTable();
+    });
+    secPersone.querySelector('tbody').addEventListener('click', (e) => {
+      const tr = e.target.closest('tr'); if (!tr) return;
+      obsPerson = Number(tr.dataset.pid); renderTable(); renderPersonDetail(true);
+    });
+    document.getElementById('obs-det').addEventListener('click', (e) => {
+      const a = e.target.closest('[data-pid]');
+      if (a) { obsPerson = Number(a.dataset.pid); renderTable(); renderPersonDetail(true); return; }
+      const b = e.target.closest('[data-act]');
+      if (b && b.dataset.act === 'show') {
+        const v = people.get(obsPerson);
+        if (v && v.alive) { closeObs(); selectedVillager = v; selectedBuilding = null; updateCitizenCard(); flyTo(v.x, v.z, 0.6); }
+      }
+    });
+    built.persone = true;
+  }
+  function renderTable() {
+    const list = (obsShowDead ? villagers.concat(world.dead.slice().reverse()) : villagers)
+      .filter(v => !obsQuery || `${v.name} ${v.cognome} ${v.role}`.toLowerCase().includes(obsQuery));
+    const k = obsSort.key, d = obsSort.dir;
+    list.sort((a, b) => { const x = colVal(a, k), y = colVal(b, k); return (typeof x === 'string' ? x.localeCompare(y) : x - y) * d; });
+    if (obsPerson == null && list.length) obsPerson = list[0].id;
+    secPersone.querySelectorAll('th').forEach(th => {
+      th.classList.toggle('on', th.dataset.sort === k);
+      th.textContent = COLS.find(c => c.k === th.dataset.sort).t + (th.dataset.sort === k ? (d > 0 ? ' ▲' : ' ▼') : '');
+    });
+    const tb = secPersone.querySelector('tbody');
+    tb.innerHTML = list.map(v => `<tr data-pid="${v.id}" class="${v.id === obsPerson ? 'sel' : ''} ${v.alive ? '' : 'dead'}">
+      <td>${v.alive ? '' : '✝ '}${v.name} ${v.cognome}</td><td class="num">${Math.floor(v.age)}</td><td>${v.role}</td>
+      <td class="num">${Math.round(v.faith * 100)}%</td><td class="num">${v.lessons.length}</td><td class="num">${v.mistakes}</td>
+      <td class="num">${v.children.length}</td><td>${statoOf(v)}</td></tr>`).join('');
+    document.getElementById('obs-count').textContent = `${list.length} ${list.length === 1 ? 'persona' : 'persone'}`;
+  }
+
+  // 1000 vite possibili: si ripete il futuro di una persona con il rischio di morte di oggi
+  const simCache = new Map();
+  function simulateLife(v) {
+    const hm = hazardMul();
+    const key = `${v.id}|${Math.floor(v.age * 2)}|${Math.round(hm * 10)}`;
+    if (simCache.has(key)) return simCache.get(key);
+    const r = createRng(v.id * 7919 + Math.floor(v.age * 10));
+    const runs = 1000, ages = [];
+    const a0 = Math.floor(v.age);
+    const aliveAt = new Array(121).fill(0);
+    for (let k = 0; k < runs; k++) {
+      let a = v.age;
+      while (a < 110 && r() >= Math.min(1, mortality(a) * hm)) a += 1;
+      ages.push(a);
+      for (let y = a0; y <= Math.min(120, Math.floor(a)); y++) aliveAt[y]++;
+    }
+    ages.sort((x, y) => x - y);
+    const mean = ages.reduce((s, x) => s + x, 0) / runs, median = ages[runs >> 1];
+    const surv = [];
+    for (let y = a0; y <= 110 && (aliveAt[y] > 0 || y === a0); y++) surv.push([y, aliveAt[y] / runs * 100]);
+    const b0 = Math.floor(a0 / 5) * 5, bins = [];
+    for (let s = b0; s < Math.max(b0 + 10, Math.ceil(ages[runs - 1] / 5) * 5 + 1); s += 5) {
+      const c = ages.filter(x => x >= s && x < s + 5).length;
+      bins.push({ label: `${s}`, v: c / runs * 100, tip: `Muore tra ${s} e ${s + 4} anni in <b>${Math.round(c / runs * 100)}%</b> delle vite` });
+    }
+    const res = { mean, median, surv, bins, b0, p1: Math.min(1, mortality(v.age) * hm) };
+    if (simCache.size > 300) simCache.clear();
+    simCache.set(key, res);
+    return res;
+  }
+  function personHtmlLink(id) {
+    const p = people.get(id);
+    return p ? `<span class="pl" data-pid="${p.id}">${p.name} ${p.cognome}</span>${p.alive ? '' : ' ✝'}` : '<span class="muted">non registrato</span>';
+  }
+  function renderPersonDetail(force) {
+    const det = document.getElementById('obs-det');
+    const v = people.get(obsPerson);
+    if (!v) { det.innerHTML = '<p class="muted">Scegli una persona dall’elenco.</p>'; det._id = null; return; }
+    if (force || det._id !== v.id || det._alive !== v.alive) {
+      det._id = v.id; det._alive = v.alive;
+      det.innerHTML = `<h3>${v.name} ${v.cognome}</h3><div class="meta" id="pd-meta"></div>
+        <div class="speech" id="pd-speech"></div>
+        <div class="btnrow">${v.alive ? '<button data-act="show">Mostra nel borgo</button>' : ''}</div>
+        <h5>Aspetti di oggi</h5><div class="aspects" id="pd-asp"></div>
+        <h5>Famiglia</h5><div class="fam" id="pd-fam"></div>
+        ${v.alive ? `<h5>Simulazione: 1000 vite possibili da oggi</h5>
+          <p class="intro">Ripeto il futuro di ${v.name} mille volte, con il rischio di morte della sua età e le condizioni del borgo di oggi (febbri, inverno, fame, acqua torbida).</p>
+          <div class="tiles" id="pd-sim"></div>
+          <div class="vgrid">${cardHtml('pd-surv', 'Probabilità di essere ancora vivo', 'per ogni età futura, su 1000 vite simulate')}${cardHtml('pd-hist', 'A che età muore', 'quota delle 1000 vite simulate, per fasce di 5 anni')}</div>` : ''}
+        <h5>La sua storia</h5>
+        <div class="vgrid">${cardHtml('pd-fede', 'Fede', '0% = tutto pratica · 100% = tutto devozione')}${cardHtml('pd-lez', 'Regole apprese')}${cardHtml('pd-en', 'Energia e sete', 'a fine giornata, 0–100')}</div>
+        <h5>Regole che conosce</h5><ul class="rules" id="pd-rules"></ul>`;
+    }
+    const mother = people.get(v.motherId), father = people.get(v.fatherId);
+    const status = v.alive ? `${Math.floor(v.age)} anni` : `morto${v.sex === 'F' ? 'a' : ''} a ${Math.floor(v.age)} anni, ${dataCronaca(v.deathDay).replace('Adì ', 'il ')}`;
+    const born = v.bornDay > 0 ? `${gEnd(v, 'nato', 'nata')} nel borgo ${dataCronaca(v.bornDay).replace('Adì ', 'il ')}` : (v.newcomer ? 'venuto da fuori' : 'tra i fondatori della cronaca');
+    document.getElementById('pd-meta').textContent = `${v.role} · ${status} · ${born}${v.cognomeNascita && v.cognomeNascita !== v.cognome ? ` · nata ${v.cognomeNascita}` : ''}`;
+    document.getElementById('pd-speech').textContent = v.alive ? speakOf(v) : (v.lastThought || '');
+    const asp = [
+      ['Energia fisica', v.energy, `${Math.round(v.energy)}%`],
+      ['Sete e fatica', v.thirst, `${Math.round(v.thirst)}%`],
+      ['Fede (vs pratica)', v.faith * 100, `${Math.round(v.faith * 100)}%`],
+      ['Prudenza con la pioggia', clamp((0.72 - v.rainCaution) / 0.4, 0, 1) * 100, v.rainCaution < 0.5 ? 'alta' : 'bassa'],
+      ['Rientra prima del coprifuoco', clamp(v.curfewBuffer / 0.85, 0, 1) * 100, v.curfewBuffer > 0 ? `${Math.round(v.curfewBuffer * 60)} min prima` : 'no'],
+      ['Regole conosciute', v.lessons.length / KNOW_IDS.length * 100, `${v.lessons.length}/${KNOW_IDS.length}`],
+      ['Errori da cui ha imparato', Math.min(100, v.mistakes * 15), String(v.mistakes)],
+      ['Regole dimenticate', Math.min(100, (v.forgot || 0) * 15), String(v.forgot || 0)],
+      ['Età', Math.min(100, v.age / 80 * 100), `${Math.floor(v.age)} anni`],
+    ];
+    const aspHtml = asp.map(([n, p, t]) => `<div class="asp">${n}<b>${t}</b><div class="bar"><div style="width:${clamp(p, 0, 100).toFixed(0)}%"></div></div></div>`).join('');
+    const aspEl = document.getElementById('pd-asp');
+    if (aspEl._h !== aspHtml) { aspEl.innerHTML = aspHtml; aspEl._h = aspHtml; }
+    const spouse = people.get(v.spouseId);
+    const famHtml = `Padre: ${father ? personHtmlLink(father.id) : '<span class="muted">—</span>'} · Madre: ${mother ? personHtmlLink(mother.id) : '<span class="muted">—</span>'}<br>
+      ${gEnd(v, 'Moglie', 'Marito')}: ${spouse ? personHtmlLink(spouse.id) : `<span class="muted">${v.widowed ? gEnd(v, 'vedovo', 'vedova') : 'nessuno'}</span>`}<br>
+      Figli (${v.children.length}): ${v.children.length ? v.children.map(personHtmlLink).join(', ') : '<span class="muted">nessuno</span>'}`;
+    const famEl = document.getElementById('pd-fam');
+    if (famEl._h !== famHtml) { famEl.innerHTML = famHtml; famEl._h = famHtml; }
+    if (v.alive) {
+      const sm = simulateLife(v);
+      const capF = clamp(1.25 - villagers.length / POP_CAP, 0, 1);
+      const pFiglio = v.sex === 'F' && v.spouseId && v.age >= 18 && v.age <= 43 ? 1 - Math.exp(-BIRTH_RATE * capF * (need.cibo > 70 ? 0.6 : 1)) : null;
+      const pNozze = !v.spouseId && v.kind !== 'priest' && v.kind !== 'child' && v.age >= 17 && v.age <= 45 ? (findSpouse(v) ? 1 - Math.exp(-0.45) : 0) : null;
+      const tiles = [
+        [`${Math.floor(sm.mean)} anni`, 'età media alla morte'], [`${Math.floor(sm.median)} anni`, 'età mediana alla morte'],
+        [`${(sm.p1 * 100).toFixed(1)}%`, 'rischio di morire entro un anno'],
+      ];
+      if (pFiglio != null) tiles.push([`${Math.round(pFiglio * 100)}%`, 'probabilità di un figlio entro un anno']);
+      if (pNozze != null) tiles.push([`${Math.round(pNozze * 100)}%`, 'probabilità di sposarsi entro un anno']);
+      const tHtml = tiles.map(([b, s]) => `<div class="tile"><b>${b}</b><span>${s}</span></div>`).join('');
+      const simEl = document.getElementById('pd-sim');
+      if (simEl._h !== tHtml) { simEl.innerHTML = tHtml; simEl._h = tHtml; }
+      lineChart(document.getElementById('pd-surv'), { series: [{ name: 'Vivo', col: OBS_COLS[0], pts: sm.surv }], yMax: 100, yFmt: fmtPct, xFmt: (x) => `${x} a`, xTip: (x) => `A ${x} anni` });
+      barChart(document.getElementById('pd-hist'), { bins: sm.bins, col: OBS_COLS[0], yFmt: fmtPct, mark: (sm.median - sm.b0) / 5, markLabel: `mediana ${Math.floor(sm.median)}` });
+    }
+    const hs = v.hist || [];
+    lineChart(document.getElementById('pd-fede'), { series: [{ name: 'Fede', col: OBS_COLS[0], pts: hs.map(h => [h[0], h[1]]) }], yMax: 100, yFmt: fmtPct });
+    lineChart(document.getElementById('pd-lez'), { series: [{ name: 'Regole', col: OBS_COLS[0], pts: hs.map(h => [h[0], h[4]]) }], yFmt: fmtInt });
+    lineChart(document.getElementById('pd-en'), { series: [{ name: 'Energia', col: OBS_COLS[0], pts: hs.map(h => [h[0], h[2]]) }, { name: 'Sete', col: OBS_COLS[1], pts: hs.map(h => [h[0], h[3]]) }], yMax: 100, yFmt: fmtInt });
+    const rHtml = v.lessons.length ? v.lessons.map(l => `<li>${l.title} <i>— ${l.source}</i></li>`).join('') : '<li class="muted">Ancora nessuna regola: deve sbagliare o ascoltare qualcuno.</li>';
+    const rEl = document.getElementById('pd-rules');
+    if (rEl._h !== rHtml) { rEl.innerHTML = rHtml; rEl._h = rHtml; }
+  }
+  function renderPersone(full) {
+    if (!built.persone) buildPersone();
+    const wrap = secPersone.querySelector('.tbl-wrap');
+    const st = wrap ? wrap.scrollTop : 0;
+    renderTable();
+    if (wrap) wrap.scrollTop = st;
+    const det = document.getElementById('obs-det');
+    const ds = det.scrollTop;
+    renderPersonDetail(full);
+    det.scrollTop = ds;
+  }
+
+  // ---------------- Pagina «Sapere» ----------------
+  function buildSapere() {
+    secSapere.innerHTML = `<p class="intro">Come si diffonde ogni regola: quante persone vive la conoscono, giorno dopo giorno. Stessa scala per tutte, così si possono confrontare. Quando muore l’ultimo che la sapeva, la linea torna a zero.</p>
+      <div class="vgrid small">${KNOW_IDS.map(id => cardHtml('ks-' + id, LESSONS[id], '', 'small')).join('')}</div>`;
+    built.sapere = true;
+  }
+  function renderSapere() {
+    if (!built.sapere) buildSapere();
+    const H = world.hist;
+    const yMax = niceMax(Math.max(10, ...H.map(h => h.pop)));
+    for (const id of KNOW_IDS) {
+      const card = document.getElementById('ks-' + id);
+      const now = villagers.filter(v => v.learnedSet.has(id)).length;
+      let sub = card.querySelector('.sub');
+      if (!sub) { sub = document.createElement('div'); sub.className = 'sub'; card.querySelector('h4').after(sub); }
+      const t = `${firstKnown[id] ? `scoperta da ${firstKnown[id]}` : 'non ancora scoperta'} · oggi la sanno ${now} ${now === 1 ? 'persona' : 'persone'}`;
+      if (sub.textContent !== t) sub.textContent = t;
+      lineChart(card, { series: [{ name: 'La conoscono', col: OBS_COLS[0], pts: H.map(h => [h.d, h.kn ? h.kn[id] || 0 : 0]) }], yMax, yFmt: fmtInt });
+    }
+  }
+
+  function renderObs(full) {
+    obsEl.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === obsTab));
+    for (const [k, el] of [['borgo', secBorgo], ['persone', secPersone], ['sapere', secSapere]]) el.classList.toggle('on', k === obsTab);
+    document.getElementById('obs-date').textContent = `${dataCronaca()} · ${seasonName} · ${villagers.length} abitanti`;
+    if (obsTab === 'borgo') renderBorgo();
+    else if (obsTab === 'persone') renderPersone(full);
+    else renderSapere();
+  }
+  function openObs(tab) {
+    obsOpen = true;
+    if (tab) obsTab = tab;
+    obsEl.classList.add('visible');
+    keysDown.clear();
+    renderObs(true);
+  }
+  function closeObs() {
+    obsOpen = false;
+    obsEl.classList.remove('visible');
+    if (location.hash === '#osservatorio') history.replaceState(null, '', location.pathname + location.search);
+  }
+  function obsTick(dt) {
+    if (!obsOpen) return;
+    obsT += dt;
+    if (obsT >= 1) { obsT = 0; renderObs(false); }
+  }
+  document.getElementById('btn-obs').addEventListener('click', () => openObs());
+  document.getElementById('obs-close').addEventListener('click', closeObs);
+  document.getElementById('btn-obs-person').addEventListener('click', () => { if (selectedVillager) { obsPerson = selectedVillager.id; openObs('persone'); } });
+  obsEl.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { obsTab = b.dataset.tab; renderObs(true); }));
+  obsEl.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeObs(); e.stopPropagation(); });
+  obsEl.addEventListener('keyup', (e) => e.stopPropagation());
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && obsOpen) closeObs(); });
+  window.addEventListener('resize', () => { if (obsOpen) renderObs(false); });
+
+  // ======================================================================
   //  Avvio
   // ======================================================================
   const loaded = loadState();
   rebuildInstances();
   started = true;
   if (!loaded) {
-    chronicle('Comincia la cronaca della comunità. Il borgo conta ventinove anime registrate: contadini, artigiani, la guardia della porta e il parroco Don Girolamo.');
+    chronicle(`Comincia la cronaca della comunità. Il borgo conta ${villagers.length} anime registrate, ${villagers.filter(v => v.kind === 'child').length} delle quali sono bambini: contadini, artigiani, la guardia della porta e il parroco Don Girolamo.`);
     pushBrainLog('Simulazione <b>HYDROGEN</b> avviata: i paesani osservano cielo, mura e raccolti, imparano dagli errori e costruiscono rimedi.', 'social');
   } else {
     pushBrainLog(`Bentornati nel borgo: la cronaca riprende dal ${dataCronaca(1 + Math.floor((5.0 + simClock / 4.0) / 24.0)).replace('Adì ', '')}.`, 'social');
@@ -2992,7 +4054,8 @@
   updateNeedsPanel();
 
   // Strumenti per osservare la simulazione dalla console del browser
-  window.HYDROGEN = { world, need, villagers, BUILDINGS, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
+  if (location.hash === '#osservatorio') openObs();
+  window.HYDROGEN = { world, need, villagers, people, BUILDINGS, openObs, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
 
   let lastTime = performance.now();
   function loop(now) {
