@@ -8,7 +8,9 @@ il parroco propone la sua devozione, tutti votano con le ballotte e poi si apre 
 
 ## Come si avvia
 
-Apri `index.html` con un browser recente (Chrome, Edge o Firefox).
+**Gioca online:** https://gmy77.github.io/hydrogen-terraferma/
+
+Oppure scarica il repo e apri `index.html` con un browser recente (Chrome, Edge o Firefox).
 Il borgo si salva da solo nel browser: riaprendo la pagina la cronaca riprende da dove era rimasta.
 Per ricominciare usa il pulsante **Nuovo borgo** oppure apri `index.html?nuovo`.
 
