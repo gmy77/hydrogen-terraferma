@@ -91,6 +91,20 @@ Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre 
 - **Nozze con chi viene da fuori**: se in paese non c'è nessuno libero, ci si sposa con qualcuno dei paesi vicini,
   che viene a vivere nel borgo.
 
+## Generazioni, pelle e pregiudizio
+
+- **Camposanto** accanto alla chiesa: le ultime sepolture con la croce, le ossa più vecchie nell'**ossario**, come si faceva davvero.
+  Cliccandolo si vedono gli ultimi sepolti e l'età media alla morte degli adulti (con le regole attuali, intorno ai 50-60 anni).
+- **Colore della pelle ereditato**: ogni persona ha la sua tonalità e i figli nascono con una via di mezzo tra quella dei genitori.
+  Dalla città sul mare arriva gente di ogni colore, e ci si sposa anche con chi viene da fuori.
+- **Il pregiudizio è una credenza falsa.** All'inizio, come è verosimile nel 1532, qualcuno diffida di chi ha la pelle diversa:
+  a volte non lo ascolta, gli dà meno voti in vicinia, e i bambini lo prendono in giro.
+  Ma vivere vicini, lavorare insieme al cantiere, imparare da quella persona e vedere riuscire le sue proposte lo smentiscono,
+  finché si impara la regola: «Il colore della pelle non dice niente di una persona: contano ciò che sa e ciò che fa».
+- **Regola della simulazione**: il colore della pelle **non cambia nulla** di ciò che una persona è o sa fare
+  (salute, mestiere, sapere, forza, figli, durata della vita). Cambia solo l'aspetto e i pregiudizi degli altri.
+  Nell'Osservatorio i grafici «Pregiudizio medio» e «Abitanti per colore della pelle» mostrano come va a finire.
+
 ## Case e luoghi
 
 Ogni casa ha la sua famiglia: le spose vanno a vivere dal marito, i figli restano coi genitori, chi arriva trova una casa libera.
