@@ -55,6 +55,8 @@
     cursor: pointer; transition: all 0.14s;
   }
   .panel button:hover { background: #523d2a; }
+  .panel .spd { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #efe2c6; }
+  .panel select { background: #36281b; color: #efe2c6; border: 1px solid #7a5e3b; border-radius: 4px; padding: 1px 4px; font-family: inherit; font-size: 11px; cursor: pointer; }
   .panel button.active { background: #9c6b2f; color: #fff8ea; border-color: #f0c375; font-weight: bold; }
 
   /* Bisogni del borgo */
@@ -346,7 +348,7 @@
     <button data-w="2">Pioggia</button>
     <button data-w="3">Temporale</button>
     <button id="btn-festa">Festa del Vino: OFF</button>
-    <button id="btn-speed">Velocità: 1×</button>
+    <label class="spd">Velocità <select id="sel-speed" title="Quanto scorre veloce il tempo del borgo"></select></label>
   </div>
   <div class="panel">
     <span class="badge">Regia:</span>
@@ -1470,7 +1472,7 @@
   let weatherMode = 'auto';
   let currentWeatherIdx = 1;
   let festaActive = false;
-  let timeSpeed = 1.0;
+  let timeSpeed = 0.5;   // «Normale»: un giorno del borgo dura poco più di 3 minuti
   let started = false;
 
   const need = { acqua: 18, riparo: 8, sicurezza: 16, cibo: 22, salute: 5 };
@@ -2319,11 +2321,20 @@
     btnFesta.classList.toggle('active', festaActive);
     btnFesta.textContent = festaActive ? 'Festa del Vino: ON' : 'Festa del Vino: OFF';
   });
-  const SPEEDS = [1, 3, 8, 30, 100, 0.25];
-  const btnSpeed = document.getElementById('btn-speed');
-  btnSpeed.addEventListener('click', () => {
-    timeSpeed = SPEEDS[(SPEEDS.indexOf(timeSpeed) + 1) % SPEEDS.length];
-    btnSpeed.textContent = `Velocità: ${timeSpeed}×`;
+  // Velocità del tempo: «Normale» per chi vuole guardare con calma, le altre per chi vuole vedere passare gli anni
+  const SPEED_OPTS = [
+    { v: 0.25, l: 'Lenta' }, { v: 0.5, l: 'Normale' }, { v: 1, l: 'Svelta (2×)' }, { v: 3, l: 'Veloce (6×)' },
+    { v: 8, l: 'Molto veloce (16×)' }, { v: 30, l: 'Anni (60×)' }, { v: 100, l: 'Secoli (200×)' },
+  ];
+  const selSpeed = document.getElementById('sel-speed');
+  selSpeed.innerHTML = SPEED_OPTS.map(o => `<option value="${o.v}">${o.l}</option>`).join('');
+  try { const saved = Number(localStorage.getItem('hydrogen-velocita')); if (SPEED_OPTS.some(o => o.v === saved)) timeSpeed = saved; } catch (e) { /* niente */ }
+  selSpeed.value = String(timeSpeed);
+  const btnSpeed = { set textContent(_) { selSpeed.value = String(timeSpeed); } };   // compatibilità con setSpeed
+  selSpeed.addEventListener('change', () => {
+    timeSpeed = Number(selSpeed.value);
+    try { localStorage.setItem('hydrogen-velocita', String(timeSpeed)); } catch (e) { /* niente */ }
+    selSpeed.blur();
   });
   const toggleBtn = (id, get, set, onTxt, offTxt) => {
     const b = document.getElementById(id);

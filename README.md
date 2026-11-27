@@ -39,8 +39,9 @@ Per ricominciare usa il pulsante **Nuovo borgo** oppure apri `index.html?nuovo`.
 
 ## Stagioni e generazioni (HYDROGEN 3)
 
-- **Calendario lungo.** Ogni giorno simulato vale 15 giorni del calendario: un anno dura circa 39 minuti a velocità 1×,
-  e con **Velocità 30× o 100×** («Secoli») passano decenni in pochi minuti.
+- **Calendario lungo.** Ogni giorno simulato vale 15 giorni del calendario. Dal menu **Velocità** si sceglie quanto corre il tempo:
+  a **Normale** un giorno del borgo dura poco più di 3 minuti (un anno circa 78 minuti), c'è anche **Lenta** per guardare con calma,
+  e salendo fino ad **Anni (60×)** e **Secoli (200×)** passano decenni in pochi minuti. La velocità scelta resta memorizzata.
 - **Quattro stagioni.** L'erba ingiallisce d'estate e si arrossa d'autunno; d'inverno nevica e la neve si posa su tetti e campi.
   Il meteo segue la stagione (estati secche, autunni piovosi), d'inverno non si ara, il freddo pesa sulla salute e la fame sul granaio.
 - **Famiglie vere.** Ogni paesano ha nome, cognome, età e sesso. Ci si sposa, nascono figli, si invecchia (capelli bianchi, bastone) e si muore,
