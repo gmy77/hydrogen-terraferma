@@ -80,6 +80,7 @@ per i computer meno potenti.
 - **Audio**: campane, tuoni, pioggia e martelli (sintetizzati, nessun file esterno)
 
 `originale-v1.html` è la prima versione dell'esperimento, conservata per confronto.
+I prossimi passi sono in [TODO.md](TODO.md).
 
 ## Copyright
 
