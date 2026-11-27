@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>HYDROGEN · Terraferma 1532</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: #0e131a;
+    font-family: Georgia, 'Times New Roman', serif;
+    user-select: none;
+  }
+  canvas { display: block; width: 100vw; height: 100vh; cursor: grab; }
+  canvas:active { cursor: grabbing; }
+
+  #hud-left {
+    position: fixed; top: 10px; left: 10px; z-index: 12;
+    display: flex; flex-direction: column; gap: 6px;
+    max-width: calc(100vw - 20px);
+  }
+  .panel {
+    display: flex; flex-wrap: wrap; gap: 5px; align-items: center;
+    background: rgba(20, 16, 12, 0.88);
+    border: 1px solid #8c6d46;
+    border-radius: 6px;
+    padding: 6px 9px;
+    color: #f2e6cf;
+    font-size: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  }
+  .brand {
+    font-family: 'Courier New', monospace;
+    font-weight: bold; letter-spacing: 0.6px;
+    color: #6ee7b7; background: rgba(16, 48, 38, 0.85);
+    border: 1px solid #34d399; border-radius: 4px;
+    padding: 2px 6px; font-size: 11px;
+  }
+  .badge { font-weight: bold; color: #ecc578; margin-right: 3px; }
+  .panel button {
+    background: #36281b; color: #efe2c6;
+    border: 1px solid #7a5e3b; border-radius: 4px;
+    padding: 2px 7px; font-family: inherit; font-size: 11px;
+    cursor: pointer; transition: all 0.14s;
+  }
+  .panel button:hover { background: #523d2a; }
+  .panel button.active { background: #9c6b2f; color: #fff8ea; border-color: #f0c375; font-weight: bold; }
+
+  /* Registro Apprendimento Collettivo in alto a destra */
+  #brain-log {
+    position: fixed; top: 10px; right: 10px; z-index: 11;
+    width: min(330px, calc(100vw - 20px));
+    background: rgba(18, 15, 12, 0.88);
+    border: 1px solid #7c6240;
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #e8dcc4;
+    font-size: 11.5px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  }
+  #brain-log-header {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid rgba(140, 109, 70, 0.45);
+    padding-bottom: 4px; margin-bottom: 5px;
+    font-weight: bold; color: #ecc578;
+  }
+  #brain-entries {
+    display: flex; flex-direction: column; gap: 4px;
+    max-height: 132px; overflow-y: auto;
+  }
+  .log-item {
+    line-height: 1.3; padding: 3px 5px; border-radius: 4px;
+    background: rgba(45, 36, 26, 0.65);
+    border-left: 2px solid #d97706;
+    font-size: 11px;
+  }
+  .log-item.learned { border-left-color: #34d399; }
+  .log-item.social  { border-left-color: #60a5fa; }
+
+  /* Scheda Cognitiva e Dialogo del Cittadino Selezionato */
+  #citizen-card {
+    position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+    width: min(650px, calc(100vw - 24px));
+    background: linear-gradient(180deg, #f6ecd7 0%, #e4d0aa 100%);
+    color: #26190e;
+    border: 2px solid #6e4e2a;
+    border-radius: 8px;
+    padding: 13px 16px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.7);
+    z-index: 20;
+    display: none;
+  }
+  #citizen-card.visible { display: block; }
+  .cc-top {
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid #b5986c; padding-bottom: 6px; margin-bottom: 8px;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .cc-name { font-size: 17px; font-weight: bold; color: #4a2810; }
+  .cc-role { font-size: 12px; font-style: italic; color: #6e4f2c; margin-left: 6px; }
+  .cc-actions { display: flex; align-items: center; gap: 6px; }
+  .cc-btn {
+    background: #5c3d20; color: #fff6e5; border: 1px solid #3d2612;
+    border-radius: 4px; padding: 3px 8px; font-size: 11px; cursor: pointer;
+    font-family: inherit;
+  }
+  .cc-btn.following { background: #1f6e50; border-color: #134e38; }
+  .cc-close {
+    background: none; border: none; font-size: 20px; font-weight: bold;
+    color: #5c3c1e; cursor: pointer; line-height: 1; padding: 0 4px;
+  }
+  .cc-speech {
+    font-size: 14.5px; line-height: 1.44; color: #22150a;
+    margin-bottom: 9px; font-style: italic;
+  }
+  .cc-metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+    margin-bottom: 8px;
+  }
+  .metric {
+    background: rgba(110, 78, 42, 0.12);
+    border: 1px solid rgba(110, 78, 42, 0.3);
+    border-radius: 4px; padding: 4px 6px; font-size: 11px;
+  }
+  .metric b { display: block; font-size: 12px; color: #3d2410; }
+  .bar-bg { width: 100%; height: 4px; background: rgba(0,0,0,0.15); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; background: #8c5319; transition: width 0.25s; }
+  .cc-memory {
+    background: rgba(34, 24, 14, 0.08);
+    border-radius: 5px; padding: 6px 8px; font-size: 11.5px;
+    border-left: 3px solid #2b6cb0;
+  }
+  .cc-memory strong { color: #3d2410; }
+
+  #hint {
+    position: fixed; bottom: 10px; right: 10px; z-index: 9;
+    background: rgba(18, 14, 10, 0.8); color: #d8c8aa;
+    border: 1px solid rgba(140, 109, 70, 0.5);
+    padding: 4px 8px; border-radius: 5px; font-size: 11px;
+    pointer-events: none;
+  }
+  @media (max-width: 720px) {
+    #brain-log { display: none; }
+    .cc-metrics { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div id="hud-left">
+  <div class="panel">
+    <span class="brand">HYDROGEN ENGINE</span>
+    <span class="badge" id="clock-label">Giorno 1 · Ore 06:30 · Alba</span>
+    <button data-t="auto" class="active">Tempo Auto</button>
+    <button data-t="5.1">Alba</button>
+    <button data-t="10.5">Mattino</button>
+    <button data-t="16.0">Pomeriggio</button>
+    <button data-t="19.4">Sera/Cena</button>
+    <button data-t="23.2">Notte</button>
+  </div>
+  <div class="panel">
+    <span class="badge">Clima & Società:</span>
+    <button data-w="auto" class="active">Meteo Auto</button>
+    <button data-w="0">Siccità</button>
+    <button data-w="1">Sereno</button>
+    <button data-w="2">Pioggia</button>
+    <button data-w="3">Temporale</button>
+    <button id="btn-festa">Festa del Vino: OFF</button>
+    <button id="btn-speed">Velocità: 1×</button>
+  </div>
+</div>
+
+<div id="brain-log">
+  <div id="brain-log-header">
+    <span>Apprendimento Collettivo del Borgo</span>
+    <span id="wisdom-score" style="color:#6ee7b7;font-family:monospace;">Regole: 0</span>
+  </div>
+  <div id="brain-entries"></div>
+</div>
+
+<div id="citizen-card">
+  <div class="cc-top">
+    <div>
+      <span class="cc-name" id="cc-name"></span>
+      <span class="cc-role" id="cc-role"></span>
+    </div>
+    <div class="cc-actions">
+      <button class="cc-btn" id="btn-follow">Segui con camera</button>
+      <button class="cc-close" id="cc-close" title="Chiudi">×</button>
+    </div>
+  </div>
+  <div class="cc-speech" id="cc-speech"></div>
+  <div class="cc-metrics">
+    <div class="metric">Energia Fisica <b id="m-energy">100%</b><div class="bar-bg"><div class="bar-fill" id="b-energy" style="width:100%;background:#2f855a;"></div></div></div>
+    <div class="metric">Sete / Fatica <b id="m-thirst">10%</b><div class="bar-bg"><div class="bar-fill" id="b-thirst" style="width:10%;background:#c05621;"></div></div></div>
+    <div class="metric">Fede vs Pratica <b id="m-faith">50%</b><div class="bar-bg"><div class="bar-fill" id="b-faith" style="width:50%;background:#6b46c1;"></div></div></div>
+    <div class="metric">Errori → Lezioni <b id="m-lessons">0 / 0</b><div class="bar-bg"><div class="bar-fill" id="b-lessons" style="width:0%;background:#2b6cb0;"></div></div></div>
+  </div>
+  <div class="cc-memory" id="cc-memory"></div>
+</div>
+
+<div id="hint">Trascina / WASD: muovi · Rotella / +-: zoom · Clicca su un paesano per ispezionarne mente e memoria</div>
+<canvas id="c"></canvas>
+
+<script>
+(() => {
+  'use strict';
+
+  // --- PRNG Deterministico (Mulberry32) ---
+  function createRng(seed) {
+    let s = seed >>> 0;
+    return function() {
+      s += 0x6D2B79F5;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t ^= t + Math.imul(t ^ (t >>> 7), 61 | t);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  const rng = createRng(0x15321027);
+  const randRange = (a, b) => a + (b - a) * rng();
+  const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+
+  // --- WebGL2 Setup ---
+  const canvas = document.getElementById('c');
+  const gl = canvas.getContext('webgl2', { antialias: true, alpha: false, powerPreference: 'high-performance' });
+  if (!gl) return;
+
+  // --- Shaders ---
+  const VS_VOXEL = `#version 300 es
+  precision highp float;
+
+  layout(location = 0) in vec3 aPos;
+  layout(location = 1) in vec3 aNorm;
+
+  layout(location = 2) in vec3 iPos;
+  layout(location = 3) in vec3 iScale;
+  layout(location = 4) in vec3 iColor;
+  // iMeta: x = rotY, y = type (0=solid, 1=window, 2=torch/lantern, 3=sky, 4=rain, 5=festa, 6=smoke), z = sleepHour, w = wakeHour
+  layout(location = 5) in vec4 iMeta;
+
+  uniform mat4 uViewProj;
+
+  out vec3 vWorldPos;
+  out vec3 vNorm;
+  out vec3 vColor;
+  out vec4 vMeta;
+
+  void main() {
+    float c = cos(iMeta.x);
+    float s = sin(iMeta.x);
+    vec3 p = aPos * iScale;
+    vec3 rp = vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
+    vec3 worldPos = rp + iPos;
+    vec3 rn = vec3(aNorm.x * c + aNorm.z * s, aNorm.y, -aNorm.x * s + aNorm.z * c);
+
+    vWorldPos = worldPos;
+    vNorm = normalize(rn);
+    vColor = iColor;
+    vMeta = iMeta;
+
+    gl_Position = uViewProj * vec4(worldPos, 1.0);
+  }
+  `;
+
+  const FS_VOXEL = `#version 300 es
+  precision highp float;
+
+  in vec3 vWorldPos;
+  in vec3 vNorm;
+  in vec3 vColor;
+  in vec4 vMeta;
+
+  uniform float uTime;
+  uniform float uHour;
+  uniform float uDaylight;
+  uniform float uRainAmount;
+  uniform float uCloudCover;
+  uniform float uFesta;
+  uniform float uLightning;
+  uniform vec3 uSunColor;
+  uniform vec3 uSkyTop;
+  uniform vec3 uSkyHorizon;
+
+  out vec4 fragColor;
+
+  void main() {
+    float mType = vMeta.y;
+
+    if (mType > 4.5 && mType < 5.5 && uFesta < 0.5) discard;
+
+    // Cielo + lampi durante il temporale
+    if (mType > 2.5 && mType < 3.5) {
+      float h = clamp((vWorldPos.y - 4.0) / 40.0, 0.0, 1.0);
+      vec3 sky = mix(uSkyHorizon, uSkyTop, h);
+      sky += vec3(0.45, 0.50, 0.65) * uLightning;
+      fragColor = vec4(min(sky, vec3(0.92)), 1.0);
+      return;
+    }
+
+    // Pioggia
+    if (mType > 3.5 && mType < 4.5) {
+      vec3 rCol = mix(vec3(0.24, 0.28, 0.36), vec3(0.68, 0.76, 0.85), max(uDaylight, uLightning));
+      fragColor = vec4(rCol, 1.0);
+      return;
+    }
+
+    // Fumo dei comignoli
+    if (mType > 5.5 && mType < 6.5) {
+      vec3 sCol = mix(vec3(0.22, 0.24, 0.28), vec3(0.66, 0.65, 0.63), uDaylight);
+      fragColor = vec4(sCol, 1.0);
+      return;
+    }
+
+    float sunAngle = (uHour - 5.5) / 13.5 * 3.14159;
+    vec3 sunDir = normalize(vec3(cos(sunAngle) * 0.65, max(0.24, sin(sunAngle) * 0.82), 0.38));
+    float ndotl = max(dot(vNorm, sunDir), 0.0);
+
+    float hemi = 0.5 + 0.5 * vNorm.y;
+    vec3 nightAmb = mix(vec3(0.038, 0.052, 0.090), vec3(0.070, 0.092, 0.150), hemi);
+    vec3 dayAmb   = mix(vec3(0.25, 0.23, 0.22), vec3(0.38, 0.40, 0.44), hemi);
+    vec3 stormAmb = mix(vec3(0.13, 0.15, 0.18), vec3(0.20, 0.23, 0.28), hemi);
+
+    vec3 activeDayAmb = mix(dayAmb, stormAmb, uCloudCover);
+    vec3 ambient = mix(nightAmb, activeDayAmb, uDaylight);
+
+    vec3 baseCol = vColor;
+    if (uRainAmount > 0.05) {
+      float wetness = uRainAmount * (0.35 + 0.65 * max(vNorm.y, 0.0));
+      baseCol *= (1.0 - 0.26 * wetness);
+    }
+
+    float sunStrength = uDaylight * (1.0 - uCloudCover * 0.78);
+    vec3 sunLight = uSunColor * ndotl * sunStrength + vec3(0.55, 0.62, 0.80) * uLightning * (0.4 + 0.6 * max(vNorm.y, 0.0));
+    float ao = 0.88 + 0.12 * clamp(vWorldPos.y / 11.0, 0.0, 1.0);
+    vec3 lit = baseCol * (ambient + sunLight) * ao;
+
+    // Finestre delle case: accese a cena e all'alba, spente quando dormono
+    if (mType > 0.5 && mType < 1.5) {
+      float sleepH = vMeta.z;
+      float wakeH  = vMeta.w;
+      float eveningOn = smoothstep(18.0, 18.5, uHour) * (1.0 - smoothstep(sleepH - 0.15, sleepH + 0.15, uHour));
+      float morningOn = smoothstep(wakeH - 0.15, wakeH + 0.15, uHour) * (1.0 - smoothstep(6.8, 7.2, uHour));
+      float stormOn   = step(0.65, uCloudCover) * uDaylight * 0.65;
+      float lamp = clamp(max(max(eveningOn, morningOn), stormOn), 0.0, 1.0);
+      if (lamp > 0.01) {
+        float flicker = 0.93 + 0.07 * sin(uTime * 8.0 + sleepH * 13.0);
+        lit = mix(lit, vec3(0.98, 0.71, 0.24) * flicker, lamp);
+      }
+    }
+
+    // Torce alle porte e lanterna dell'osteria
+    if (mType > 1.5 && mType < 2.5) {
+      float nightTorch = 1.0 - smoothstep(0.25, 0.65, uDaylight);
+      float torchOn = clamp(max(nightTorch, uCloudCover * 0.85), 0.0, 1.0);
+      if (torchOn > 0.01) {
+        float flicker = 0.89 + 0.11 * sin(uTime * 11.0 + vWorldPos.x * 7.0);
+        lit = mix(lit, vec3(1.0, 0.75, 0.26) * flicker, torchOn);
+      }
+    }
+
+    if (uRainAmount > 0.1) {
+      float distFog = clamp((-vWorldPos.z + 20.0) / 85.0, 0.0, 1.0) * uRainAmount * 0.22;
+      lit = mix(lit, uSkyHorizon * 0.75, distFog);
+    }
+
+    fragColor = vec4(min(lit, vec3(0.92)), 1.0);
+  }
+  `;
+
+  function compileShader(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VS_VOXEL));
+  gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FS_VOXEL));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+
+  const cubeVerts = new Float32Array([
+     0.5,-0.5,-0.5,  1, 0, 0,   0.5, 0.5,-0.5,  1, 0, 0,   0.5, 0.5, 0.5,  1, 0, 0,
+     0.5,-0.5,-0.5,  1, 0, 0,   0.5, 0.5, 0.5,  1, 0, 0,   0.5,-0.5, 0.5,  1, 0, 0,
+    -0.5,-0.5, 0.5, -1, 0, 0,  -0.5, 0.5, 0.5, -1, 0, 0,  -0.5, 0.5,-0.5, -1, 0, 0,
+    -0.5,-0.5, 0.5, -1, 0, 0,  -0.5, 0.5,-0.5, -1, 0, 0,  -0.5,-0.5,-0.5, -1, 0, 0,
+    -0.5, 0.5,-0.5,  0, 1, 0,  -0.5, 0.5, 0.5,  0, 1, 0,   0.5, 0.5, 0.5,  0, 1, 0,
+    -0.5, 0.5,-0.5,  0, 1, 0,   0.5, 0.5, 0.5,  0, 1, 0,   0.5, 0.5,-0.5,  0, 1, 0,
+    -0.5,-0.5, 0.5,  0,-1, 0,  -0.5,-0.5,-0.5,  0,-1, 0,   0.5,-0.5,-0.5,  0,-1, 0,
+    -0.5,-0.5, 0.5,  0,-1, 0,   0.5,-0.5,-0.5,  0,-1, 0,   0.5,-0.5, 0.5,  0,-1, 0,
+    -0.5,-0.5, 0.5,  0, 0, 1,   0.5,-0.5, 0.5,  0, 0, 1,   0.5, 0.5, 0.5,  0, 0, 1,
+    -0.5,-0.5, 0.5,  0, 0, 1,   0.5, 0.5, 0.5,  0, 0, 1,  -0.5, 0.5, 0.5,  0, 0, 1,
+     0.5,-0.5,-0.5,  0, 0,-1,  -0.5,-0.5,-0.5,  0, 0,-1,  -0.5, 0.5,-0.5,  0, 0,-1,
+     0.5,-0.5,-0.5,  0, 0,-1,  -0.5, 0.5,-0.5,  0, 0,-1,   0.5, 0.5,-0.5,  0, 0,-1,
+  ]);
+
+  function mat4Multiply(out, a, b) {
+    const a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3];
+    const a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7];
+    const a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11];
+    const a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+    for (let i = 0; i < 4; i++) {
+      const b0 = b[i * 4], b1 = b[i * 4 + 1], b2 = b[i * 4 + 2], b3 = b[i * 4 + 3];
+      out[i * 4]     = a00 * b0 + a10 * b1 + a20 * b2 + a30 * b3;
+      out[i * 4 + 1] = a01 * b0 + a11 * b1 + a21 * b2 + a31 * b3;
+      out[i * 4 + 2] = a02 * b0 + a12 * b1 + a22 * b2 + a32 * b3;
+      out[i * 4 + 3] = a03 * b0 + a13 * b1 + a23 * b2 + a33 * b3;
+    }
+    return out;
+  }
+
+  function mat4LookAt(eye, target, up) {
+    let zx = eye[0] - target[0], zy = eye[1] - target[1], zz = eye[2] - target[2];
+    let len = Math.hypot(zx, zy, zz);
+    zx /= len; zy /= len; zz /= len;
+    let xx = up[1] * zz - up[2] * zy, xy = up[2] * zx - up[0] * zz, xz = up[0] * zy - up[1] * zx;
+    len = Math.hypot(xx, xy, xz);
+    xx /= len; xy /= len; xz /= len;
+    const yx = zy * xz - zz * xy, yy = zz * xx - zx * xz, yz = zx * xy - zy * xx;
+    return new Float32Array([
+      xx, yx, zx, 0,  xy, yy, zy, 0,  xz, yz, zz, 0,
+      -(xx * eye[0] + xy * eye[1] + xz * eye[2]),
+      -(yx * eye[0] + yy * eye[1] + yz * eye[2]),
+      -(zx * eye[0] + zy * eye[1] + zz * eye[2]), 1
+    ]);
+  }
+
+  function mat4Ortho(left, right, bottom, top, near, far) {
+    const lr = 1 / (left - right), bt = 1 / (bottom - top), nf = 1 / (near - far);
+    return new Float32Array([
+      -2 * lr, 0, 0, 0,  0, -2 * bt, 0, 0,  0, 0, 2 * nf, 0,
+      (left + right) * lr, (top + bottom) * bt, (far + near) * nf, 1
+    ]);
+  }
+
+  // --- Costruzione Architettonica del Borgo Vicentino (1532) ---
+  const staticVoxels = [];
+  const chimneys = [];
+  function addBox(px, py, pz, sx, sy, sz, col, rotY = 0, mType = 0, sleepH = 21.0, wakeH = 5.5) {
+    staticVoxels.push(px, py, pz, sx, sy, sz, col[0], col[1], col[2], rotY, mType, sleepH, wakeH);
+  }
+
+  const PIETRA_VICENZA = [0.82, 0.77, 0.68];
+  const PIETRA_OMBRA   = [0.64, 0.60, 0.52];
+  const MURO_ANTICO    = [0.58, 0.54, 0.48];
+  const INTONACO_OCRA  = [0.81, 0.67, 0.47];
+  const INTONACO_ROSA  = [0.78, 0.59, 0.50];
+  const INTONACO_CALCE = [0.84, 0.80, 0.73];
+  const WALL_COLS = [PIETRA_VICENZA, INTONACO_OCRA, INTONACO_ROSA, INTONACO_CALCE];
+  const COPPI_COLS = [
+    [0.64, 0.30, 0.20], [0.58, 0.26, 0.18], [0.69, 0.36, 0.22], [0.55, 0.31, 0.22]
+  ];
+  const SELCIATO_COL = [0.56, 0.53, 0.49];
+  const STRADA_COL   = [0.62, 0.58, 0.52];
+  const COLLINA_COL  = [0.43, 0.51, 0.31];
+  const TERRA_ARATA  = [0.38, 0.28, 0.20];
+  const LEGNO_COL    = [0.38, 0.25, 0.16];
+
+  addBox(0, 28, -52, 230, 62, 1, [0.54, 0.70, 0.86], 0, 3);
+  addBox(0, -1.5, 4.0, 200, 3.0, 140, COLLINA_COL);
+
+  const terraces = [
+    { zMin:   7.2, zMax:  11.5, y: 1.1, col: STRADA_COL },   // Contrada Bassa & Lavatoio
+    { zMin:   2.4, zMax:   7.2, y: 2.3, col: STRADA_COL },   // Contrada dei Portici & Osteria
+    { zMin:  -3.6, zMax:   2.4, y: 3.6, col: SELCIATO_COL }, // Piazza Grande
+    { zMin:  -8.8, zMax:  -3.6, y: 4.9, col: SELCIATO_COL }, // Sagrato e Chiesa
+    { zMin: -13.5, zMax:  -8.8, y: 6.3, col: STRADA_COL },   // Contrada Alta
+  ];
+  for (const tr of terraces) {
+    const zMid = 0.5 * (tr.zMin + tr.zMax);
+    const zLen = tr.zMax - tr.zMin;
+    addBox(0, tr.y * 0.5, zMid, 25.4, tr.y, zLen, COLLINA_COL);
+    addBox(0, tr.y - 0.10, zMid, 25.0, 0.22, zLen, tr.col);
+    addBox(0, tr.y * 0.5, tr.zMax - 0.15, 25.2, tr.y + 0.06, 0.30, PIETRA_OMBRA);
+  }
+  addBox(0, 6.8, -28.0, 190, 13.6, 18.0, [0.39, 0.47, 0.30]);
+  addBox(0, 8.6, -39.0, 200, 17.2, 16.0, [0.35, 0.43, 0.28]);
+
+  // Mura Castellane e Porte
+  {
+    const xL = -13.2, xR = 13.2, zN = -14.2, zS = 12.2;
+    for (let x = xL; x <= xR; x += 1.0) {
+      if (Math.abs(x) < 1.3) continue;
+      addBox(x, 1.5, zS, 1.02, 3.0, 0.65, MURO_ANTICO);
+      if (Math.round(x) % 2 === 0) addBox(x, 3.22, zS, 0.55, 0.45, 0.68, PIETRA_OMBRA);
+    }
+    addBox(-1.35, 1.9, zS, 0.75, 3.8, 0.95, PIETRA_OMBRA);
+    addBox( 1.35, 1.9, zS, 0.75, 3.8, 0.95, PIETRA_OMBRA);
+    addBox(0, 3.1, zS, 3.4, 1.4, 0.95, PIETRA_VICENZA);
+    addBox(0, 3.95, zS, 3.6, 0.35, 1.05, COPPI_COLS[0]);
+    addBox(-1.45, 2.2, zS + 0.52, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+    addBox( 1.45, 2.2, zS + 0.52, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+
+    for (let z = zN; z <= zS; z += 1.0) {
+      const f = (zS - z) / (zS - zN);
+      const baseY = f * 5.8;
+      addBox(xL, baseY + 1.4, z, 0.65, 3.2, 1.02, MURO_ANTICO);
+      if (Math.round(z) % 2 === 0) addBox(xL, baseY + 3.2, z, 0.68, 0.42, 0.55, PIETRA_OMBRA);
+      if (Math.abs(z - 4.8) < 1.25) continue;
+      addBox(xR, baseY + 1.4, z, 0.65, 3.2, 1.02, MURO_ANTICO);
+      if (Math.round(z) % 2 === 0) addBox(xR, baseY + 3.2, z, 0.68, 0.42, 0.55, PIETRA_OMBRA);
+    }
+    addBox(xR, 2.3 + 2.6, 4.8, 0.90, 1.1, 3.0, PIETRA_VICENZA);
+    addBox(xR + 0.50, 2.3 + 1.9, 3.6, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+    addBox(xR + 0.50, 2.3 + 1.9, 6.0, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+
+    for (let x = xL; x <= xR; x += 1.0) {
+      addBox(x, 6.3 + 1.5, zN, 1.02, 3.0, 0.65, MURO_ANTICO);
+      if (Math.round(x) % 2 === 0) addBox(x, 6.3 + 3.2, zN, 0.55, 0.42, 0.68, PIETRA_OMBRA);
+    }
+    for (const tw of [
+      { x: xL, y: 0.0, z: zS, h: 4.6 }, { x: xR, y: 0.0, z: zS, h: 4.6 },
+      { x: xL, y: 6.3, z: zN, h: 4.4 }, { x: xR, y: 6.3, z: zN, h: 4.4 },
+    ]) {
+      addBox(tw.x, tw.y + tw.h * 0.5, tw.z, 1.8, tw.h, 1.8, PIETRA_OMBRA);
+      addBox(tw.x, tw.y + tw.h + 0.35, tw.z, 2.05, 0.7, 2.05, COPPI_COLS[1]);
+    }
+  }
+
+  // Scalinate
+  for (const st of [
+    { x: -5.5, zFrom: 7.2, yFrom: 1.1, yTo: 2.3 }, { x: 5.5, zFrom: 7.2, yFrom: 1.1, yTo: 2.3 },
+    { x: -2.4, zFrom: 2.4, yFrom: 2.3, yTo: 3.6 }, { x: 3.6, zFrom: 2.4, yFrom: 2.3, yTo: 3.6 },
+    { x: -1.2, zFrom:-3.6, yFrom: 3.6, yTo: 4.9 }, { x: 5.4, zFrom:-3.6, yFrom: 3.6, yTo: 4.9 },
+    { x: -4.2, zFrom:-8.8, yFrom: 4.9, yTo: 6.3 },
+  ]) {
+    for (let s = 0; s < 6; s++) {
+      const f = (s + 0.5) / 6;
+      const sy = st.yFrom + (st.yTo - st.yFrom) * f;
+      addBox(st.x, sy * 0.5, st.zFrom - s * 0.22, 1.30, sy, 0.24, PIETRA_VICENZA);
+    }
+  }
+
+  function buildVicenzaHouse(hx, hy, hz, w, d, h, hasPortico = false, isFarmerHouse = false) {
+    const wall = pick(WALL_COLS);
+    const roof = pick(COPPI_COLS);
+    const sleepH = isFarmerHouse ? randRange(20.1, 20.9) : randRange(21.2, 22.5);
+    const wakeH  = isFarmerHouse ? randRange(4.6, 5.3)   : randRange(5.8, 6.6);
+
+    if (hasPortico) {
+      const pH = 0.82;
+      const cols = Math.max(2, Math.round(w / 0.65));
+      for (let c = 0; c <= cols; c++) {
+        const cx = hx - w * 0.44 + (w * 0.88) * (c / cols);
+        addBox(cx, hy + pH * 0.5, hz + d * 0.42, 0.13, pH, 0.13, PIETRA_VICENZA);
+      }
+      addBox(hx, hy + pH + 0.08, hz + d * 0.42, w, 0.16, 0.16, PIETRA_VICENZA);
+      addBox(hx, hy + pH * 0.5, hz - 0.12, w, pH, d - 0.24, PIETRA_OMBRA);
+      addBox(hx, hy + pH + (h - pH) * 0.5 + 0.08, hz, w + 0.05, h - pH, d + 0.05, wall);
+    } else {
+      addBox(hx, hy + h * 0.5, hz, w, h, d, wall);
+      addBox(hx, hy + 0.12, hz, w + 0.04, 0.24, d + 0.04, PIETRA_OMBRA);
+    }
+
+    const tiers = 4, roofH = 0.62;
+    for (let t = 0; t < tiers; t++) {
+      const f = t / tiers;
+      addBox(hx, hy + h + (roofH / tiers) * (t + 0.5), hz, (w + 0.20) * (1.0 - f * 0.62), roofH / tiers + 0.02, (d + 0.20) * (1.0 - f * 0.75), roof);
+    }
+
+    if (rng() < 0.65) {
+      const cx = hx + (rng() < 0.5 ? -w * 0.25 : w * 0.25);
+      const cz = hz - d * 0.15;
+      addBox(cx, hy + h + roofH + 0.15, cz, 0.18, 0.34, 0.18, wall);
+      addBox(cx, hy + h + roofH + 0.36, cz, 0.30, 0.14, 0.30, wall);
+      chimneys.push({ x: cx, y: hy + h + roofH + 0.48, z: cz, phase: rng() * 10 });
+    }
+
+    const wy = hy + h * 0.63, fz = hz + d * 0.5 + 0.03;
+    addBox(hx - w * 0.24, wy, fz, 0.22, 0.32, 0.05, [0.16, 0.14, 0.13], 0, 1, sleepH, wakeH);
+    addBox(hx + w * 0.24, wy, fz, 0.22, 0.32, 0.05, [0.16, 0.14, 0.13], 0, 1, sleepH + 0.15, wakeH + 0.1);
+  }
+
+  // Case Contrada Bassa + Lavatoio Pubblico
+  for (let i = 0; i < 6; i++) buildVicenzaHouse(-11.2 + i * 1.65, 1.1, 9.8, 1.35, 1.25, 1.50, false, true);
+  {
+    const lx = 6.8, ly = 1.1, lz = 9.4;
+    addBox(lx, ly + 0.04, lz, 5.4, 0.08, 2.4, PIETRA_OMBRA);
+    addBox(lx, ly + 0.26, lz - 0.65, 4.6, 0.44, 0.22, PIETRA_VICENZA);
+    addBox(lx, ly + 0.26, lz + 0.65, 4.6, 0.44, 0.22, PIETRA_VICENZA);
+    addBox(lx - 2.2, ly + 0.26, lz, 0.22, 0.44, 1.50, PIETRA_VICENZA);
+    addBox(lx + 2.2, ly + 0.26, lz, 0.22, 0.44, 1.50, PIETRA_VICENZA);
+    addBox(lx, ly + 0.28, lz, 4.2, 0.34, 1.10, [0.24, 0.44, 0.54]);
+    for (const px of [lx - 2.3, lx, lx + 2.3]) for (const pz of [lz - 0.9, lz + 0.9]) {
+      addBox(px, ly + 0.95, pz, 0.12, 1.9, 0.12, LEGNO_COL);
+    }
+    addBox(lx, ly + 1.92, lz, 5.1, 0.12, 2.2, COPPI_COLS[2]);
+    addBox(lx - 1.4, ly + 0.16, lz + 1.05, 0.28, 0.26, 0.28, [0.52, 0.36, 0.22]);
+    addBox(lx + 0.8, ly + 0.16, lz + 1.05, 0.28, 0.26, 0.28, [0.52, 0.36, 0.22]);
+    addBox(lx - 0.3, ly + 0.12, lz + 1.00, 0.22, 0.14, 0.18, [0.82, 0.78, 0.68]);
+    addBox(lx - 2.4, ly + 0.75, lz - 1.55, 0.08, 1.5, 0.08, LEGNO_COL);
+    addBox(lx + 2.4, ly + 0.75, lz - 1.55, 0.08, 1.5, 0.08, LEGNO_COL);
+  }
+
+  // Contrada dei Portici & Osteria del Moro
+  for (let i = 0; i < 12; i++) {
+    const x = -11.2 + i * 1.95;
+    if ((x > -8.5 && x < -3.5) || Math.abs(x + 5.5) < 1.0 || Math.abs(x - 5.5) < 1.0) continue;
+    buildVicenzaHouse(x, 2.3, 5.0, 1.45, 1.30, 1.75, true, i > 8);
+  }
+  {
+    const ox = -6.4, oy = 2.3, oz = 4.4;
+    buildVicenzaHouse(ox, oy, oz, 2.4, 1.6, 1.9, true, false);
+    addBox(ox + 1.3, oy + 1.3, oz + 0.8, 0.42, 0.30, 0.06, [0.58, 0.24, 0.16]);
+    addBox(ox + 1.3, oy + 1.5, oz + 0.8, 0.28, 0.20, 0.20, [0.24, 0.42, 0.22]);
+    for (const px of [-4.7, -3.7]) for (const pz of [4.2, 5.5]) addBox(px, oy + 0.72, pz, 0.09, 1.44, 0.09, LEGNO_COL);
+    addBox(-4.2, oy + 1.46, 4.85, 1.3, 0.08, 1.6, [0.30, 0.44, 0.24]);
+    addBox(-4.2, oy + 0.32, 4.85, 0.92, 0.07, 0.50, LEGNO_COL);
+    addBox(-4.2, oy + 0.16, 4.85, 0.68, 0.32, 0.32, LEGNO_COL);
+    addBox(-5.0, oy + 0.26, 3.8, 0.34, 0.52, 0.34, [0.46, 0.28, 0.16]);
+    addBox(-4.6, oy + 0.26, 3.8, 0.34, 0.52, 0.34, [0.46, 0.28, 0.16]);
+    addBox(-5.1, oy + 1.22, 5.1, 0.16, 0.22, 0.16, [0.35, 0.28, 0.20], 0, 2);
+  }
+
+  // Piazza Grande, Pozzo, Banchi e Stendardi Festa del Vino
+  for (let row = 0; row < 2; row++) {
+    const z = -2.2 + row * 2.3;
+    for (let i = 0; i < 4; i++) {
+      buildVicenzaHouse(-11.2 + i * 1.72, 3.6, z, 1.40, 1.30, 1.80, true, false);
+      buildVicenzaHouse( 5.4 + i * 1.72, 3.6, z, 1.40, 1.30, 1.80, true, false);
+    }
+  }
+  {
+    const px = 0.5, py = 3.6, pz = -0.4;
+    addBox(px, py + 0.06, pz, 2.1, 0.12, 2.1, PIETRA_OMBRA);
+    addBox(px, py + 0.34, pz, 0.92, 0.48, 0.92, PIETRA_VICENZA);
+    addBox(px, py + 0.60, pz, 1.04, 0.10, 1.04, PIETRA_VICENZA);
+    addBox(px, py + 0.62, pz, 0.72, 0.08, 0.72, [0.22, 0.36, 0.44]);
+  }
+  for (const st of [
+    { x: -2.4, z: -1.3, c1: [0.76, 0.28, 0.20] }, { x: -2.4, z: 1.1, c1: [0.28, 0.46, 0.32] },
+    { x:  3.0, z: -1.3, c1: [0.78, 0.56, 0.20] }, { x:  3.0, z: 1.1, c1: [0.26, 0.40, 0.56] },
+  ]) {
+    const sy = 3.6;
+    addBox(st.x, sy + 0.30, st.z, 1.1, 0.42, 0.70, LEGNO_COL);
+    for (const dx of [-0.48, 0.48]) for (const dz of [-0.28, 0.28]) addBox(st.x + dx, sy + 0.72, st.z + dz, 0.06, 1.38, 0.06, LEGNO_COL);
+    for (let s = 0; s < 5; s++) addBox(st.x - 0.46 + s * 0.23, sy + 1.42, st.z, 0.23, 0.08, 0.82, s % 2 === 0 ? st.c1 : [0.85, 0.79, 0.67]);
+  }
+  for (const bx of [-3.6, -1.2, 1.8, 4.2]) {
+    addBox(bx, 3.6 + 1.2, -2.8, 0.08, 2.4, 0.08, LEGNO_COL, 0, 5);
+    addBox(bx, 3.6 + 2.0, -2.72, 0.46, 0.72, 0.05, [0.74, 0.18, 0.16], 0, 5);
+  }
+  addBox(-0.6, 3.6 + 0.32, 1.3, 0.52, 0.58, 0.52, [0.46, 0.26, 0.14], 0, 5);
+  addBox( 1.5, 3.6 + 0.32, 1.3, 0.52, 0.58, 0.52, [0.46, 0.26, 0.14], 0, 5);
+
+  // Chiesa Parrocchiale e Campanile
+  {
+    const cx = -1.2, cy = 4.9, cz = -6.4;
+    addBox(cx, cy + 1.6, cz, 3.3, 3.2, 4.2, PIETRA_VICENZA);
+    addBox(cx, cy + 1.75, cz + 2.14, 3.45, 3.5, 0.22, INTONACO_CALCE);
+    for (let t = 0; t < 5; t++) addBox(cx, cy + 3.6 + t * 0.21, cz + 2.14, 3.55 * (1.0 - t * 0.18), 0.22, 0.25, PIETRA_VICENZA);
+    addBox(cx, cy + 0.72, cz + 2.26, 0.82, 1.44, 0.12, LEGNO_COL);
+    addBox(cx, cy + 2.45, cz + 2.27, 0.74, 0.74, 0.10, [0.88, 0.66, 0.26], 0, 1, 22.0, 5.0);
+    for (let t = 0; t < 4; t++) addBox(cx, cy + 3.3 + t * 0.21, cz, 3.5 * (1.0 - t * 0.20), 0.23, 4.3, COPPI_COLS[0]);
+
+    const bx = 1.4, bz = -6.0;
+    addBox(bx, cy + 2.6, bz, 1.30, 5.2, 1.30, PIETRA_VICENZA);
+    for (const dx of [-0.46, 0.46]) for (const dz of [-0.46, 0.46]) addBox(bx + dx, cy + 5.7, bz + dz, 0.25, 1.05, 0.25, PIETRA_VICENZA);
+    addBox(bx, cy + 5.75, bz, 0.36, 0.42, 0.36, [0.42, 0.36, 0.24]);
+    for (let t = 0; t < 6; t++) addBox(bx, cy + 6.35 + t * 0.25, bz, 1.45 * (1.0 - t * 0.16), 0.26, 1.45 * (1.0 - t * 0.16), COPPI_COLS[1]);
+  }
+  for (let i = 0; i < 11; i++) {
+    const x = -10.8 + i * 2.05;
+    if (x > -4.2 && x < 3.2) continue;
+    buildVicenzaHouse(x, 4.9, -6.3, 1.40, 1.30, 1.70, i % 2 === 1, false);
+  }
+  for (let i = 0; i < 12; i++) buildVicenzaHouse(-10.5 + i * 1.88, 6.3, -11.2, 1.32, 1.22, 1.50, false, true);
+
+  // Campi Arati a Sud e Vigneti a Est
+  addBox(0, 0.03, 18.5, 24.0, 0.06, 7.6, TERRA_ARATA);
+  for (let s = 0; s < 14; s++) addBox(0, 0.07, 15.0 + s * 0.54, 23.6, 0.05, 0.22, [0.31, 0.22, 0.15]);
+  addBox(0, 0.04, 13.6, 2.2, 0.07, 2.8, STRADA_COL);
+
+  for (let row = 0; row < 11; row++) {
+    const vz = -7.0 + row * 1.8;
+    for (let p = 0; p < 7; p++) addBox(16.0 + p * 2.0, 0.55, vz, 0.09, 1.1, 0.09, LEGNO_COL);
+    addBox(22.0, 0.72, vz, 12.4, 0.42, 0.36, [0.28, 0.44, 0.22]);
+    addBox(22.0, 0.52, vz, 12.2, 0.16, 0.40, [0.34, 0.16, 0.28]);
+  }
+
+  // Alberi
+  for (const tr of [
+    { x: -15.2, y: 0.0, z: 12.8, cyp: true },  { x: 15.2, y: 0.0, z: 12.8, cyp: true },
+    { x: -3.4,  y: 4.9, z: -4.2, cyp: true },  { x: 2.7,  y: 4.9, z: -4.2, cyp: true },
+    { x: -9.5,  y: 6.3, z: -15.6, cyp: true }, { x: -3.0, y: 6.3, z: -16.0, cyp: false },
+    { x:  3.4,  y: 6.3, z: -15.6, cyp: true }, { x:  9.2, y: 6.3, z: -15.8, cyp: false },
+    { x: -16.5, y: 0.0, z: 4.0,  cyp: false }, { x: -16.8, y: 0.0, z: -3.5, cyp: true },
+  ]) {
+    if (tr.cyp) {
+      addBox(tr.x, tr.y + 0.4, tr.z, 0.18, 0.8, 0.18, LEGNO_COL);
+      addBox(tr.x, tr.y + 1.3, tr.z, 0.54, 1.0, 0.54, [0.22, 0.36, 0.22]);
+      addBox(tr.x, tr.y + 2.2, tr.z, 0.38, 0.9, 0.38, [0.26, 0.41, 0.24]);
+      addBox(tr.x, tr.y + 2.9, tr.z, 0.20, 0.6, 0.20, [0.29, 0.45, 0.26]);
+    } else {
+      addBox(tr.x, tr.y + 0.45, tr.z, 0.22, 0.9, 0.22, LEGNO_COL);
+      addBox(tr.x, tr.y + 1.15, tr.z, 1.15, 0.55, 1.10, [0.35, 0.48, 0.29]);
+      addBox(tr.x, tr.y + 1.55, tr.z, 0.85, 0.40, 0.82, [0.40, 0.54, 0.33]);
+    }
+  }
+
+  // --- MOTORE COGNITIVO HYDROGEN: Stato, Errori, Apprendimento & Diffusione ---
+  const brainEntriesEl = document.getElementById('brain-entries');
+  const wisdomScoreEl = document.getElementById('wisdom-score');
+  const globalLog = [];
+
+  function pushBrainLog(text, type = 'mistake') {
+    if (globalLog.length > 0 && globalLog[0].text === text) return;
+    globalLog.unshift({ text, type });
+    if (globalLog.length > 6) globalLog.pop();
+    brainEntriesEl.innerHTML = globalLog.map(item =>
+      `<div class="log-item ${item.type}">${item.text}</div>`
+    ).join('');
+  }
+
+  // Ogni agente ha memoria episodica e parametri adattivi che cambiano in base agli errori!
+  function initAgentBrain(agent, initialFaith) {
+    agent.energy = randRange(78, 98);
+    agent.thirst = randRange(8, 22);
+    agent.faith = initialFaith; // 0.0 (empirico puro) .. 1.0 (devoto/superstizioso)
+    agent.mistakes = 0;
+    agent.lessons = []; // array di { id, title, source }
+    agent.learnedSet = new Set();
+    agent.curfewBuffer = 0.0; // aumenta dopo essere rimasti chiusi fuori dalle mura!
+    agent.rainCaution = 0.72; // soglia di pioggia a cui cerca riparo (si abbassa dopo essersi inzuppato!)
+    agent.restRatio = 0.25;   // durata delle pause nei campi (aumenta dopo aver stremato i buoi!)
+    agent.lastErrorTick = -999;
+    agent.lastThought = 'Osservo il cielo e inizio la giornata.';
+  }
+
+  function recordMistakeAndLearn(agent, ruleId, mistakeDesc, lessonText, simTick) {
+    if (agent.learnedSet.has(ruleId) || (simTick - agent.lastErrorTick) < 6.0) return;
+    agent.lastErrorTick = simTick;
+    agent.mistakes++;
+    agent.learnedSet.add(ruleId);
+    agent.lessons.push({ id: ruleId, title: lessonText, source: 'Esperienza diretta' });
+    agent.lastThought = `Errore: ${mistakeDesc} → Ho imparato: ${lessonText}`;
+
+    // Adattamento comportamentale reale
+    if (ruleId === 'curfew_gate') agent.curfewBuffer = 0.85;
+    if (ruleId === 'rain_shelter') agent.rainCaution = 0.32;
+    if (ruleId === 'ox_rest') agent.restRatio = 0.42;
+    if (ruleId === 'well_ration') agent.faith = Math.max(0.15, agent.faith - 0.28);
+
+    pushBrainLog(`<b>${agent.name}</b> ha sbagliato (${mistakeDesc}) e ha imparato: <i>${lessonText}</i>`, 'learned');
+    updateTotalWisdom();
+  }
+
+  function shareLessonBetween(a, b, simTick) {
+    if ((simTick - (a.lastShareTick || -999)) < 10.0) return;
+    for (const lesson of a.lessons) {
+      if (!b.learnedSet.has(lesson.id)) {
+        a.lastShareTick = simTick;
+        b.learnedSet.add(lesson.id);
+        b.lessons.push({ id: lesson.id, title: lesson.title, source: `Appreso da ${a.name}` });
+        if (lesson.id === 'curfew_gate') b.curfewBuffer = Math.max(b.curfewBuffer, 0.75);
+        if (lesson.id === 'rain_shelter') b.rainCaution = Math.min(b.rainCaution, 0.35);
+        if (lesson.id === 'well_ration') b.faith = Math.max(0.20, b.faith - 0.15);
+        b.lastThought = `${a.name} mi ha avvertito: ${lesson.title}`;
+        pushBrainLog(`<b>${a.name}</b> ha istruito <b>${b.name}</b>: <i>${lesson.title}</i>`, 'social');
+        updateTotalWisdom();
+        break;
+      }
+    }
+  }
+
+  function updateTotalWisdom() {
+    let total = 0;
+    for (const v of villagers) total += v.lessons.length;
+    wisdomScoreEl.textContent = `Regole apprese: ${total}`;
+  }
+
+  // --- Stato del Mondo ---
+  const WEATHER_STATES = [
+    { name: 'Siccità',   sun: 1.18, rain: 0.0, cloud: 0.05, sunCol: [0.84, 0.75, 0.56], skyTop: [0.42, 0.64, 0.86], skyHor: [0.76, 0.78, 0.72] },
+    { name: 'Sereno',    sun: 0.98, rain: 0.0, cloud: 0.20, sunCol: [0.75, 0.71, 0.63], skyTop: [0.48, 0.68, 0.86], skyHor: [0.68, 0.76, 0.82] },
+    { name: 'Pioggia',   sun: 0.48, rain: 0.48,cloud: 0.68, sunCol: [0.52, 0.54, 0.58], skyTop: [0.32, 0.38, 0.46], skyHor: [0.46, 0.51, 0.56] },
+    { name: 'Temporale', sun: 0.24, rain: 1.0, cloud: 0.95, sunCol: [0.38, 0.42, 0.48], skyTop: [0.16, 0.20, 0.26], skyHor: [0.28, 0.32, 0.38] },
+  ];
+
+  let timeMode = 'auto';
+  let currentHour = 6.2;
+  let dayCount = 1;
+  let weatherMode = 'auto';
+  let currentWeatherIdx = 1;
+  let festaActive = false;
+  let timeSpeed = 1.0;
+
+  const oxTeams = [
+    { z: 16.4, xMin: -10.5, xMax: 10.5, phase: 0.1, x: -4.0, dir: 1, resting: false, oxFatigue: 20 },
+    { z: 19.6, xMin: -10.5, xMax: 10.5, phase: 0.6, x:  5.0, dir:-1, resting: false, oxFatigue: 20 }
+  ];
+
+  const villagers = [
+    {
+      name: 'Bortolo', role: 'Bifolco ai buoi', place: 'Campi arati fuori Porta Padova',
+      kind: 'ox_driver', oxIdx: 0, initFaith: 0.55,
+      tunic: [0.58, 0.46, 0.32], hose: [0.32, 0.26, 0.20], hat: [0.74, 0.64, 0.42],
+      x: -4.5, y: 0.0, z: 16.4,
+      speak(h, w, festa) {
+        if (this.resting) return `«Fermi i buoi, Nane! Beviamo un sorso dal fiasco e parliamo un po’: ${this.learnedSet.has('ox_rest') ? 'ho imparato a mie spese che a tirar l’aratro senza pause si fiaccano le bestie!' : 'col sole così alto anche i buoi hanno bisogno di rifiatare.'}»`;
+        if (h < 7.0) return `«Noi che abbiamo gli animali siamo i primi a uscire all’alba: i buoi lavorano meglio prima che il sole bruci le zolle.»`;
+        if (w === 0) return `«Terra dura come ferro! ${this.faith < 0.45 ? 'Don Bortolo predica il digiuno, ma io dico che serve razionare subito l’acqua del pozzo.' : 'Speriamo che le preghiere in chiesa portino presto una nuvola.'}»`;
+        return `«Dritto il solco fino al fosso! ${this.learnedSet.has('curfew_gate') ? 'Stasera stacco prima dell’Ave Maria: ieri il Caporale mi ha lasciato fuori dai portoni chiusi!' : 'Lavoriamo finché c’è luce, poi a cena e a dormire.'}»`;
+      }
+    },
+    {
+      name: 'Nane', role: 'Contadino aratore', place: 'Campi arati fuori Porta Padova',
+      kind: 'ox_driver', oxIdx: 1, initFaith: 0.68,
+      tunic: [0.46, 0.52, 0.34], hose: [0.28, 0.26, 0.22], hat: [0.72, 0.62, 0.40],
+      x: 5.5, y: 0.0, z: 19.6,
+      speak(h, w, festa) {
+        if (this.resting) return `«Passa il fiasco, Bortolo! Hai visto come lavora bene il versuro oggi? Quando suona la campana della sera rientriamo subito dentro le mura: fuori al buio girano i lupi.»`;
+        return `«Spingi l’aratro, Bianco! ${festa ? 'Ancora due solchi e poi andiamo in piazza alla Festa del Vino!' : 'Chi ha buoi e terra non conosce riposo, se non quei pochi minuti all’ombra col vino piccolo.'}»`;
+      }
+    },
+    {
+      name: 'Margherita', role: 'Lavandaia', place: 'Lavatoio Pubblico (Contrada Bassa)',
+      kind: 'washer', initFaith: 0.72, x: 5.6, y: 1.1, z: 10.2, faceX: 5.6, faceZ: 9.4,
+      tunic: [0.64, 0.34, 0.42], hose: [0.28, 0.22, 0.26], hat: [0.85, 0.81, 0.74],
+      speak(h, w, festa) {
+        if (w >= 2) return `«Meno male che abbiamo la tettoia sopra il lavatoio! Sbattiamo i panni col legno ma oggi resteranno umidi.»`;
+        return `«Lavo le camicie da lavoro di mio marito con il nostro sapone fatto in casa di cenere e sego: prima si sfregano, poi si battono forte con questo legno per strizzarle prima di stenderle al sole.»`;
+      }
+    },
+    {
+      name: 'Caterina', role: 'Moglie del fabbro', place: 'Lavatoio Pubblico (Contrada Bassa)',
+      kind: 'washer', initFaith: 0.60, x: 7.8, y: 1.1, z: 10.2, faceX: 7.8, faceZ: 9.4,
+      tunic: [0.32, 0.48, 0.56], hose: [0.24, 0.28, 0.32], hat: [0.84, 0.80, 0.72],
+      speak(h, w, festa) {
+        if (festa) return `«Strizza in fretta Margherita! Stasera c’è la Festa del Vino in piazza e voglio il grembiule pulito per ballare!»`;
+        return `«Qui al lavatoio ci scambiamo tutte le notizie del borgo: ${this.lessons.length > 0 ? 'ho già avvisato le altre donne di ciò che abbiamo imparato oggi!' : 'stamattina il parroco tuonava contro chi gioca a dadi all’osteria.'}»`;
+      }
+    },
+    {
+      name: 'Zuanne', role: 'Vignaiolo', place: 'Vigneti fuori Porta dei Colli',
+      kind: 'vineyard', initFaith: 0.50, x: 17.5, y: 0.0, z: 3.5, faceX: 19.0, faceZ: 3.5,
+      tunic: [0.54, 0.28, 0.24], hose: [0.28, 0.24, 0.20], hat: [0.68, 0.58, 0.38],
+      speak(h, w, festa) {
+        if (festa) return `«Guarda la piazza piena di stendardi! Quest’anno le nostre vigne collinari hanno dato un vino nero che scalda il cuore a tutto il Vicentino.»`;
+        if (w === 0) return `«Le foglie delle viti si accartocciano per la siccità: se non piove, avremo poco mosto e dovremo pagare le tasse a Venezia vendendo il grano.»`;
+        return `«Curo ogni filare di castagno e vite: il vino è la vera ricchezza della nostra terra, dà forza ai contadini nei campi e unisce il paese alla festa.»`;
+      }
+    },
+    {
+      name: 'Caporale Marco', role: 'Guardia di Porta Padova', place: 'Porta Sud delle Mura',
+      kind: 'guard', initFaith: 0.65, x: -1.8, y: 0.0, z: 12.6, faceX: 0.0, faceZ: 14.5,
+      tunic: [0.68, 0.22, 0.20], hose: [0.24, 0.24, 0.28], hat: [0.45, 0.47, 0.50],
+      speak(h, w, festa) {
+        if (h >= 19.0 || h < 4.75) return `«Portoni sbarrati e chiavistelli tirati! Fuori dalle mura di notte comandano lupi, briganti e ombre: chi arriva tardi dorme al freddo fino all’alba!»`;
+        if (h < 7.0) return `«Abbiamo appena aperto i portoni: i primi a uscire sono sempre i bifolchi coi buoi e i vignaioli.»`;
+        return `«Queste mura in pietra ci proteggono da ogni pericolo esterno. Finchè ci sono io con l’alabarda, dentro il borgo si dorme tranquilli.»`;
+      }
+    },
+    {
+      name: 'Giacomo', role: 'Oste del Moro', place: 'Osteria del Moro (Contrada Portici)',
+      kind: 'townfolk', initFaith: 0.35, x: -4.9, y: 2.3, z: 4.9, faceX: -4.0, faceZ: 4.8,
+      tunic: [0.68, 0.28, 0.20], hose: [0.28, 0.24, 0.20], hat: [0.42, 0.22, 0.16],
+      speak(h, w, festa) {
+        if (festa) return `«Oggi spilliamo le botti migliori in Piazza Grande! Anche i contadini che arano con i buoi hanno il primo goto offerto dall’osteria!»`;
+        return `«Sotto il mio pergolato passano tutti e si imparano tante cose: Don Bortolo dice che c’è un demonio che blocca la pioggia, ma io dico che il vino buono scaccia ogni paura.»`;
+      }
+    },
+    {
+      name: 'Don Bortolo', role: 'Parroco di San Marco', place: 'Sagrato della Chiesa',
+      kind: 'priest', initFaith: 0.98, x: -1.2, y: 4.9, z: -3.9, faceX: 0.0, faceZ: -2.0,
+      tunic: [0.15, 0.15, 0.17], hose: [0.13, 0.13, 0.15], hat: [0.15, 0.15, 0.17],
+      speak(h, w, festa) {
+        if (w === 0) return `«Il cielo è chiuso come ferro perché le taverne sono piene e la chiesa è vuota! C’è un demonio d’empietà nel borgo: pregate e digiunate o perderemo ogni raccolto!»`;
+        if (w === 3) return `«Suonate le campane a distesa contro i demoni della tempesta! Che la grandine risparmi le vigne e i campi dei nostri contadini!»`;
+        return `«Quando scende la sera e ogni casa spegne la sua candela, io veglio dal sagrato perché le mura e gli angeli custodiscano il borgo.»`;
+      }
+    },
+    {
+      name: 'Lorenzo', role: 'Speziale', place: 'Pozzo di Piazza Grande',
+      kind: 'townfolk', initFaith: 0.22, x: 1.3, y: 3.6, z: 0.2, faceX: 0.2, faceZ: 0.6,
+      tunic: [0.34, 0.48, 0.36], hose: [0.24, 0.28, 0.24], hat: [0.58, 0.24, 0.20],
+      speak(h, w, festa) {
+        if (w === 0) return `«Altro che demoni nei boschi: è lo scirocco che asciuga le sorgenti dei Berici! Chi ha capito l’errore di sprecare acqua ora la raziona con giudizio.»`;
+        return `«Osservo i fatti e annoto tutto nel mio libro: quando i cittadini imparano dai propri errori, l’intero borgo diventa più saggio e sicuro.»`;
+      }
+    }
+  ];
+
+  // Cittadini dinamici nelle contrade (con apprendimento individuale)
+  const WALK_PATHS = [
+    { y: 1.1, x0: -10.5, x1: 3.5, z: 8.2 },
+    { y: 2.3, x0: -2.5,  x1: 11.5, z: 6.3 },
+    { y: 2.3, x0: -2.5,  x1: 12.2, z: 3.3 },
+    { y: 3.6, x0: -4.2,  x1: 4.5,  z: 1.7 },
+    { y: 3.6, x0: -4.2,  x1: 4.5,  z: -2.3 },
+    { y: 4.9, x0: -10.0, x1: 10.0, z: -4.2 },
+    { y: 6.3, x0: -9.5,  x1: 9.5,  z: -9.8 },
+  ];
+  const POPOLO = [
+    ['Elena', 'Filatrice'], ['Matteo', 'Fabbro'], ['Lucia', 'Ortolana'],
+    ['Beppe', 'Mugnaio'], ['Chiara', 'Tessitrice'], ['Domenico', 'Carrettiere'],
+    ['Rosa', 'Erborista'], ['Battista', 'Bottaro'], ['Teresa', 'Fornaia'],
+    ['Alvise', 'Scrivano'], ['Maddalena', 'Pollivendola'], ['Silvestro', 'Calzolaio']
+  ];
+  const TUNIC_COLS = [
+    [0.72, 0.30, 0.24], [0.28, 0.44, 0.62], [0.74, 0.60, 0.26],
+    [0.34, 0.52, 0.34], [0.60, 0.36, 0.50], [0.54, 0.38, 0.26]
+  ];
+
+  for (let i = 0; i < 20; i++) {
+    const wp = WALK_PATHS[i % WALK_PATHS.length];
+    const [nome, mestiere] = POPOLO[i % POPOLO.length];
+    villagers.push({
+      name: nome, role: mestiere, place: 'Contrade del borgo murato',
+      kind: 'citizen', initFaith: randRange(0.35, 0.85),
+      path: wp, phase: rng(),
+      speed: randRange(0.032, 0.056) * (rng() < 0.5 ? 1 : -1),
+      zOff: randRange(-0.22, 0.22),
+      tunic: pick(TUNIC_COLS), hose: [0.25, 0.24, 0.22],
+      hat: rng() < 0.45 ? [0.46, 0.34, 0.22] : null,
+      x: 0, y: wp.y, z: wp.z,
+      speak(h, w, festa) {
+        if (festa) return `«Che gioia la Festa del Vino in piazza! Oggi dimentichiamo le fatiche nei campi e al lavatoio.»`;
+        if (this.lessons.length > 0) {
+          const last = this.lessons[this.lessons.length - 1];
+          return `«Sai cosa ho imparato oggi? ${last.title} (${last.source}). Qui nel borgo chi non impara dai propri sbagli dura poco!»`;
+        }
+        if (w === 0) return `«Con questa siccità Don Bortolo dice che dobbiamo pregare di più, ma io ho sete e il pozzo cala ogni giorno.»`;
+        return `«Buongiorno! Prima che scenda la sera torno a casa a cenare e spengo la candela: di notte fuori dalle mura non è sicuro.»`;
+      }
+    });
+  }
+
+  for (const v of villagers) initAgentBrain(v, v.initFaith);
+
+  // Gocce di pioggia
+  const RAIN_COUNT = 280;
+  const rainDrops = [];
+  for (let i = 0; i < RAIN_COUNT; i++) {
+    rainDrops.push({ x: randRange(-22, 26), y0: randRange(2, 20), z: randRange(-18, 22), speed: randRange(13, 19), phase: rng() * 10 });
+  }
+
+  // --- Buffer GPU ---
+  const cubeVbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, cubeVbo);
+  gl.bufferData(gl.ARRAY_BUFFER, cubeVerts, gl.STATIC_DRAW);
+
+  const STATIC_FLOATS = staticVoxels.length;
+  const STATIC_COUNT = STATIC_FLOATS / 13;
+  const MAX_DYN = 750;
+  const instanceData = new Float32Array(STATIC_FLOATS + MAX_DYN * 13);
+  instanceData.set(staticVoxels, 0);
+
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+  gl.bindBuffer(gl.ARRAY_BUFFER, cubeVbo);
+  gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);
+  gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
+
+  const instanceVbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, instanceVbo);
+  gl.bufferData(gl.ARRAY_BUFFER, instanceData, gl.DYNAMIC_DRAW);
+
+  const STRIDE = 13 * 4;
+  gl.enableVertexAttribArray(2); gl.vertexAttribPointer(2, 3, gl.FLOAT, false, STRIDE, 0);  gl.vertexAttribDivisor(2, 1);
+  gl.enableVertexAttribArray(3); gl.vertexAttribPointer(3, 3, gl.FLOAT, false, STRIDE, 12); gl.vertexAttribDivisor(3, 1);
+  gl.enableVertexAttribArray(4); gl.vertexAttribPointer(4, 3, gl.FLOAT, false, STRIDE, 24); gl.vertexAttribDivisor(4, 1);
+  gl.enableVertexAttribArray(5); gl.vertexAttribPointer(5, 4, gl.FLOAT, false, STRIDE, 36); gl.vertexAttribDivisor(5, 1);
+  gl.bindVertexArray(null);
+
+  const uViewProj = gl.getUniformLocation(prog, 'uViewProj');
+  const uTime = gl.getUniformLocation(prog, 'uTime');
+  const uHour = gl.getUniformLocation(prog, 'uHour');
+  const uDaylight = gl.getUniformLocation(prog, 'uDaylight');
+  const uRainAmount = gl.getUniformLocation(prog, 'uRainAmount');
+  const uCloudCover = gl.getUniformLocation(prog, 'uCloudCover');
+  const uFesta = gl.getUniformLocation(prog, 'uFesta');
+  const uLightning = gl.getUniformLocation(prog, 'uLightning');
+  const uSunColor = gl.getUniformLocation(prog, 'uSunColor');
+  const uSkyTop = gl.getUniformLocation(prog, 'uSkyTop');
+  const uSkyHorizon = gl.getUniformLocation(prog, 'uSkyHorizon');
+
+  // --- Camera ---
+  const cam = {
+    panX: 1.5, panZ: 2.0, zoom: 1.12,
+    minPanX: -14.0, maxPanX: 18.0, minPanZ: -11.0, maxPanZ: 14.0,
+    minZoom: 0.45, maxZoom: 1.55
+  };
+  const viewProj = new Float32Array(16);
+
+  function updateCameraMatrices() {
+    cam.panX = Math.max(cam.minPanX, Math.min(cam.maxPanX, cam.panX));
+    cam.panZ = Math.max(cam.minPanZ, Math.min(cam.maxPanZ, cam.panZ));
+    cam.zoom = Math.max(cam.minZoom, Math.min(cam.maxZoom, cam.zoom));
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, Math.floor(window.innerWidth * dpr));
+    const h = Math.max(1, Math.floor(window.innerHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    gl.viewport(0, 0, w, h);
+
+    const target = [cam.panX, 3.2, cam.panZ];
+    const eye = [cam.panX + 15.0, 31.0, cam.panZ + 34.0];
+    const viewMat = mat4LookAt(eye, target, [0, 1, 0]);
+    const aspect = w / h;
+    const halfH = 17.5 * cam.zoom;
+    const halfW = halfH * aspect;
+    const proj = mat4Ortho(-halfW, halfW, -halfH, halfH, 1.0, 130.0);
+    mat4Multiply(viewProj, proj, viewMat);
+  }
+  window.addEventListener('resize', updateCameraMatrices);
+  updateCameraMatrices();
+
+  // --- Interazione ---
+  let isDragging = false, dragMoved = false, lastX = 0, lastY = 0;
+  let selectedVillager = null, followSelected = false;
+
+  canvas.addEventListener('pointerdown', (e) => { isDragging = true; dragMoved = false; lastX = e.clientX; lastY = e.clientY; });
+  window.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    if (Math.hypot(dx, dy) > 4) { dragMoved = true; followSelected = false; updateFollowBtn(); }
+    lastX = e.clientX; lastY = e.clientY;
+    const scale = 0.034 * cam.zoom;
+    cam.panX -= (dx * 0.92 + dy * 0.38) * scale;
+    cam.panZ -= (dy * 0.92 - dx * 0.38) * scale;
+    updateCameraMatrices();
+  });
+  window.addEventListener('pointerup', (e) => {
+    if (isDragging && !dragMoved) handleCanvasClick(e.clientX, e.clientY);
+    isDragging = false;
+  });
+  canvas.addEventListener('wheel', (e) => { e.preventDefault(); cam.zoom += e.deltaY * 0.0008; updateCameraMatrices(); }, { passive: false });
+
+  const keysDown = new Set();
+  window.addEventListener('keydown', (e) => keysDown.add(e.key.toLowerCase()));
+  window.addEventListener('keyup', (e) => keysDown.delete(e.key.toLowerCase()));
+
+  function processKeyboard(dt) {
+    const sp = 11.0 * cam.zoom * dt;
+    let moved = false;
+    if (keysDown.has('a') || keysDown.has('arrowleft'))  { cam.panX -= sp; moved = true; }
+    if (keysDown.has('d') || keysDown.has('arrowright')) { cam.panX += sp; moved = true; }
+    if (keysDown.has('w') || keysDown.has('arrowup'))    { cam.panZ -= sp; moved = true; }
+    if (keysDown.has('s') || keysDown.has('arrowdown'))  { cam.panZ += sp; moved = true; }
+    if (keysDown.has('+') || keysDown.has('=') || keysDown.has('q')) { cam.zoom -= 0.75 * dt; moved = true; }
+    if (keysDown.has('-') || keysDown.has('_') || keysDown.has('e')) { cam.zoom += 0.75 * dt; moved = true; }
+    if (moved) { followSelected = false; updateFollowBtn(); updateCameraMatrices(); }
+  }
+
+  // --- Controlli HUD ---
+  const clockLabel = document.getElementById('clock-label');
+  document.querySelectorAll('#hud-left button[data-t]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#hud-left button[data-t]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      timeMode = btn.dataset.t === 'auto' ? 'auto' : Number(btn.dataset.t);
+    });
+  });
+  document.querySelectorAll('#hud-left button[data-w]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#hud-left button[data-w]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      weatherMode = btn.dataset.w === 'auto' ? 'auto' : Number(btn.dataset.w);
+    });
+  });
+  const btnFesta = document.getElementById('btn-festa');
+  btnFesta.addEventListener('click', () => {
+    festaActive = !festaActive;
+    btnFesta.classList.toggle('active', festaActive);
+    btnFesta.textContent = festaActive ? 'Festa del Vino: ON' : 'Festa del Vino: OFF';
+  });
+  const btnSpeed = document.getElementById('btn-speed');
+  btnSpeed.addEventListener('click', () => {
+    timeSpeed = timeSpeed === 1.0 ? 3.0 : (timeSpeed === 3.0 ? 0.25 : 1.0);
+    btnSpeed.textContent = `Velocità: ${timeSpeed}×`;
+  });
+
+  // --- Scheda Cognitiva Cittadino ---
+  const cardEl = document.getElementById('citizen-card');
+  const btnFollow = document.getElementById('btn-follow');
+  function updateFollowBtn() {
+    btnFollow.classList.toggle('following', followSelected);
+    btnFollow.textContent = followSelected ? 'Camera agganciata ✓' : 'Segui con camera';
+  }
+  btnFollow.onclick = () => {
+    followSelected = !followSelected;
+    updateFollowBtn();
+  };
+  document.getElementById('cc-close').onclick = () => {
+    selectedVillager = null;
+    followSelected = false;
+    updateFollowBtn();
+    cardEl.classList.remove('visible');
+  };
+
+  function updateCitizenCard() {
+    if (!selectedVillager) return;
+    const v = selectedVillager;
+    document.getElementById('cc-name').textContent = v.name;
+    document.getElementById('cc-role').textContent = `— ${v.role} (${v.visible ? v.place : 'In casa al riparo'})`;
+
+    const speech = v.visible
+      ? v.speak(currentHour, currentWeatherIdx, festaActive)
+      : '«Sono rientrato in casa: dopo cena si spegne la candela e si dorme al sicuro dentro le mura fino all’alba.»';
+    document.getElementById('cc-speech').textContent = speech;
+
+    const e = Math.round(v.energy);
+    const th = Math.round(v.thirst);
+    const fa = Math.round(v.faith * 100);
+    document.getElementById('m-energy').textContent = `${e}%`;
+    document.getElementById('b-energy').style.width = `${e}%`;
+    document.getElementById('m-thirst').textContent = `${th}%`;
+    document.getElementById('b-thirst').style.width = `${th}%`;
+    document.getElementById('m-faith').textContent = `${fa}% Fede`;
+    document.getElementById('b-faith').style.width = `${fa}%`;
+    document.getElementById('m-lessons').textContent = `${v.mistakes} err / ${v.lessons.length} reg`;
+    document.getElementById('b-lessons').style.width = `${Math.min(100, v.lessons.length * 25)}%`;
+
+    const memHtml = v.lessons.length === 0
+      ? `<strong>Memoria Esperienziale:</strong> Nessun errore ancora commesso oggi. <i>(${v.lastThought})</i>`
+      : `<strong>Regole Apprese (${v.lessons.length}):</strong> ` + v.lessons.map(l => `• ${l.title} <i>[${l.source}]</i>`).join(' · ');
+    document.getElementById('cc-memory').innerHTML = memHtml;
+    cardEl.classList.add('visible');
+  }
+
+  function projectToScreen(wx, wy, wz) {
+    const x = viewProj[0]*wx + viewProj[4]*wy + viewProj[8]*wz + viewProj[12];
+    const y = viewProj[1]*wx + viewProj[5]*wy + viewProj[9]*wz + viewProj[13];
+    const w = viewProj[3]*wx + viewProj[7]*wy + viewProj[11]*wz + viewProj[15];
+    return { sx: ((x / w) * 0.5 + 0.5) * window.innerWidth, sy: (-(y / w) * 0.5 + 0.5) * window.innerHeight };
+  }
+
+  function handleCanvasClick(clientX, clientY) {
+    let best = null, bestDist = 36;
+    for (const v of villagers) {
+      if (!v.visible) continue;
+      const p = projectToScreen(v.x, v.y + 0.45, v.z);
+      const d = Math.hypot(p.sx - clientX, p.sy - clientY);
+      if (d < bestDist) { bestDist = d; best = v; }
+    }
+    if (best) {
+      selectedVillager = best;
+      updateCitizenCard();
+    } else {
+      selectedVillager = null;
+      followSelected = false;
+      updateFollowBtn();
+      cardEl.classList.remove('visible');
+    }
+  }
+
+  // --- Scrittura Istanze Dinamiche ---
+  let dynPtr = 0;
+  function pushDyn(px, py, pz, sx, sy, sz, col, rotY = 0, mType = 0) {
+    if (dynPtr >= MAX_DYN) return;
+    const idx = STATIC_FLOATS + dynPtr * 13;
+    instanceData[idx]      = px; instanceData[idx + 1]  = py; instanceData[idx + 2]  = pz;
+    instanceData[idx + 3]  = sx; instanceData[idx + 4]  = sy; instanceData[idx + 5]  = sz;
+    instanceData[idx + 6]  = col[0]; instanceData[idx + 7] = col[1]; instanceData[idx + 8] = col[2];
+    instanceData[idx + 9]  = rotY; instanceData[idx + 10] = mType;
+    instanceData[idx + 11] = 0; instanceData[idx + 12] = 0;
+    dynPtr++;
+  }
+
+  function drawPerson(v, yaw, stride, armPhase, toolType, t) {
+    if (v === selectedVillager) {
+      pushDyn(v.x, v.y + 0.03, v.z, 0.58, 0.04, 0.58, [0.98, 0.78, 0.28], t * 1.6, 2);
+    }
+    pushDyn(v.x + stride, v.y + 0.14, v.z - 0.05, 0.08, 0.28, 0.08, v.hose, yaw);
+    pushDyn(v.x - stride, v.y + 0.14, v.z + 0.05, 0.08, 0.28, 0.08, v.hose, yaw);
+    pushDyn(v.x, v.y + 0.43, v.z, 0.21, 0.32, 0.16, v.tunic, yaw);
+    const bob = Math.abs(Math.sin(armPhase)) * 0.02;
+    pushDyn(v.x, v.y + 0.67 - bob, v.z, 0.15, 0.15, 0.15, [0.80, 0.64, 0.52], yaw);
+    if (v.hat) pushDyn(v.x, v.y + 0.76 - bob, v.z, 0.21, 0.06, 0.21, v.hat, yaw);
+
+    if (toolType === 'beater') {
+      const beatY = 0.45 + Math.sin(t * 7.5 + v.x) * 0.14;
+      pushDyn(v.x, v.y + beatY, v.z - 0.24, 0.08, 0.05, 0.32, LEGNO_COL, Math.sin(t * 7.5) * 0.4);
+      pushDyn(v.x, v.y + 0.49, v.z - 0.42, 0.34, 0.06, 0.22, [0.84, 0.80, 0.74], 0);
+    } else if (toolType === 'flask') {
+      const drinkY = 0.56 + Math.sin(t * 2.5) * 0.08;
+      pushDyn(v.x + 0.14, v.y + drinkY, v.z, 0.12, 0.16, 0.12, [0.48, 0.32, 0.18], 0);
+    } else if (toolType === 'halberd') {
+      pushDyn(v.x + 0.18, v.y + 0.65, v.z, 0.04, 1.30, 0.04, LEGNO_COL, 0);
+      pushDyn(v.x + 0.18, v.y + 1.25, v.z, 0.12, 0.24, 0.03, [0.65, 0.68, 0.72], 0);
+    }
+  }
+
+  let smoothWeather = { sun: 0.98, rain: 0.0, cloud: 0.20, sunCol: [0.75, 0.71, 0.63], skyTop: [0.48, 0.68, 0.86], skyHor: [0.68, 0.76, 0.82] };
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const lerp3 = (out, a, b, t) => { out[0] = lerp(a[0], b[0], t); out[1] = lerp(a[1], b[1], t); out[2] = lerp(a[2], b[2], t); };
+
+  let simClock = 0.0;
+  let uiRefreshTimer = 0.0;
+
+  function renderFrame(rawTime, dt) {
+    const scaledDt = dt * timeSpeed;
+    simClock += scaledDt;
+    uiRefreshTimer += dt;
+
+    processKeyboard(dt);
+
+    // Orologio (1 giorno = 96s a 1x)
+    if (timeMode === 'auto') {
+      const prevH = currentHour;
+      currentHour = (5.0 + (simClock / 96.0) * 24.0) % 24.0;
+      if (currentHour < prevH) dayCount++;
+    } else {
+      currentHour = timeMode;
+    }
+
+    const nextW = (weatherMode === 'auto') ? Math.floor(((simClock + 12.0) / 22.0) % 4) : weatherMode;
+    currentWeatherIdx = nextW;
+
+    const targetW = WEATHER_STATES[currentWeatherIdx];
+    const blend = Math.min(1.0, dt * 1.8);
+    smoothWeather.sun = lerp(smoothWeather.sun, targetW.sun, blend);
+    smoothWeather.rain = lerp(smoothWeather.rain, targetW.rain, blend);
+    smoothWeather.cloud = lerp(smoothWeather.cloud, targetW.cloud, blend);
+    lerp3(smoothWeather.sunCol, smoothWeather.sunCol, targetW.sunCol, blend);
+    lerp3(smoothWeather.skyTop, smoothWeather.skyTop, targetW.skyTop, blend);
+    lerp3(smoothWeather.skyHor, smoothWeather.skyHor, targetW.skyHor, blend);
+
+    // Lampi sporadici durante il temporale
+    let lightning = 0.0;
+    if (currentWeatherIdx === 3) {
+      const flash = Math.sin(simClock * 17.3) * Math.sin(simClock * 43.7);
+      if (flash > 0.94) lightning = (flash - 0.94) * 14.0;
+    }
+
+    let daylight = 0.0;
+    if (currentHour >= 5.0 && currentHour <= 19.5) {
+      daylight = Math.pow(Math.max(0.0, Math.sin(((currentHour - 5.0) / 14.5) * Math.PI)), 0.55);
+    }
+    const warmSunset = Math.exp(-Math.pow((currentHour - 5.8) / 1.1, 2.0)) + Math.exp(-Math.pow((currentHour - 18.6) / 1.1, 2.0));
+
+    const nightTop = [0.04, 0.06, 0.12], nightHor = [0.08, 0.11, 0.18], duskHor = [0.84, 0.46, 0.24];
+    const effSkyTop = [
+      lerp(nightTop[0], smoothWeather.skyTop[0], daylight),
+      lerp(nightTop[1], smoothWeather.skyTop[1], daylight),
+      lerp(nightTop[2], smoothWeather.skyTop[2], daylight),
+    ];
+    const effSkyHor = [
+      lerp(lerp(nightHor[0], smoothWeather.skyHor[0], daylight), duskHor[0], warmSunset * 0.45 * (1.0 - smoothWeather.cloud)),
+      lerp(lerp(nightHor[1], smoothWeather.skyHor[1], daylight), duskHor[1], warmSunset * 0.35 * (1.0 - smoothWeather.cloud)),
+      lerp(lerp(nightHor[2], smoothWeather.skyHor[2], daylight), duskHor[2], warmSunset * 0.25 * (1.0 - smoothWeather.cloud)),
+    ];
+
+    const hh = String(Math.floor(currentHour)).padStart(2, '0');
+    const mm = String(Math.floor((currentHour % 1) * 60)).padStart(2, '0');
+    let phaseName = 'Notte (Mura chiuse)';
+    if (currentHour >= 4.75 && currentHour < 7.0) phaseName = 'Alba (Primi lavori)';
+    else if (currentHour >= 7.0 && currentHour < 12.5) phaseName = 'Mattino';
+    else if (currentHour >= 12.5 && currentHour < 18.0) phaseName = 'Pomeriggio';
+    else if (currentHour >= 18.0 && currentHour < 20.5) phaseName = 'Sera (Cena)';
+    clockLabel.textContent = `Giorno ${dayCount} · ${hh}:${mm} · ${phaseName} · ${WEATHER_STATES[currentWeatherIdx].name}`;
+
+    dynPtr = 0;
+
+    // 1. Portoni delle Mura chiusi di notte
+    const gatesClosed = (currentHour >= 19.0 || currentHour < 4.75);
+    if (gatesClosed) {
+      pushDyn(0, 1.35, 12.2, 2.1, 2.7, 0.18, LEGNO_COL, 0);
+      pushDyn(13.2, 2.3 + 1.25, 4.8, 0.18, 2.5, 2.1, LEGNO_COL, 0);
+    }
+
+    // 2. Fumo dai comignoli veneziani durante la cena serale (18:00-20:45) e al mattino presto (5:00-7:30)
+    const smokeActive = (currentHour >= 18.0 && currentHour <= 20.8) || (currentHour >= 5.0 && currentHour <= 7.5);
+    if (smokeActive) {
+      for (let i = 0; i < chimneys.length; i += 2) {
+        const ch = chimneys[i];
+        for (let p = 0; p < 2; p++) {
+          const age = (simClock * 0.7 + ch.phase + p * 0.5) % 1.0;
+          const sy = ch.y + age * 1.4;
+          const sx = ch.x + Math.sin(simClock * 1.5 + ch.phase + age * 3.0) * 0.18 * age;
+          const sz = ch.z - age * 0.15;
+          const szBox = 0.14 + age * 0.16;
+          pushDyn(sx, sy, sz, szBox, szBox, szBox, [0.65, 0.65, 0.65], age, 6);
+        }
+      }
+    }
+
+    // 3. Buoi con Aratro fuori dalle mura + Apprendimento dalla fatica
+    const driverA = villagers[0];
+    const farmersActive = (currentHour >= 4.75 && currentHour <= (18.6 - driverA.curfewBuffer)) && (smoothWeather.rain < 0.78);
+
+    // Se i contadini tardano oltre le 19.0 quando i portoni chiudono -> errore di coprifuoco!
+    if (currentHour >= 19.0 && currentHour < 19.4 && driverA.curfewBuffer === 0.0) {
+      recordMistakeAndLearn(driverA, 'curfew_gate', 'Rimasto fuori dai portoni chiusi', 'Staccare i buoi 45 min prima dell’Ave Maria', simClock);
+    }
+
+    for (let i = 0; i < oxTeams.length; i++) {
+      const ot = oxTeams[i];
+      if (!farmersActive) continue;
+
+      const driver = villagers[i];
+      const period = 20.0;
+      const sub = (simClock + i * 7.0) % period;
+      const workEnd = period * (1.0 - driver.restRatio);
+      ot.resting = (sub > workEnd);
+
+      // Se lavora senza pause sufficienti durante la siccità -> i buoi si stremamo -> impara!
+      if (!ot.resting && currentWeatherIdx === 0) {
+        ot.oxFatigue += scaledDt * 2.5;
+        if (ot.oxFatigue > 55) {
+          recordMistakeAndLearn(driver, 'ox_rest', 'Sforzati i buoi sotto il sole secco', 'Allungare le pause col fiasco nei campi', simClock);
+          ot.oxFatigue = 25;
+        }
+      } else if (ot.resting) {
+        ot.oxFatigue = Math.max(10, ot.oxFatigue - scaledDt * 5.0);
+      }
+
+      const moveT = Math.floor((simClock + i * 7.0) / period) * workEnd + Math.min(sub, workEnd);
+      const u = (ot.phase + moveT * 0.028) % 1.0;
+      const goingRight = u < 0.5;
+      const tri = goingRight ? (u * 2.0) : (2.0 - u * 2.0);
+      ot.x = ot.xMin + (ot.xMax - ot.xMin) * tri;
+      ot.dir = goingRight ? 1 : -1;
+
+      const step = ot.resting ? 0 : Math.sin(simClock * 5.0) * 0.05;
+      for (const dz of [-0.32, 0.32]) {
+        const bx = ot.x + ot.dir * 0.65;
+        pushDyn(bx, 0.48, ot.z + dz, 0.88, 0.42, 0.34, [0.85, 0.83, 0.78]);
+        pushDyn(bx + ot.dir * 0.52, 0.58, ot.z + dz, 0.28, 0.26, 0.24, [0.82, 0.80, 0.75]);
+        pushDyn(bx + ot.dir * 0.56, 0.74, ot.z + dz - 0.14, 0.06, 0.14, 0.05, [0.72, 0.68, 0.58]);
+        pushDyn(bx + ot.dir * 0.56, 0.74, ot.z + dz + 0.14, 0.06, 0.14, 0.05, [0.72, 0.68, 0.58]);
+        pushDyn(bx - 0.28 + step, 0.16, ot.z + dz - 0.10, 0.09, 0.32, 0.09, [0.74, 0.72, 0.68]);
+        pushDyn(bx - 0.28 - step, 0.16, ot.z + dz + 0.10, 0.09, 0.32, 0.09, [0.74, 0.72, 0.68]);
+        pushDyn(bx + 0.28 - step, 0.16, ot.z + dz - 0.10, 0.09, 0.32, 0.09, [0.74, 0.72, 0.68]);
+        pushDyn(bx + 0.28 + step, 0.16, ot.z + dz + 0.10, 0.09, 0.32, 0.09, [0.74, 0.72, 0.68]);
+      }
+      pushDyn(ot.x + ot.dir * 0.95, 0.66, ot.z, 0.10, 0.08, 0.92, LEGNO_COL);
+      pushDyn(ot.x + ot.dir * 0.15, 0.42, ot.z, 1.45, 0.07, 0.07, LEGNO_COL);
+      pushDyn(ot.x - ot.dir * 0.45, 0.22, ot.z, 0.42, 0.24, 0.16, [0.34, 0.36, 0.40]);
+      pushDyn(ot.x - ot.dir * 0.20, 0.12, ot.z + 0.55, 0.16, 0.22, 0.16, [0.48, 0.32, 0.18]);
+    }
+
+    // 4. Panni stesi al lavatoio
+    if (currentHour >= 6.5 && currentHour <= 18.0 && smoothWeather.rain < 0.3) {
+      const cols = [[0.84, 0.80, 0.74], [0.72, 0.32, 0.26], [0.30, 0.48, 0.66], [0.80, 0.76, 0.68], [0.58, 0.46, 0.32]];
+      for (let g = 0; g < 5; g++) {
+        const sway = Math.sin(simClock * 2.2 + g) * 0.06;
+        pushDyn(4.9 + g * 0.95, 1.1 + 1.15, 7.85 + sway, 0.32, 0.44, 0.04, cols[g], sway * 2.0);
+      }
+    }
+
+    // 5. Aggiornamento Agenti Cognitivi, Errori e Diffusione Sociale
+    const isNight = (currentHour >= 19.2 || currentHour < 4.75);
+
+    for (let i = 0; i < villagers.length; i++) {
+      const v = villagers[i];
+      v.visible = true;
+      let yaw = 0, stride = 0, armPhase = 0, toolType = null;
+
+      // Metabolismo & apprendimento ambientale
+      if (v.visible && !isNight) {
+        v.energy = Math.max(25, v.energy - scaledDt * (currentWeatherIdx === 0 ? 0.45 : 0.22));
+        v.thirst = Math.min(95, v.thirst + scaledDt * (currentWeatherIdx === 0 ? 0.85 : 0.35));
+      } else {
+        v.energy = Math.min(100, v.energy + scaledDt * 1.2);
+        v.thirst = Math.max(5, v.thirst - scaledDt * 1.0);
+      }
+
+      // Errore siccità: chi si affida solo alla fede senza razionare acqua al pozzo
+      if (currentWeatherIdx === 0 && v.faith > 0.78 && v.kind === 'citizen' && Math.random() < 0.008) {
+        recordMistakeAndLearn(v, 'well_ration', 'Ignorato il calo del pozzo fidandosi solo delle prediche', 'Razionare l’acqua del pozzo durante la siccità', simClock);
+      }
+
+      if (v.kind === 'guard') {
+        toolType = 'halberd';
+        yaw = Math.atan2(-(v.faceZ - v.z), v.faceX - v.x);
+      } else if (v.kind === 'ox_driver') {
+        if (!farmersActive) { v.visible = false; continue; }
+        const ot = oxTeams[v.oxIdx];
+        v.resting = ot.resting;
+        if (v.resting) { v.thirst = Math.max(10, v.thirst - scaledDt * 3.0); v.energy = Math.min(95, v.energy + scaledDt * 1.5); }
+        v.x = ot.x - ot.dir * 0.85;
+        v.y = 0.0;
+        v.z = ot.z + (ot.resting ? 0.45 : 0.0);
+        yaw = ot.resting ? (v.oxIdx === 0 ? -Math.PI * 0.4 : Math.PI * 0.4) : (ot.dir > 0 ? 0 : Math.PI);
+        stride = ot.resting ? 0 : Math.sin(simClock * 5.0) * 0.06;
+        toolType = ot.resting ? 'flask' : null;
+      } else if (v.kind === 'vineyard') {
+        if (currentHour < 5.0 || currentHour > (18.5 - v.curfewBuffer) || smoothWeather.rain > v.rainCaution) {
+          v.visible = false; continue;
+        }
+        yaw = 0.2;
+      } else if (v.kind === 'washer') {
+        if (currentHour < 6.0 || currentHour > 17.5 || smoothWeather.rain > 0.82) {
+          v.visible = false; continue;
+        }
+        yaw = Math.PI * 0.5;
+        toolType = 'beater';
+      } else if (v.kind === 'priest') {
+        if (currentHour >= 20.5 || currentHour < 5.2) { v.visible = false; continue; }
+        yaw = Math.PI * 0.5;
+      } else if (v.kind === 'townfolk') {
+        if (isNight || smoothWeather.rain > 0.75) { v.visible = false; continue; }
+        yaw = Math.atan2(-(v.faceZ - v.z), v.faceX - v.x);
+      } else {
+        // Cittadini nelle contrade: se piove oltre la loro soglia appresa, rientrano subito al riparo!
+        if (smoothWeather.rain > v.rainCaution) {
+          if (!v.learnedSet.has('rain_shelter') && smoothWeather.rain > 0.72) {
+            recordMistakeAndLearn(v, 'rain_shelter', 'Sorpreso dal temporale in strada', 'Rientrare subito sotto i portici alle prime gocce', simClock);
+          }
+          v.visible = false;
+          continue;
+        }
+        if (isNight || currentHour < 6.2) { v.visible = false; continue; }
+
+        if (festaActive && (i % 2 === 0)) {
+          const ang = i * 0.85 + Math.sin(simClock * 1.5 + i) * 0.15;
+          v.x = 0.4 + Math.cos(ang) * 2.1;
+          v.y = 3.6;
+          v.z = 0.4 + Math.sin(ang) * 1.5;
+          yaw = ang + Math.PI;
+        } else {
+          let u = (v.phase + simClock * v.speed) % 1.0;
+          if (u < 0) u += 1.0;
+          const movingRight = u < 0.5;
+          const tri = movingRight ? (u * 2.0) : (2.0 - u * 2.0);
+          v.x = v.path.x0 + (v.path.x1 - v.path.x0) * tri;
+          v.y = v.path.y;
+          v.z = v.path.z + v.zOff;
+          yaw = movingRight ? 0.0 : Math.PI;
+          stride = Math.sin(simClock * 8.2 + v.phase * 10.0) * 0.07;
+        }
+      }
+
+      drawPerson(v, yaw, stride, armPhase, toolType, simClock);
+    }
+
+    // Diffusione sociale: quando due cittadini visibili sono vicini (< 1.4 unità), si scambiano regole apprese!
+    for (let i = 0; i < villagers.length; i++) {
+      if (!villagers[i].visible || villagers[i].lessons.length === 0) continue;
+      for (let j = i + 1; j < villagers.length; j++) {
+        if (!villagers[j].visible) continue;
+        if (Math.abs(villagers[i].y - villagers[j].y) < 0.2 && Math.hypot(villagers[i].x - villagers[j].x, villagers[i].z - villagers[j].z) < 1.35) {
+          shareLessonBetween(villagers[i], villagers[j], simClock);
+          shareLessonBetween(villagers[j], villagers[i], simClock);
+        }
+      }
+    }
+
+    // Segui cittadino selezionato con la camera
+    if (followSelected && selectedVillager && selectedVillager.visible) {
+      cam.panX = lerp(cam.panX, selectedVillager.x, Math.min(1.0, dt * 4.0));
+      cam.panZ = lerp(cam.panZ, selectedVillager.z, Math.min(1.0, dt * 4.0));
+      updateCameraMatrices();
+    }
+
+    if (uiRefreshTimer > 0.35) {
+      uiRefreshTimer = 0.0;
+      updateCitizenCard();
+    }
+
+    // 6. Gocce di pioggia
+    const activeDrops = Math.floor(RAIN_COUNT * smoothWeather.rain);
+    for (let i = 0; i < activeDrops; i++) {
+      const d = rainDrops[i];
+      const ry = 18.0 - ((simClock * d.speed + d.phase) % 17.5);
+      pushDyn(d.x, ry, d.z, 0.026, 0.40, 0.026, [0.65, 0.74, 0.84], 0.08, 4);
+    }
+
+    const totalInstances = STATIC_COUNT + dynPtr;
+    gl.bindBuffer(gl.ARRAY_BUFFER, instanceVbo);
+    gl.bufferSubData(gl.ARRAY_BUFFER, STATIC_FLOATS * 4, instanceData.subarray(STATIC_FLOATS, totalInstances * 13));
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.clearColor(effSkyHor[0], effSkyHor[1], effSkyHor[2], 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.useProgram(prog);
+    gl.uniformMatrix4fv(uViewProj, false, viewProj);
+    gl.uniform1f(uTime, simClock);
+    gl.uniform1f(uHour, currentHour);
+    gl.uniform1f(uDaylight, daylight);
+    gl.uniform1f(uRainAmount, smoothWeather.rain);
+    gl.uniform1f(uCloudCover, smoothWeather.cloud);
+    gl.uniform1f(uFesta, festaActive ? 1.0 : 0.0);
+    gl.uniform1f(uLightning, lightning);
+    gl.uniform3fv(uSunColor, smoothWeather.sunCol);
+    gl.uniform3fv(uSkyTop, effSkyTop);
+    gl.uniform3fv(uSkyHorizon, effSkyHor);
+
+    gl.bindVertexArray(vao);
+    gl.drawArraysInstanced(gl.TRIANGLES, 0, 36, totalInstances);
+  }
+
+  // Log iniziale
+  pushBrainLog('Simulazione <b>HYDROGEN</b> avviata: i cittadini osservano cielo, mura e raccolti e imparano dagli errori.', 'social');
+
+  let lastTime = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.1, (now - lastTime) * 0.001);
+    lastTime = now;
+    renderFrame(now * 0.001, dt);
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
