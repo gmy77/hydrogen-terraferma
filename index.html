@@ -117,7 +117,9 @@
     display: none;
   }
   #citizen-card.visible { display: block; }
-  #citizen-card.building .cc-metrics, #citizen-card.building #btn-follow { display: none; }
+  #citizen-card.building .cc-metrics, #citizen-card.building #btn-follow, #citizen-card.building #btn-obs-person { display: none; }
+  .cc-memory .pl-in { color: #1f5f9e; cursor: pointer; text-decoration: underline dotted; }
+  .cc-memory .fatto { display: block; margin-top: 2px; font-style: italic; color: #4a3520; }
   .cc-top {
     display: flex; justify-content: space-between; align-items: center;
     border-bottom: 1px solid #b5986c; padding-bottom: 6px; margin-bottom: 8px;
@@ -302,6 +304,17 @@
   .btnrow { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
   .btnrow button { background: #2b2a27; color: #f0efec; border: 1px solid #45443f; border-radius: 6px; padding: 5px 12px; font-family: inherit; cursor: pointer; }
   .muted { color: #8f8d86; font-style: italic; }
+  .catbars { margin-top: 8px; display: grid; gap: 4px; }
+  .cb { display: grid; grid-template-columns: 150px 1fr 56px 56px 80px; gap: 10px; align-items: center; font-size: 12.5px; color: #c3c2b7; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .cb:hover { background: #22211f; }
+  .cb.off { opacity: 0.4; }
+  .cb .ct { height: 10px; background: #2e2d2a; border-radius: 0 4px 4px 0; overflow: hidden; }
+  .cb .ct i { display: block; height: 100%; background: #3987e5; border-radius: 0 4px 4px 0; }
+  .cb .cn, .cb .cp, .cb .cr { text-align: right; font-family: 'Courier New', monospace; color: #f0efec; }
+  .cb .cr { color: #a9a79f; }
+  #obs h5.sech { font-size: 12px; font-weight: normal; color: #a9a79f; letter-spacing: 1.5px; text-transform: uppercase; margin: 6px 0 8px; }
+  .obtn { background: #2b2a27; color: #f0efec; border: 1px solid #45443f; border-radius: 6px; padding: 4px 10px; font-family: inherit; cursor: pointer; }
+  .etab td.evt { white-space: normal; min-width: 320px; }
   @media (max-width: 980px) { .ppl { grid-template-columns: 1fr; height: auto; } .tbl-wrap { max-height: 45vh; } }
   @media (max-width: 900px) {
     #hud-left { max-width: calc(100vw - 20px); }
@@ -343,6 +356,7 @@
     <button id="btn-audio">Audio: OFF</button>
     <button id="btn-chron">📜 Cronaca</button>
     <button id="btn-obs">📊 Osservatorio</button>
+    <button id="btn-reg">🧮 Registro</button>
     <button id="btn-reset">Nuovo borgo</button>
   </div>
   <div class="panel" id="needs-panel">
@@ -381,6 +395,7 @@
       <button data-tab="borgo">Borgo</button>
       <button data-tab="persone">Persone</button>
       <button data-tab="sapere">Sapere</button>
+      <button data-tab="registro">Registro</button>
     </nav>
     <span class="date" id="obs-date"></span>
     <button class="x" id="obs-close" title="Chiudi (Esc)">×</button>
@@ -388,6 +403,7 @@
   <section id="obs-borgo"></section>
   <section id="obs-persone"></section>
   <section id="obs-sapere"></section>
+  <section id="obs-registro"></section>
 </div>
 
 <div id="citizen-card">
@@ -890,7 +906,9 @@
     }
   }
 
+  const HOUSES = [];   // ogni casa del borgo, per sapere chi ci abita
   function buildVicenzaHouse(hx, hy, hz, w, d, h, hasPortico = false, isFarmerHouse = false) {
+    HOUSES.push({ x: hx, y: hy, z: hz, w, d, h, portico: hasPortico, farmer: isFarmerHouse });
     const wall = pick(WALL_COLS);
     const roof = pick(COPPI_COLS);
     const sleepH = isFarmerHouse ? randRange(20.1, 20.9) : randRange(21.2, 22.5);
@@ -960,6 +978,7 @@
   {
     const ox = -6.4, oy = 2.3, oz = 4.4;
     buildVicenzaHouse(ox, oy, oz, 2.4, 1.6, 1.9, true, false);
+    HOUSES[HOUSES.length - 1].osteria = true;
     addBox(ox + 1.3, oy + 1.3, oz + 0.8, 0.42, 0.30, 0.06, [0.58, 0.24, 0.16]);
     addBox(ox + 1.3, oy + 1.5, oz + 0.8, 0.28, 0.20, 0.20, [0.24, 0.42, 0.22]);
     for (const px of [-4.7, -3.7]) for (const pz of [4.2, 5.5]) addBox(px, oy + 0.72, pz, 0.09, 1.44, 0.09, LEGNO_COL);
@@ -1361,6 +1380,7 @@
   const wisdomScoreEl = document.getElementById('wisdom-score');
   const globalLog = [];
   function pushBrainLog(text, type = 'mistake') {
+    if (started && typeof logBrain === 'function') logBrain(text, type);
     if (globalLog.length > 0 && globalLog[0].text === text) return;
     globalLog.unshift({ text, type });
     if (globalLog.length > 8) globalLog.pop();
@@ -1687,7 +1707,7 @@
   const BIRTH_RATE = 0.6;   // figli all'anno per coppia fertile (in pratica uno ogni due-tre anni)
   const SPECIAL_KINDS = ['ox_driver', 'washer', 'vineyard', 'guard', 'townfolk', 'priest'];
   const ETA = { priest: [50, 58], guard: [26, 36], ox_driver: [30, 48], washer: [22, 44], vineyard: [38, 50], townfolk: [34, 56], citizen: [17, 58] };
-  world.hist = []; world.births = 0; world.deaths = 0; world.dead = [];
+  world.hist = []; world.births = 0; world.deaths = 0; world.dead = []; world.marriages = 0;
 
   const SPEAK = { citizen: villagers.find(v => v.kind === 'citizen').speak };
   SPEAK.child = function () {
@@ -1745,6 +1765,8 @@
       pushBrainLog(`💍 Nozze: <b>${husb.name}</b> e <b>${wife.name}</b>`, 'social');
     }
     wife.cognome = husb.cognome;     // la sposa entra nella casa del marito
+    if (!silent) world.marriages = (world.marriages || 0) + 1;
+    if (typeof moveInTogether === 'function') moveInTogether(husb, wife);
   }
   function makeChild(mother, father, age = 0) {
     const sex = rng() < 0.5 ? 'F' : 'M';
@@ -1982,6 +2004,50 @@
   // Storia del borgo, un campione per ogni giorno simulato
   let lastSampleDay = 0;
   const KNOW_IDS = Object.keys(LESSONS);
+
+  // Registro degli eventi: ogni cosa che accade, con un numero progressivo e i valori del borgo in quell'istante
+  world.events = []; world.evN = 0; world.evCount = {};
+  const EV_CATS = {
+    nascita: '👶 Nascita', morte: '✝ Morte', nozze: '💍 Nozze', crescita: '🎓 Maggiore età', arrivo: '🧳 Arrivo',
+    successione: '🔑 Successione', scoperta: '💡 Scoperta', errore: '⚠ Errore', insegnamento: '🗣 Insegnamento',
+    oblio: '🌫 Oblio', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
+    coprifuoco: '🌙 Coprifuoco', bisogno: '📉 Bisogno', meteo: '☁ Meteo', stagione: '🍂 Stagione', cronaca: '📜 Cronaca',
+  };
+  function catOfChron(t) {
+    if (/^Nacque/.test(t)) return 'nascita';
+    if (/^Morì/.test(t)) return 'morte';
+    if (/^Si sposarono/.test(t)) return 'nozze';
+    if (/^Venne ad abitare/.test(t)) return 'arrivo';
+    if (/^Arrivò da|prese il posto/.test(t)) return 'successione';
+    if (/^Per la prima volta/.test(t)) return 'scoperta';
+    if (/vicinia/i.test(t)) return 'vicinia';
+    if (/cantiere/.test(t)) return 'cantiere';
+    if (/^Si inaugur/.test(t)) return 'opera';
+    if (/benedisse|grazia|Passarono i giorni/.test(t)) return 'fede';
+    if (/chiusi fuori/.test(t)) return 'coprifuoco';
+    if (/patisce/.test(t)) return 'bisogno';
+    return 'cronaca';
+  }
+  function logEvent(cat, text) {
+    if (!world.events) return;
+    let k = 0;
+    for (const id of KNOW_IDS) if (villagers.some(v => v.learnedSet.has(id))) k++;
+    world.events.push({
+      n: ++world.evN, s: Math.round(simClock), d: dayCount, h: Math.round(currentHour * 100) / 100, c: cat,
+      t: String(text).replace(/<[^>]+>/g, ''), pop: villagers.length,
+      a: Math.round(need.acqua), r: Math.round(need.riparo), si: Math.round(need.sicurezza), ci: Math.round(need.cibo), sa: Math.round(need.salute), k,
+    });
+    if (world.events.length > 4000) world.events.splice(0, world.events.length - 4000);
+    world.evCount[cat] = (world.evCount[cat] || 0) + 1;
+  }
+  function logBrain(text, type) {
+    const t = String(text).replace(/<[^>]+>/g, '');
+    if (/ha istruito/.test(t)) logEvent('insegnamento', t);
+    else if (/ha sbagliato/.test(t)) logEvent('errore', t);
+    else if (/dimenticato/.test(t)) logEvent('oblio', t);
+    else if (/compie 14 anni/.test(t)) logEvent('crescita', t.replace(/^🎓\s*/, ''));
+  }
+  let lastWIdx = null, lastSeason = null;
   function thin(arr, max) {
     if (arr.length <= max) return;
     const keep = arr.filter((_, i) => i % 2 === 0 || i === arr.length - 1);
@@ -1991,6 +2057,7 @@
   function sampleHistory() {
     if (dayCount === lastSampleDay) return;
     lastSampleDay = dayCount;
+    assignHouses();
     const adults = villagers.filter(v => v.age >= 15);
     const kn = {};
     for (const id of KNOW_IDS) kn[id] = 0;
@@ -2194,7 +2261,7 @@
   //  Interazione
   // ======================================================================
   let isDragging = false, dragMoved = false, lastX = 0, lastY = 0;
-  let selectedVillager = null, selectedBuilding = null, followSelected = false;
+  let selectedVillager = null, selectedBuilding = null, selectedPlace = null, followSelected = false;
 
   canvas.addEventListener('pointerdown', (e) => { isDragging = true; dragMoved = false; lastX = e.clientX; lastY = e.clientY; });
   window.addEventListener('pointermove', (e) => {
@@ -2342,6 +2409,7 @@
   }
   const chronList = document.getElementById('chron-list');
   function chronicle(text) {
+    if (started) logEvent(catOfChron(text), text);
     world.chron.unshift({ d: dataCronaca(), t: text });
     if (world.chron.length > 250) world.chron.pop();
     if (chronEl.classList.contains('visible')) renderChronicle();
@@ -2361,7 +2429,7 @@
   }
   btnFollow.onclick = () => { followSelected = !followSelected; if (followSelected) cam.fly = null; updateFollowBtn(); };
   function closeCard() {
-    selectedVillager = null; selectedBuilding = null;
+    selectedVillager = null; selectedBuilding = null; selectedPlace = null;
     followSelected = false; updateFollowBtn();
     cardEl.classList.remove('visible');
   }
@@ -2397,6 +2465,7 @@
   }
 
   function updateCitizenCard() {
+    if (selectedPlace) return updatePlaceCard();
     if (selectedBuilding) return updateBuildingCard();
     if (!selectedVillager) return;
     const v = selectedVillager;
@@ -2458,7 +2527,7 @@
       if (d < bestDist) { bestDist = d; best = v; }
     }
     if (best) {
-      selectedVillager = best; selectedBuilding = null;
+      selectedVillager = best; selectedBuilding = null; selectedPlace = null;
       updateCitizenCard();
       return;
     }
@@ -2470,8 +2539,25 @@
       const d = Math.hypot(p.sx - clientX, p.sy - clientY);
       if (d < bestBD) { bestBD = d; bestB = id; }
     }
-    if (bestB) {
-      selectedBuilding = bestB; selectedVillager = null; followSelected = false; updateFollowBtn();
+    // case e luoghi del borgo: vince ciò che è più vicino al punto cliccato
+    let bestP = null, bestPD = 46;
+    for (const pl of PLACES) {
+      const q = projectToScreen(pl.x, pl.y, pl.z);
+      const d = Math.hypot(q.sx - clientX, q.sy - clientY);
+      if (d < bestPD) { bestPD = d; bestP = { type: 'place', ref: pl }; }
+    }
+    HOUSES.forEach((h, i) => {
+      const q = projectToScreen(h.x, h.y + h.h * 0.6, h.z);
+      const d = Math.hypot(q.sx - clientX, q.sy - clientY);
+      if (d < bestPD) { bestPD = d; bestP = { type: 'house', ref: i }; }
+    });
+    if (bestB && (!bestP || bestBD <= bestPD + 8)) {
+      selectedBuilding = bestB; selectedVillager = null; selectedPlace = null; followSelected = false; updateFollowBtn();
+      updateCitizenCard();
+      return;
+    }
+    if (bestP) {
+      selectedPlace = bestP; selectedVillager = null; selectedBuilding = null; followSelected = false; updateFollowBtn();
       updateCitizenCard();
       return;
     }
@@ -2485,6 +2571,146 @@
     if (id === 'portico') return { x: -7.1, y: 2.5, z: 11.0 };
     return { x: s.x, y: s.y + 0.9, z: s.z };
   }
+
+  // ======================================================================
+  //  Case e luoghi del borgo: chi ci abita, cosa sono, cosa raccontano
+  // ======================================================================
+  const CONTRADE = { '1.1': 'Contrada Bassa', '2.3': 'Contrada dei Portici', '3.6': 'Piazza Grande', '4.9': 'Sagrato di San Marco', '6.3': 'Contrada Alta' };
+  const contradaOf = (y) => CONTRADE[y.toFixed(1)] || 'fuori dalle mura';
+  function isFarmer(v) { return v.kind === 'ox_driver' || /Contadin|Bifolco|Braccian|Ortolan/.test(v.role || ''); }
+  function residents(idx) { return villagers.filter(v => v.houseIdx === idx); }
+  function freeHouse(preferFarmer) {
+    const occ = new Map();
+    for (const v of villagers) if (v.houseIdx >= 0) occ.set(v.houseIdx, (occ.get(v.houseIdx) || 0) + 1);
+    let best = 0, bs = Infinity;
+    HOUSES.forEach((h, i) => {
+      if (h.osteria) return;
+      const sc = (occ.get(i) || 0) * 10 + (!!h.farmer === !!preferFarmer ? 0 : 3) + rng() * 0.5;
+      if (sc < bs) { bs = sc; best = i; }
+    });
+    return best;
+  }
+  function moveInTogether(h, w) {
+    if (h.kind === 'priest') return;
+    if (h.houseIdx == null || h.houseIdx < 0) h.houseIdx = (w.houseIdx >= 0 ? w.houseIdx : freeHouse(isFarmer(h)));
+    if (residents(h.houseIdx).filter(v => v !== w && v !== h).length >= 5) h.houseIdx = freeHouse(isFarmer(h));   // casa piena: la nuova coppia va a stare da sola
+    w.houseIdx = h.houseIdx;
+  }
+  function assignHouses() {
+    const osteria = HOUSES.findIndex(h => h.osteria);
+    for (const v of villagers) {
+      if (v.kind === 'priest') { v.houseIdx = -2; continue; }                        // abita in canonica
+      if (v.role === 'Oste del Moro') { v.houseIdx = osteria; continue; }
+      if (v.houseIdx != null && v.houseIdx >= 0) continue;
+      if (v.age < 18) {
+        const par = [people.get(v.motherId), people.get(v.fatherId)].find(x => x && x.alive && x.houseIdx >= 0);
+        if (par) { v.houseIdx = par.houseIdx; continue; }
+      }
+      const sp = people.get(v.spouseId);
+      if (sp && sp.alive && sp.houseIdx >= 0) { v.houseIdx = sp.houseIdx; continue; }
+      v.houseIdx = freeHouse(isFarmer(v));
+    }
+  }
+
+  const PLACES = [
+    { id: 'chiesa', name: 'Chiesa parrocchiale di San Marco', kind: 'Sagrato', x: -1.2, y: 6.9, z: -5.0,
+      note: 'Nei borghi della Terraferma veneziana la chiesa parrocchiale era il cuore della comunità: vi si battezzava, ci si sposava, vi si seppellivano i morti, e sul sagrato si leggevano gli avvisi della Serenissima.',
+      info: () => `Vi officia <b>${priestName()}</b>, che abita in canonica.<br>Dall’inizio della cronaca: <b>${world.births}</b> battesimi, <b>${world.marriages || 0}</b> nozze, <b>${world.deaths}</b> funerali.` },
+    { id: 'campanile', name: 'Campanile', kind: 'Sagrato', x: 1.4, y: 10.5, z: -6.0,
+      note: 'La campana scandiva la giornata di tutti: l’Ave Maria della sera segnava il ritorno dai campi e la chiusura delle porte, e nei temporali si suonava a distesa contro la grandine.',
+      info: () => `Ora sono le <b>${String(Math.floor(currentHour)).padStart(2, '0')}:${String(Math.floor((currentHour % 1) * 60)).padStart(2, '0')}</b>: ${currentHour >= 19 || currentHour < 4.75 ? 'l’Ave Maria è suonata, le porte sono chiuse.' : 'le porte del borgo sono aperte.'}` },
+    { id: 'lavatoio', name: 'Lavatoio pubblico', kind: 'Contrada Bassa', x: 6.8, y: 2.2, z: 9.4,
+      note: 'Il lavatoio era il luogo delle donne: i panni si lavavano con la lisciva di cenere, si battevano col legno e intanto si scambiavano tutte le notizie del borgo.',
+      info: () => { const l = villagers.filter(v => v.kind === 'washer'); return `Lavandaie: ${l.length ? l.map(v => `<span class="pl-in" data-pid="${v.id}">${v.name} ${v.cognome}</span>`).join(', ') : 'nessuna'}.`; } },
+    { id: 'pozzo', name: 'Pozzo di Piazza Grande', kind: 'Piazza Grande', x: 0.5, y: 4.3, z: -0.4,
+      note: 'Il pozzo della piazza era di tutti: la comunità ne curava la manutenzione e negli anni di siccità l’acqua si razionava. Qui si riunisce la vicinia.',
+      info: () => `Bisogno d’acqua del borgo oggi: <b>${Math.round(need.acqua)}</b> su 100${has('cisterna') ? ', ma c’è anche la cisterna della Contrada Bassa' : ''}.` },
+    { id: 'mercato', name: 'Banchi del mercato', kind: 'Piazza Grande', x: -2.4, y: 4.4, z: -0.1,
+      note: 'Nei giorni di mercato i banchi coperti di tela riempivano la piazza: grano, vino, panni, uova, attrezzi del fabbro. Per la Festa del Vino si spillavano le botti migliori.',
+      info: () => `Bisogno di cibo del borgo oggi: <b>${Math.round(need.cibo)}</b> su 100${has('granaio') ? ', col granaio pubblico pieno' : ''}.` },
+    { id: 'portapadova', name: 'Porta Padova', kind: 'Mura del borgo', x: 0, y: 2.6, z: 12.2,
+      note: 'Le porte si chiudevano all’Ave Maria e si riaprivano all’alba: chi restava fuori passava la notte nei campi, tra lupi e briganti.',
+      info: () => { const g = villagers.find(v => v.kind === 'guard'); return `${currentHour >= 19 || currentHour < 4.75 ? 'Adesso è <b>chiusa</b>.' : 'Adesso è <b>aperta</b>.'} ${g ? `Di guardia c’è <span class="pl-in" data-pid="${g.id}">${g.name} ${g.cognome}</span>.` : ''}`; } },
+    { id: 'portacolli', name: 'Porta dei Colli', kind: 'Mura del borgo', x: 13.2, y: 4.0, z: 4.8,
+      note: 'Dalla porta orientale si usciva verso i vigneti dei colli: di qui passavano i carri della vendemmia.',
+      info: () => (currentHour >= 19 || currentHour < 4.75 ? 'Adesso è <b>chiusa</b>.' : 'Adesso è <b>aperta</b>.') },
+    { id: 'mura', name: 'Mura del borgo', kind: 'Mura del borgo', x: -13.2, y: 4.5, z: -2.0,
+      note: 'Molti borghi della Terraferma conservavano le mura medievali, con torri agli angoli e camminamenti merlati: ancora utili contro bande di briganti e soldati di passaggio.',
+      info: () => `Bisogno di sicurezza del borgo oggi: <b>${Math.round(need.sicurezza)}</b> su 100.` },
+    { id: 'campi', name: 'Campi arati fuori Porta Padova', kind: 'Campagna', x: 0, y: 0.3, z: 18.5,
+      note: 'Si arava coi buoi aggiogati all’aratro, tracciando solchi dritti fino al fosso. D’inverno la terra riposa sotto la brina.',
+      info: () => { const b = villagers.filter(v => v.kind === 'ox_driver'); return `Bifolchi: ${b.length ? b.map(v => `<span class="pl-in" data-pid="${v.id}">${v.name} ${v.cognome}</span>`).join(', ') : 'nessuno'}.`; } },
+    { id: 'vigne', name: 'Vigneti dei colli', kind: 'Campagna', x: 22, y: 0.9, z: 2.0,
+      note: 'Sui colli vicentini la vite si coltivava da secoli: il vino era ricchezza, si vendeva al mercato e scaldava le feste.',
+      info: () => { const z = villagers.find(v => v.kind === 'vineyard'); return `${z ? `Vignaiolo: <span class="pl-in" data-pid="${z.id}">${z.name} ${z.cognome}</span>. ` : ''}${has('roggia') ? 'La roggia porta acqua ai filari.' : 'Senza irrigazione, la siccità brucia le foglie.'}`; } },
+  ];
+
+  function houseDescription(h, res) {
+    if (h.osteria) return 'L’Osteria del Moro: pergolato, botti e boccali sotto l’insegna. Qui passano tutti, e si imparano tante cose.';
+    if (!res.length) return 'Nessuno ci abita più: le imposte sono chiuse e il focolare è spento. Aspetta una nuova famiglia.';
+    if (h.farmer) return 'Casa contadina in pietra e intonaco col tetto di coppi: di sotto la stalla e gli attrezzi, di sopra la cucina col focolare e le stanze.';
+    if (h.portico) return 'Casa con portico in pietra di Vicenza: sotto gli archi si lavora e si vende al riparo dalla pioggia, di sopra abita la famiglia.';
+    return 'Casa in muratura col tetto di coppi: al piano terra la bottega o il magazzino, di sopra la cucina col focolare.';
+  }
+  function updatePlaceCard() {
+    const sp = selectedPlace;
+    cardEl.classList.add('building');
+    if (sp.type === 'place') {
+      const pl = sp.ref;
+      document.getElementById('cc-name').textContent = pl.name;
+      document.getElementById('cc-role').textContent = `— ${pl.kind}`;
+      document.getElementById('cc-speech').textContent = pl.note;
+      const html = pl.info();
+      const mem = document.getElementById('cc-memory');
+      if (mem._h !== html) { mem.innerHTML = html; mem._h = html; }
+      cardEl.classList.add('visible');
+      return;
+    }
+    const idx = sp.ref, h = HOUSES[idx];
+    const res = residents(idx).sort((a, b) => b.age - a.age);
+    const head = res.find(v => v.age >= 18 && v.sex === 'M') || res.find(v => v.age >= 18) || res[0];
+    const lit = (currentHour >= 18 && currentHour < 21.8) || (currentHour >= 5 && currentHour < 7) || (smoothWeather.cloud > 0.65 && currentHour > 7 && currentHour < 18);
+    const tipo = h.osteria ? 'osteria' : h.farmer ? 'casa contadina' : h.portico ? 'casa con portico' : 'casa';
+    document.getElementById('cc-name').textContent = h.osteria ? 'Osteria del Moro' : head ? `Casa ${head.cognome}` : 'Casa vuota';
+    document.getElementById('cc-role').textContent = `— ${contradaOf(h.y)} · ${tipo} · ${res.length} ${res.length === 1 ? 'abitante' : 'abitanti'}${res.length ? ` · finestre ${lit ? 'accese' : 'spente'}` : ''}`;
+    document.getElementById('cc-speech').textContent = houseDescription(h, res);
+    let html = res.length
+      ? '<strong>Vi abitano:</strong> ' + res.map(v => `<span class="pl-in" data-pid="${v.id}">${v.name} ${v.cognome}</span> (${lc(v.role)}, ${v.age < 1 ? 'pochi mesi' : Math.floor(v.age) + ' anni'})`).join(' · ')
+      : '<strong>Vuota.</strong>';
+    const names = res.map(v => `${v.name} ${v.cognome}`);
+    const fatti = world.chron.filter(c => names.some(n => c.t.includes(n))).slice(0, 3);
+    if (fatti.length) html += '<br><strong>Ultimi fatti della famiglia:</strong>' + fatti.map(c => `<span class="fatto">${c.d}: ${c.t}</span>`).join('');
+    const mem = document.getElementById('cc-memory');
+    if (mem._h !== html) { mem.innerHTML = html; mem._h = html; }
+    cardEl.classList.add('visible');
+  }
+  function drawPlaceSelection() {
+    const sp = selectedPlace;
+    const gold = [0.98, 0.78, 0.28];
+    let x, y, z, w, d;
+    if (sp.type === 'house') { const h = HOUSES[sp.ref]; x = h.x; y = h.y; z = h.z; w = h.w + 0.35; d = h.d + 0.35; }
+    else { x = sp.ref.x; z = sp.ref.z; y = sp.ref.y - 0.4; w = 1.6; d = 1.6; }
+    const pulse = 0.04 + Math.sin(simClock * 4) * 0.01;
+    pushDyn(x, y + 0.06, z - d / 2, w, pulse, 0.06, gold, 0, 2);
+    pushDyn(x, y + 0.06, z + d / 2, w, pulse, 0.06, gold, 0, 2);
+    pushDyn(x - w / 2, y + 0.06, z, 0.06, pulse, d, gold, 0, 2);
+    pushDyn(x + w / 2, y + 0.06, z, 0.06, pulse, d, gold, 0, 2);
+  }
+  // clic sui nomi nella scheda: si passa a quella persona (o alla sua scheda completa)
+  document.getElementById('cc-memory').addEventListener('click', (e) => {
+    const a = e.target.closest('[data-pid]');
+    if (!a) return;
+    const v = people.get(Number(a.dataset.pid));
+    if (!v) return;
+    if (v.alive && v.visible) {
+      selectedPlace = null; selectedBuilding = null; selectedVillager = v;
+      updateCitizenCard();
+      flyTo(v.x, v.z, 0.6);
+    } else {
+      obsPerson = v.id;
+      openObs('persone');
+    }
+  });
 
   // ======================================================================
   //  Etichette fluttuanti, pannello bisogni, vicinia
@@ -2905,7 +3131,7 @@
   let skipSave = false;
   const PERSON_KEYS = ['id', 'name', 'cognome', 'cognomeNascita', 'sex', 'kind', 'role', 'mestiere', 'place', 'oxIdx', 'speakKey',
     'phase', 'speed', 'zOff', 'tunic', 'hose', 'hat', 'faceX', 'faceZ', 'homeX', 'homeY', 'homeZ', 'fatherId', 'motherId', 'spouseId',
-    'widowed', 'predecessor', 'forgot', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
+    'widowed', 'predecessor', 'forgot', 'houseIdx', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
   function packPerson(v, histMax) {
     const o = {};
     for (const k of PERSON_KEYS) if (v[k] !== undefined && v[k] !== null) o[k] = v[k];
@@ -2940,7 +3166,8 @@
       const data = {
         v: 3, simClock, need, nextId, snowCover,
         built: world.built, turbid: world.turbid, faithTried: world.faithTried, chron: world.chron, firstKnown,
-        births: world.births, deaths: world.deaths, hist: world.hist,
+        births: world.births, deaths: world.deaths, marriages: world.marriages, hist: world.hist,
+        events: world.events.slice(-1500), evN: world.evN, evCount: world.evCount,
         project: p ? { id: p.id, progress: p.progress, proposer: p.proposer.id, withFilter: p.withFilter } : null,
         living: villagers.map(v => packPerson(v)),
         dead: world.dead.slice(-160).map(v => packPerson(v, 40)),
@@ -2967,7 +3194,8 @@
       world.turbid = !!data.turbid;
       world.faithTried = data.faithTried || {};
       world.chron = data.chron || [];
-      world.births = data.births || 0; world.deaths = data.deaths || 0;
+      world.births = data.births || 0; world.deaths = data.deaths || 0; world.marriages = data.marriages || 0;
+      world.events = data.events || []; world.evN = data.evN || world.events.length; world.evCount = data.evCount || {};
       world.hist = data.hist || [];
       Object.assign(firstKnown, data.firstKnown || {});
       for (const id of Object.keys(data.built || {})) {
@@ -3016,6 +3244,8 @@
     currentWeatherIdx = (weatherMode === 'auto') ? seasonalWeather(Math.floor((simClock + 12.0) / 22.0)) : weatherMode;
     snowing = seasonW.inverno > 0.5 && (currentWeatherIdx === 2 || currentWeatherIdx === 3);
     snowCover = clamp(snowCover + (snowing ? 0.035 : -(seasonW.inverno > 0.5 ? 0.004 : 0.03)) * scaledDt, 0, 1);
+    if (started && currentWeatherIdx !== lastWIdx) { if (lastWIdx !== null) logEvent('meteo', `Il tempo cambia: ${weatherName()}`); lastWIdx = currentWeatherIdx; }
+    if (started && seasonName !== lastSeason) { if (lastSeason !== null) logEvent('stagione', `Comincia ${seasonName === 'estate' ? 'l’estate' : seasonName === 'autunno' ? 'l’autunno' : seasonName === 'inverno' ? 'l’inverno' : 'la primavera'}`); lastSeason = seasonName; }
     const targetW = WEATHER_STATES[currentWeatherIdx];
     const blend = Math.min(1.0, dt * 1.8);
     smoothWeather.sun = lerp(smoothWeather.sun, targetW.sun, blend);
@@ -3179,6 +3409,8 @@
       const s = BUILDINGS.cisterna.site;
       pushDyn(s.x, s.y + 0.635, s.z, 0.56, 0.04, 0.56, [0.40, 0.33, 0.20], 0, 8);
     }
+
+    if (selectedPlace) drawPlaceSelection();
 
     // 6. Cantiere in corso
     const p = world.project;
@@ -3558,7 +3790,7 @@
   const MESI_B = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 'set', 'ott', 'nov', 'dic'];
   let obsOpen = false, obsTab = 'borgo', obsPerson = null, obsShowDead = false, obsQuery = '', obsT = 0;
   const obsSort = { key: 'age', dir: -1 };
-  const built = { borgo: false, persone: false, sapere: false };
+  const built = { borgo: false, persone: false, sapere: false, registro: false };
 
   const fmtDay = (d) => { const t = calDate(d); return `${MESI_B[t.getMonth()]} ${t.getFullYear()}`; };
   const fmtNum = (v) => Math.abs(v) >= 100 ? String(Math.round(v)) : Math.abs(v) >= 10 ? String(Math.round(v * 10) / 10) : String(Math.round(v * 100) / 100);
@@ -3706,7 +3938,7 @@
       ctx.globalAlpha = hi >= 0 && hi !== i ? 0.55 : 1;
       if (h > 0.5) { ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x, T + ph - h, w, h, [Math.min(4, w / 2), Math.min(4, w / 2), 0, 0]) : ctx.rect(x, T + ph - h, w, h); ctx.fill(); }
       ctx.globalAlpha = 1;
-      if (i % Math.max(1, Math.ceil(n / 8)) === 0) { ctx.fillStyle = '#a9a79f'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(b.label, x + w / 2, T + ph + 5); }
+      if (i % Math.max(1, Math.ceil(74 / bw)) === 0) { ctx.fillStyle = '#a9a79f'; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillText(b.label, x + w / 2, T + ph + 5); }
     });
     if (cfg.mark != null) {
       const mx = L + cfg.mark * bw;
@@ -4005,13 +4237,195 @@
     }
   }
 
+  // ---------------- Pagina «Registro»: ogni cosa che accade, numerata e in ordine ----------------
+  const secRegistro = document.getElementById('obs-registro');
+  const regFilter = new Set();       // categorie scelte (vuoto = tutte)
+  let regQuery = '', regDesc = true, regShown = -1;
+  function buildRegistro() {
+    secRegistro.innerHTML = `<p class="intro">Ogni evento del borgo riceve un numero progressivo nell’ordine in cui accade, con la data, l’ora, il giorno simulato e i valori del borgo in quel preciso istante (abitanti, i cinque bisogni da 0 a 100, regole conosciute). Clicca una categoria per filtrare.</p>
+      <div class="tiles" id="rg-tiles"></div>
+      <div class="vcard" id="rg-tl" style="margin-bottom:12px"><h4>Linea del tempo: ogni evento in ordine</h4><div class="sub">ogni punto è un evento, sulla riga della sua categoria, nel momento esatto in cui è accaduto · passa il mouse per leggerlo</div><div class="lg"></div><div class="plot"><canvas></canvas><div class="tip"></div></div></div>
+      <div class="vgrid" style="margin-bottom:12px">
+        ${cardHtml('rg-rate', 'Ritmo degli eventi', 'quanti eventi in ogni periodo, tutte le categorie insieme')}
+        ${cardHtml('rg-cum', 'Eventi cumulati', 'numero progressivo dell’evento nel tempo')}
+      </div>
+      <div class="vcard" style="margin-bottom:12px"><h4>Eventi per categoria</h4><div class="sub">numero di eventi, quota sul totale e frequenza media per anno simulato · clic per filtrare la tabella</div><div id="rg-cats" class="catbars"></div></div>
+      <h5 class="sech">Andamento di ogni categoria nel tempo</h5>
+      <div class="vgrid small" id="rg-sm" style="margin-bottom:14px"></div>
+      <h5 class="sech">Tabella degli eventi</h5>
+      <div class="tools"><input type="text" id="rg-q" placeholder="Cerca nel registro…">
+        <label><input type="checkbox" id="rg-desc" checked> i più recenti in alto</label>
+        <button class="obtn" id="rg-csv">Esporta CSV</button><button class="obtn" id="rg-all">Tutte le categorie</button>
+        <span id="rg-count"></span></div>
+      <div class="tbl-wrap" style="max-height:60vh"><table class="ptab etab"><thead><tr>
+        <th class="num">N°</th><th>Data</th><th class="num">Ora</th><th class="num">Giorno</th><th>Categoria</th><th>Evento</th>
+        <th class="num" title="Abitanti">Ab.</th><th class="num" title="Bisogno di acqua">Acq.</th><th class="num" title="Bisogno di riparo">Rip.</th>
+        <th class="num" title="Bisogno di sicurezza">Sic.</th><th class="num" title="Bisogno di cibo">Cibo</th><th class="num" title="Bisogno di salute">Sal.</th>
+        <th class="num" title="Regole conosciute nel borgo">Reg.</th></tr></thead><tbody></tbody></table></div>`;
+    document.getElementById('rg-q').addEventListener('input', (e) => { regQuery = e.target.value.trim().toLowerCase(); regShown = -1; renderRegistro(); });
+    document.getElementById('rg-desc').addEventListener('change', (e) => { regDesc = e.target.checked; regShown = -1; renderRegistro(); });
+    document.getElementById('rg-all').addEventListener('click', () => { regFilter.clear(); regShown = -1; renderRegistro(); });
+    document.getElementById('rg-cats').addEventListener('click', (e) => {
+      const r = e.target.closest('[data-cat]'); if (!r) return;
+      const c = r.dataset.cat;
+      if (regFilter.has(c)) regFilter.delete(c); else regFilter.add(c);
+      regShown = -1; renderRegistro();
+    });
+    document.getElementById('rg-csv').addEventListener('click', exportCsv);
+    built.registro = true;
+    regChartsN = -1; regSmCats = '';
+  }
+  let regChartsN = -1, regSmCats = '';
+  const evDay = (ev) => 1 + (5 + ev.s / 4) / 24;
+  function timelineChart(card, evs, cats) {
+    if (!card) return;
+    card._ev = evs; card._cats = cats;
+    hookHover(card, () => timelineChart(card, card._ev, card._cats));
+    const plot = card.querySelector('.plot');
+    const want = Math.max(120, cats.length * 20 + 28) + 'px';
+    if (plot.style.height !== want) plot.style.height = want;
+    const { ctx, W, H } = setupCanvas(card.querySelector('canvas'));
+    const L = 150, Rm = 12, T = 4, B = 20, pw = W - L - Rm, ph = H - T - B;
+    ctx.font = '11px Georgia';
+    const tip = card.querySelector('.tip');
+    if (evs.length < 2 || !cats.length) { ctx.fillStyle = '#8f8d86'; ctx.textBaseline = 'middle'; ctx.fillText('Ancora pochi eventi…', L, T + 14); tip.style.display = 'none'; return; }
+    const d0 = evDay(evs[0]), d1 = Math.max(d0 + 0.5, evDay(evs[evs.length - 1]));
+    const X = (d) => L + (d - d0) / (d1 - d0) * pw;
+    const lh = ph / cats.length;
+    const lane = {};
+    cats.forEach((c, i) => {
+      lane[c] = i;
+      const y = T + i * lh;
+      if (i % 2 === 0) { ctx.fillStyle = 'rgba(240,239,236,0.035)'; ctx.fillRect(L, y, pw, lh); }
+      ctx.fillStyle = '#c3c2b7'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(`${EV_CATS[c]} (${world.evCount[c]})`, L - 8, y + lh / 2);
+    });
+    ctx.strokeStyle = 'rgba(240,239,236,0.22)'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(L, T + ph + 0.5); ctx.lineTo(L + pw, T + ph + 0.5); ctx.stroke();
+    const ticks = Math.min(6, Math.max(2, Math.floor(pw / 110)));
+    ctx.fillStyle = '#a9a79f'; ctx.textBaseline = 'top';
+    for (let i = 0; i <= ticks; i++) {
+      const dv = d0 + (d1 - d0) * i / ticks;
+      ctx.textAlign = i === 0 ? 'left' : i === ticks ? 'right' : 'center';
+      ctx.fillText(fmtDay(Math.round(dv)), X(dv), T + ph + 5);
+    }
+    let hit = null, hd = 9;
+    ctx.fillStyle = OBS_COLS[0];
+    for (const ev of evs) {
+      const li = lane[ev.c];
+      if (li == null) continue;
+      const x = X(evDay(ev));
+      const y = T + li * lh + lh / 2 + ((((ev.n * 37) % 11) - 5) / 5) * lh * 0.28;
+      ctx.fillRect(x - 1.5, y - 1.5, 3, 3);
+      if (card._hx != null) {
+        const dd = Math.hypot(card._hx - x, card._hy - y);
+        if (dd < hd) { hd = dd; hit = { ev, x, y }; }
+      }
+    }
+    if (hit) {
+      ctx.fillStyle = OBS_COLS[1]; ctx.strokeStyle = '#1a1a19'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(hit.x, hit.y, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      const e = hit.ev;
+      const hh = String(Math.floor(e.h)).padStart(2, '0'), mm = String(Math.floor((e.h % 1) * 60)).padStart(2, '0');
+      placeTip(card, hit.x, W, `<div class="tt">N° ${e.n} · ${dataCronaca(e.d).replace('Adì ', '')} · ore ${hh}:${mm}</div><div><b>${EV_CATS[e.c] || e.c}</b></div>
+        <div style="white-space:normal;max-width:360px">${e.t}</div>
+        <div class="tt" style="margin-top:4px">abitanti ${e.pop} · acqua ${e.a} · riparo ${e.r} · sicurezza ${e.si} · cibo ${e.ci} · salute ${e.sa} · regole ${e.k}</div>`);
+    } else tip.style.display = 'none';
+  }
+  function drawRegCharts() {
+    const evs = world.events;
+    const tlc = document.querySelector('#rg-tl canvas');
+    const drawKey = `${world.evN}|${tlc ? tlc.clientWidth : 0}`;
+    if (regChartsN === drawKey) return;
+    regChartsN = drawKey;
+    const cats = Object.keys(EV_CATS).filter(c => world.evCount[c]);
+    timelineChart(document.getElementById('rg-tl'), evs, cats);
+    if (evs.length < 2) return;
+    const d0 = evDay(evs[0]), d1 = Math.max(d0 + 1, evDay(evs[evs.length - 1]));
+    const NB = 30, bw = (d1 - d0) / NB;
+    const bin = (ev) => Math.min(NB - 1, Math.max(0, Math.floor((evDay(ev) - d0) / bw)));
+    const tot = new Array(NB).fill(0), per = {};
+    for (const c of cats) per[c] = new Array(NB).fill(0);
+    for (const ev of evs) { const b = bin(ev); tot[b]++; if (per[ev.c]) per[ev.c][b]++; }
+    const mid = (i) => Math.round(d0 + (i + 0.5) * bw);
+    const from = (i) => dataCronaca(Math.round(d0 + i * bw)).replace('Adì ', '');
+    barChart(document.getElementById('rg-rate'), {
+      bins: tot.map((v, i) => ({ label: fmtDay(mid(i)), v, tip: `<b>${v}</b> eventi tra il ${from(i)} e il ${from(i + 1)}` })),
+      col: OBS_COLS[0], yFmt: fmtInt,
+    });
+    lineChart(document.getElementById('rg-cum'), { series: [{ name: 'N° evento', col: OBS_COLS[0], pts: evs.map(ev => [evDay(ev), ev.n]) }], yFmt: fmtInt });
+    const sm = document.getElementById('rg-sm');
+    const key = cats.join(',');
+    if (regSmCats !== key) { sm.innerHTML = cats.map(c => cardHtml('rgc-' + c, EV_CATS[c], ' ', 'small')).join(''); regSmCats = key; }
+    const anni = Math.max(1 / 24, (5 + simClock / 4) / 24 * DAYS_PER_SIMDAY / 365);
+    for (const c of cats) {
+      const card = document.getElementById('rgc-' + c);
+      if (!card) continue;
+      const sub = card.querySelector('.sub');
+      const t = `${world.evCount[c]} in tutto · ${(world.evCount[c] / anni).toFixed(1)} all’anno · per periodo:`;
+      if (sub && sub.textContent !== t) sub.textContent = t;
+      lineChart(card, { series: [{ name: EV_CATS[c], col: OBS_COLS[0], pts: per[c].map((v, i) => [mid(i), v]) }], yFmt: fmtInt });
+    }
+  }
+  function regList() {
+    return world.events.filter(ev => (!regFilter.size || regFilter.has(ev.c)) && (!regQuery || ev.t.toLowerCase().includes(regQuery)));
+  }
+  function exportCsv() {
+    const q = (x) => `"${String(x).replace(/"/g, '""')}"`;
+    const rows = [['n', 'data', 'ora', 'giorno', 'secondi_sim', 'categoria', 'evento', 'abitanti', 'acqua', 'riparo', 'sicurezza', 'cibo', 'salute', 'regole_note'].join(';')];
+    for (const ev of regList()) rows.push([ev.n, q(dataCronaca(ev.d).replace('Adì ', '')), ev.h, ev.d, ev.s, q(EV_CATS[ev.c] || ev.c), q(ev.t), ev.pop, ev.a, ev.r, ev.si, ev.ci, ev.sa, ev.k].join(';'));
+    const blob = new Blob(['﻿' + rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `hydrogen-registro-${dayCount}.csv`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  function renderRegistro() {
+    if (!built.registro) buildRegistro();
+    const total = world.evN || 0;
+    const anni = Math.max(1 / 24, (5 + simClock / 4) / 24 * DAYS_PER_SIMDAY / 365);
+    const tiles = [
+      [total, 'eventi dall’inizio'], [(total / anni).toFixed(1), 'eventi per anno'],
+      [Object.keys(world.evCount).length, 'categorie viste'], [world.events.length, 'eventi in memoria'],
+      [anni.toFixed(2), 'anni simulati'],
+    ];
+    const tH = tiles.map(([b, s]) => `<div class="tile"><b>${b}</b><span>${s}</span></div>`).join('');
+    const tEl = document.getElementById('rg-tiles');
+    if (tEl._h !== tH) { tEl.innerHTML = tH; tEl._h = tH; }
+    const cats = Object.entries(world.evCount).sort((a, b) => b[1] - a[1]);
+    const mx = cats.length ? cats[0][1] : 1;
+    const cH = cats.map(([c, n]) => `<div class="cb ${regFilter.size && !regFilter.has(c) ? 'off' : ''}" data-cat="${c}">
+        <span class="cl">${EV_CATS[c] || c}</span><span class="ct"><i style="width:${(n / mx * 100).toFixed(1)}%"></i></span>
+        <span class="cn">${n}</span><span class="cp">${(n / Math.max(1, total) * 100).toFixed(1)}%</span><span class="cr">${(n / anni).toFixed(1)}/anno</span></div>`).join('');
+    const cEl = document.getElementById('rg-cats');
+    if (cEl._h !== cH) { cEl.innerHTML = cH; cEl._h = cH; }
+    drawRegCharts();
+    // la tabella si ricostruisce solo se arrivano eventi nuovi
+    const sig = `${total}|${regFilter.size}|${[...regFilter].join(',')}|${regQuery}|${regDesc}`;
+    if (sig === regShown) return;
+    regShown = sig;
+    let list = regList();
+    if (regDesc) list = list.slice().reverse();
+    const shown = list.slice(0, 600);
+    const f = (x) => (x == null ? '' : x);
+    secRegistro.querySelector('tbody').innerHTML = shown.map(ev => {
+      const hh = String(Math.floor(ev.h)).padStart(2, '0'), mm = String(Math.floor((ev.h % 1) * 60)).padStart(2, '0');
+      return `<tr><td class="num">${ev.n}</td><td>${dataCronaca(ev.d).replace('Adì ', '')}</td><td class="num">${hh}:${mm}</td><td class="num">${ev.d}</td>
+        <td>${EV_CATS[ev.c] || ev.c}</td><td class="evt">${ev.t}</td><td class="num">${f(ev.pop)}</td><td class="num">${f(ev.a)}</td><td class="num">${f(ev.r)}</td>
+        <td class="num">${f(ev.si)}</td><td class="num">${f(ev.ci)}</td><td class="num">${f(ev.sa)}</td><td class="num">${f(ev.k)}</td></tr>`;
+    }).join('');
+    document.getElementById('rg-count').textContent = `${list.length} eventi${list.length > shown.length ? ` (mostrati i primi ${shown.length}; tutti nel CSV)` : ''}`;
+  }
+
   function renderObs(full) {
     obsEl.querySelectorAll('[data-tab]').forEach(b => b.classList.toggle('on', b.dataset.tab === obsTab));
-    for (const [k, el] of [['borgo', secBorgo], ['persone', secPersone], ['sapere', secSapere]]) el.classList.toggle('on', k === obsTab);
+    for (const [k, el] of [['borgo', secBorgo], ['persone', secPersone], ['sapere', secSapere], ['registro', secRegistro]]) el.classList.toggle('on', k === obsTab);
     document.getElementById('obs-date').textContent = `${dataCronaca()} · ${seasonName} · ${villagers.length} abitanti`;
     if (obsTab === 'borgo') renderBorgo();
     else if (obsTab === 'persone') renderPersone(full);
-    else renderSapere();
+    else if (obsTab === 'sapere') renderSapere();
+    else renderRegistro();
   }
   function openObs(tab) {
     obsOpen = true;
@@ -4019,6 +4433,7 @@
     obsEl.classList.add('visible');
     keysDown.clear();
     renderObs(true);
+    setTimeout(() => { if (obsOpen) renderObs(false); }, 60);   // secondo passaggio, a pannello già disposto
   }
   function closeObs() {
     obsOpen = false;
@@ -4031,6 +4446,7 @@
     if (obsT >= 1) { obsT = 0; renderObs(false); }
   }
   document.getElementById('btn-obs').addEventListener('click', () => openObs());
+  document.getElementById('btn-reg').addEventListener('click', () => openObs('registro'));
   document.getElementById('obs-close').addEventListener('click', closeObs);
   document.getElementById('btn-obs-person').addEventListener('click', () => { if (selectedVillager) { obsPerson = selectedVillager.id; openObs('persone'); } });
   obsEl.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => { obsTab = b.dataset.tab; renderObs(true); }));
@@ -4043,6 +4459,7 @@
   //  Avvio
   // ======================================================================
   const loaded = loadState();
+  assignHouses();
   rebuildInstances();
   started = true;
   if (!loaded) {
@@ -4055,7 +4472,7 @@
 
   // Strumenti per osservare la simulazione dalla console del browser
   if (location.hash === '#osservatorio') openObs();
-  window.HYDROGEN = { world, need, villagers, people, BUILDINGS, openObs, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
+  window.HYDROGEN = { world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
 
   let lastTime = performance.now();
   function loop(now) {

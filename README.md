@@ -64,7 +64,20 @@ Il pulsante **📊 Osservatorio** (o `index.html#osservatorio`) apre una pagina 
   rischio di morire entro un anno e probabilità di sposarsi o avere un figlio.
 - **Sapere:** come si diffonde ogni regola nel tempo, chi l'ha scoperta per primo e quanti la sanno oggi.
 
+- **Registro** (anche dal pulsante **🧮 Registro**): ogni cosa che accade riceve un numero progressivo, con data, ora,
+  giorno simulato e i valori del borgo in quell'istante (abitanti, i cinque bisogni, regole conosciute).
+  Grafici: la **linea del tempo** con ogni evento come un punto sulla riga della sua categoria, il ritmo degli eventi,
+  il totale progressivo, il conteggio per categoria (quota e frequenza per anno) e l'andamento di ogni categoria nel tempo.
+  Sotto c'è la tabella completa, con filtri, ricerca ed **esportazione CSV**.
+
 Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre direttamente la sua pagina.
+
+## Case e luoghi
+
+Ogni casa ha la sua famiglia: le spose vanno a vivere dal marito, i figli restano coi genitori, chi arriva trova una casa libera.
+Cliccando una casa si vede chi ci abita, la contrada, se le finestre sono accese e gli ultimi fatti della famiglia;
+cliccando un nome si passa a quella persona. Hanno una scheda con nota storica anche la chiesa, il campanile, il lavatoio,
+il pozzo, i banchi del mercato, le due porte, le mura, i campi e le vigne.
 
 ## Grafica
 
