@@ -105,6 +105,18 @@ Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre 
   (salute, mestiere, sapere, forza, figli, durata della vita). Cambia solo l'aspetto e i pregiudizi degli altri.
   Nell'Osservatorio i grafici «Pregiudizio medio» e «Abitanti per colore della pelle» mostrano come va a finire.
 
+## Chiesa, messa e preghiere
+
+- Ogni mattina le campane chiamano alla **messa**: quasi tutto il paese entra in chiesa, e sopra la facciata si legge quanti fedeli ci sono.
+- Chi arriva dalla città sul mare può essere cristiano di **rito greco** (la comunità greca di Venezia era numerosa): stesso Dio, altro rito, prega in casa.
+- Quando il borgo è in difficoltà (sete, febbri, fame, paura) i più devoti **pregano** perché il bisogno passi. Pregare dà **conforto** (un po' di energia).
+- **Ricevono risposta?** Un mese dopo si controlla se quel bisogno è calato e, per confronto, quanto spesso calano i bisogni negli stessi periodi.
+  Chi si sente esaudito si rafforza nella fede, chi no a volte dubita; la predica, le feste e la comunità riportano piano la fede verso la media del tempo.
+- La scheda della **chiesa** mostra chi officia, battesimi, nozze e funerali, i fedeli alla messa, i più devoti e il confronto delle preghiere;
+  nell'Osservatorio ci sono i grafici «Fedeli alla messa» e «Preghiere e risposte».
+- Nella simulazione **non c'è un intervento divino programmato**: ciò che accade dipende dal tempo, dal lavoro e dal caso.
+  Se ci sia una risposta, come nella vita, resta una questione di fede.
+
 ## Case e luoghi
 
 Ogni casa ha la sua famiglia: le spose vanno a vivere dal marito, i figli restano coi genitori, chi arriva trova una casa libera.

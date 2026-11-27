@@ -1911,6 +1911,7 @@
     v.bornDay = birthDayFor(v.age);
     v.tone = randRange(0.06, 0.3);              // pelle dei fondatori: da chiara a olivastra
     v.prejudice = randRange(0.2, 0.7);          // diffidenza verso chi è diverso, comune nel 1532
+    v.conf = 'cattolica';
   }
 
   const related = (a, b) => a.id === b.fatherId || a.id === b.motherId || b.id === a.fatherId || b.id === a.motherId ||
@@ -1951,6 +1952,7 @@
     c.bornDay = birthDayFor(age);
     const tm = mother.tone ?? 0.15, tf = father ? (father.tone ?? tm) : tm;
     c.tone = clamp((tm + tf) / 2 + randRange(-0.05, 0.05), 0, 1);   // via di mezzo tra i genitori
+    c.conf = (father && father.conf) || mother.conf || 'cattolica';
     const knowsTruth = mother.learnedSet.has('no_prejudice') || (father && father.learnedSet.has('no_prejudice'));
     c.prejudice = knowsTruth ? 0.03 : clamp(((mother.prejudice || 0) + (father ? father.prejudice || 0 : mother.prejudice || 0)) / 2 * 0.85, 0, 1);
     mother.children.push(c.id);
@@ -2009,7 +2011,7 @@
     initAgentBrain(v, randRange(0.35, 0.8));
     v.homeX = v.x; v.homeY = v.y; v.homeZ = v.z;
     v.bornDay = birthDayFor(v.age);
-    v.tone = randRange(0.06, 0.35); v.prejudice = randRange(0.15, 0.55);
+    v.tone = randRange(0.06, 0.35); v.prejudice = randRange(0.15, 0.55); v.conf = 'cattolica';
     villagers.push(v);
     return v;
   }
@@ -2205,7 +2207,7 @@
   const EV_CATS = {
     nascita: '👶 Nascita', morte: '✝ Morte', nozze: '💍 Nozze', crescita: '🎓 Maggiore età', arrivo: '🧳 Arrivo',
     successione: '🔑 Successione', scoperta: '💡 Scoperta', errore: '⚠ Errore', insegnamento: '🗣 Insegnamento',
-    oblio: '🌫 Oblio', pregiudizio: '🚫 Pregiudizio', permesso: '📜 Licenza', tasse: '💰 Tasse', legna: '🪵 Legna', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
+    oblio: '🌫 Oblio', preghiera: '📿 Preghiera', pregiudizio: '🚫 Pregiudizio', permesso: '📜 Licenza', tasse: '💰 Tasse', legna: '🪵 Legna', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
     coprifuoco: '🌙 Coprifuoco', bisogno: '📉 Bisogno', meteo: '☁ Meteo', stagione: '🍂 Stagione', cronaca: '📜 Cronaca',
   };
   function catOfChron(t) {
@@ -2259,6 +2261,7 @@
     lastSampleDay = dayCount;
     assignHouses();
     economyDaily();
+    faithDaily();
     const adults = villagers.filter(v => v.age >= 15);
     const kn = {};
     for (const id of KNOW_IDS) kn[id] = 0;
@@ -2274,6 +2277,9 @@
       acqua: r1(need.acqua), riparo: r1(need.riparo), sicurezza: r1(need.sicurezza), cibo: r1(need.cibo), salute: r1(need.salute),
       opere: Object.keys(world.built).filter(id => !BUILDINGS[id].faith).length,
       eta: r1(villagers.reduce((a, v) => a + v.age, 0) / Math.max(1, villagers.length)),
+      messa: world.massLast || 0,
+      pEs: world.prayStats.prayed ? r1(world.prayStats.answered / world.prayStats.prayed * 100) : null,
+      pCtrl: world.prayStats.ctrl ? r1(world.prayStats.ctrlOk / world.prayStats.ctrl * 100) : null,
       preg: r1(avgPrejudice() * 100), pc: villagers.filter(v => (v.tone || 0) < 0.3).length,
       po: villagers.filter(v => (v.tone || 0) >= 0.3 && (v.tone || 0) < 0.55).length, ps: villagers.filter(v => (v.tone || 0) >= 0.55).length,
       cassa: r1(world.cassa), legna: r1(world.legna), alberi: standingTrees(), casetot: dwellings(), posti: r1(housingCap()),
@@ -2743,49 +2749,26 @@
   }
 
   function handleCanvasClick(clientX, clientY) {
-    let best = null, bestDist = 36;
-    for (const v of villagers) {
-      if (!v.visible) continue;
-      const p = projectToScreen(v.x, v.y + 0.45, v.z);
-      const d = Math.hypot(p.sx - clientX, p.sy - clientY);
-      if (d < bestDist) { bestDist = d; best = v; }
-    }
-    if (best) {
-      selectedVillager = best; selectedBuilding = null; selectedPlace = null;
-      updateCitizenCard();
-      return;
-    }
-    let bestB = null, bestBD = 60;
+    // si sceglie ciò che è più vicino al punto cliccato: persone (con un piccolo vantaggio), opere, case e luoghi
+    const dist = (x, y, z) => { const q = projectToScreen(x, y, z); return Math.hypot(q.sx - clientX, q.sy - clientY); };
+    let best = null, bestD = Infinity;
+    const offer = (d, limit, pick) => { if (d < limit && d < bestD) { bestD = d; best = pick; } };
+    for (const v of villagers) if (v.visible) offer(dist(v.x, v.y + 0.45, v.z) * 1.15, 36, { type: 'villager', ref: v });
     for (const id of Object.keys(BUILDINGS)) {
       if (!world.built[id] && !(world.project && world.project.id === id)) continue;
       const c = siteCenter(id);
-      const p = projectToScreen(c.x, c.y, c.z);
-      const d = Math.hypot(p.sx - clientX, p.sy - clientY);
-      if (d < bestBD) { bestBD = d; bestB = id; }
+      offer(dist(c.x, c.y, c.z), 60, { type: 'building', ref: id });
     }
-    // case e luoghi del borgo: vince ciò che è più vicino al punto cliccato
-    let bestP = null, bestPD = 46;
-    for (const pl of PLACES) {
-      const q = projectToScreen(pl.x, pl.y, pl.z);
-      const d = Math.hypot(q.sx - clientX, q.sy - clientY);
-      if (d < bestPD) { bestPD = d; bestP = { type: 'place', ref: pl }; }
+    for (const pl of PLACES) offer(dist(pl.x, pl.y, pl.z), 46, { type: 'place', ref: pl });
+    HOUSES.forEach((h, i) => offer(dist(h.x, h.y + h.h * 0.6, h.z), 46, { type: 'house', ref: i }));
+    if (!best) { closeCard(); return; }
+    selectedVillager = null; selectedBuilding = null; selectedPlace = null;
+    if (best.type === 'villager') selectedVillager = best.ref;
+    else {
+      if (best.type === 'building') selectedBuilding = best.ref; else selectedPlace = best;
+      followSelected = false; updateFollowBtn();
     }
-    HOUSES.forEach((h, i) => {
-      const q = projectToScreen(h.x, h.y + h.h * 0.6, h.z);
-      const d = Math.hypot(q.sx - clientX, q.sy - clientY);
-      if (d < bestPD) { bestPD = d; bestP = { type: 'house', ref: i }; }
-    });
-    if (bestB && (!bestP || bestBD <= bestPD + 8)) {
-      selectedBuilding = bestB; selectedVillager = null; selectedPlace = null; followSelected = false; updateFollowBtn();
-      updateCitizenCard();
-      return;
-    }
-    if (bestP) {
-      selectedPlace = bestP; selectedVillager = null; selectedBuilding = null; followSelected = false; updateFollowBtn();
-      updateCitizenCard();
-      return;
-    }
-    closeCard();
+    updateCitizenCard();
   }
   function siteCenter(id) {
     const s = BUILDINGS[id].site;
@@ -2839,7 +2822,7 @@
   const PLACES = [
     { id: 'chiesa', name: 'Chiesa parrocchiale di San Marco', kind: 'Sagrato', x: -1.2, y: 6.9, z: -5.0,
       note: 'Nei borghi della Terraferma veneziana la chiesa parrocchiale era il cuore della comunità: vi si battezzava, ci si sposava, vi si seppellivano i morti, e sul sagrato si leggevano gli avvisi della Serenissima.',
-      info: () => `Vi officia <b>${priestName()}</b>, che abita in canonica.<br>Dall’inizio della cronaca: <b>${world.births}</b> battesimi, <b>${world.marriages || 0}</b> nozze, <b>${world.deaths}</b> funerali.` },
+      info: () => churchInfo() },
     { id: 'campanile', name: 'Campanile', kind: 'Sagrato', x: 1.4, y: 10.5, z: -6.0,
       note: 'La campana scandiva la giornata di tutti: l’Ave Maria della sera segnava il ritorno dai campi e la chiusura delle porte, e nei temporali si suonava a distesa contro la grandine.',
       info: () => `Ora sono le <b>${String(Math.floor(currentHour)).padStart(2, '0')}:${String(Math.floor((currentHour % 1) * 60)).padStart(2, '0')}</b>: ${currentHour >= 19 || currentHour < 4.75 ? 'l’Ave Maria è suonata, le porte sono chiuse.' : 'le porte del borgo sono aperte.'}` },
@@ -3138,6 +3121,7 @@
     v.tone = rng() < 0.45 ? randRange(0.65, 0.95) : randRange(0.12, 0.4);
     v.prejudice = randRange(0.05, 0.25);
     v.daMare = true;
+    if (rng() < 0.12) v.conf = 'ortodossa';   // la comunità greca della città sul mare
   }
   const avgTone = () => villagers.reduce((s, v) => s + (v.tone || 0), 0) / Math.max(1, villagers.length);
   const isDifferent = (v) => Math.abs((v.tone || 0) - avgTone()) > 0.3;
@@ -3191,6 +3175,85 @@
       pushDyn(g.x, y + 0.24 * small, g.z - 0.16 * small, 0.04, 0.34 * small, 0.04, [0.80, 0.77, 0.70]);
       pushDyn(g.x, y + 0.30 * small, g.z - 0.16 * small, 0.18 * small, 0.04, 0.04, [0.80, 0.77, 0.70]);
     });
+  }
+
+  // ======================================================================
+  //  Messa, preghiere e risposte
+  //  Nella simulazione non c'è un intervento divino programmato: gli esiti
+  //  dipendono da tempo, lavoro e caso. La preghiera dà conforto (un po' di
+  //  energia) e unisce la comunità; chi si sente esaudito si rafforza nella
+  //  fede, chi no a volte dubita. Le statistiche confrontano onestamente
+  //  i bisogni per cui si è pregato con l'andamento dei bisogni negli stessi periodi.
+  // ======================================================================
+  world.prayers = []; world.ctrl = []; world.prayStats = { prayed: 0, answered: 0, ctrl: 0, ctrlOk: 0 }; world.massLast = 0;
+  const confName = (v) => v.conf === 'ortodossa' ? 'cristiana di rito greco' : 'cristiana di rito latino';
+  function attendsMass(v) {
+    return v.conf !== 'ortodossa' && v.age >= 7 && v.faith > 0.12 && v.kind !== 'ox_driver' && v.kind !== 'guard' && v.task !== 'bosco';
+  }
+  const massNow = () => currentHour >= 9 && currentHour < 10;
+  let massDay = -1, massBellDay = -1;
+  function massUpdate() {
+    if (currentHour >= 8.8 && currentHour < 9 && massBellDay !== dayCount) { massBellDay = dayCount; ringBells(3); }
+    if (massNow()) {
+      if (massDay !== dayCount) { massDay = dayCount; world.massLast = villagers.filter(attendsMass).length; }
+      label('messa', `⛪ Messa · ${world.massLast} fedeli in chiesa`, -1.2, 9.4, -6.4, 'site');
+    }
+  }
+  function faithDaily() {
+    const st = world.prayStats;
+    // le preghiere fatte un mese fa: il bisogno è davvero calato?
+    const due = world.prayers.filter(p => dayCount - p.day >= 2);
+    if (due.length) {
+      let si = 0, no = 0;
+      const per = {};
+      for (const p of due) {
+        const ok = need[p.need] <= p.start - 10;
+        const v = people.get(p.who);
+        if (v && v.alive) {
+          if (ok) { v.answered = (v.answered || 0) + 1; if (v.kind !== 'priest') v.faith = Math.min(0.99, v.faith + 0.02); }
+          else { v.unanswered = (v.unanswered || 0) + 1; if (v.kind !== 'priest') v.faith = Math.max(0.05, v.faith - 0.006); }
+        }
+        if (ok) si++; else no++;
+        st.prayed++; if (ok) st.answered++;
+        per[p.need] = (per[p.need] || 0) + 1;
+      }
+      world.prayers = world.prayers.filter(p => dayCount - p.day < 2);
+      logEvent('preghiera', `Un mese dopo le preghiere (${Object.entries(per).map(([n, c]) => `${c} per ${NEED_NAME[n].toLowerCase()}`).join(', ')}): in ${si} casi il bisogno è calato, in ${no} no.`);
+    }
+    // confronto: come vanno i bisogni alti negli stessi periodi, a prescindere dalle preghiere
+    for (const c of world.ctrl.filter(c => dayCount - c.day >= 2)) { st.ctrl++; if (need[c.need] <= c.start - 10) st.ctrlOk++; }
+    world.ctrl = world.ctrl.filter(c => dayCount - c.day < 2);
+    // la predica, le feste e la comunità riportano piano la fede verso la media del tempo
+    for (const v of villagers) if (v.kind !== 'priest' && v.age >= 7) v.faith += (0.55 - v.faith) * 0.01;
+    // si prega per ciò che può cambiare in un mese (non per le case, che vanno costruite)
+    const hi = NEEDS.filter(n => n.id !== 'case' && need[n.id] >= 30).sort((a, b) => need[b.id] - need[a.id]);
+    if (!hi.length) return;
+    for (const n of hi) world.ctrl.push({ need: n.id, day: dayCount, start: need[n.id] });
+    let nuove = 0;
+    for (const v of villagers) {
+      if (v.age < 12 || world.prayers.some(p => p.who === v.id)) continue;
+      if (rng() < v.faith * 0.6) {
+        world.prayers.push({ who: v.id, need: hi[0].id, day: dayCount, start: need[hi[0].id] });
+        v.prayed = (v.prayed || 0) + 1;
+        v.energy = Math.min(100, v.energy + 6);            // il conforto della preghiera
+        nuove++;
+      }
+    }
+    if (nuove) logEvent('preghiera', `${nuove} persone pregano perché passi il bisogno di ${hi[0].name.toLowerCase()} (${Math.round(need[hi[0].id])}).`);
+  }
+  function churchInfo() {
+    const st = world.prayStats;
+    const rate = st.prayed ? Math.round(st.answered / st.prayed * 100) : null;
+    const ctrl = st.ctrl ? Math.round(st.ctrlOk / st.ctrl * 100) : null;
+    const link = (v) => `<span class="pl-in" data-pid="${v.id}">${v.name} ${v.cognome}</span>`;
+    const devoti = villagers.filter(v => v.age >= 12).sort((a, b) => b.faith - a.faith).slice(0, 5);
+    const greci = villagers.filter(v => v.conf === 'ortodossa');
+    return `Vi officia <b>${priestName()}</b>, che abita in canonica.<br>
+      Dall’inizio della cronaca: <b>${world.births}</b> battesimi, <b>${world.marriages || 0}</b> nozze, <b>${world.deaths}</b> funerali.<br>
+      <strong>Alla messa del mattino:</strong> ${world.massLast || 0} fedeli. I più devoti: ${devoti.map(v => `${link(v)} (${Math.round(v.faith * 100)}%)`).join(', ')}.<br>
+      ${greci.length ? `In casa pregano anche ${greci.length} ${greci.length === 1 ? 'persona di rito greco, venuta' : 'persone di rito greco, venute'} dalla città sul mare: lo stesso Dio cristiano, con un altro rito.<br>` : ''}
+      <strong>Preghiere e risposte:</strong> ${st.prayed ? `${st.prayed} preghiere per i bisogni del borgo; un mese dopo il bisogno era calato nel <b>${rate}%</b> dei casi. Negli stessi periodi i bisogni alti, a prescindere dalle preghiere, sono calati nel <b>${ctrl ?? '—'}%</b> dei casi.` : 'ancora nessuna preghiera arrivata a scadenza.'}${world.prayers.length ? ` In attesa: ${world.prayers.length}.` : ''}<br>
+      <i>Nella simulazione non c’è un intervento divino programmato: ciò che accade dipende dal tempo, dal lavoro e dal caso. La preghiera però conforta chi prega e unisce la comunità. Se ci sia una risposta, come nella vita, resta una questione di fede.</i>`;
   }
 
   // ======================================================================
@@ -3625,7 +3688,7 @@
   let skipSave = false;
   const PERSON_KEYS = ['id', 'name', 'cognome', 'cognomeNascita', 'sex', 'kind', 'role', 'mestiere', 'place', 'oxIdx', 'speakKey',
     'phase', 'speed', 'zOff', 'tunic', 'hose', 'hat', 'faceX', 'faceZ', 'homeX', 'homeY', 'homeZ', 'fatherId', 'motherId', 'spouseId',
-    'widowed', 'predecessor', 'forgot', 'houseIdx', 'tone', 'prejudice', 'refused', 'slighted', 'daMare', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
+    'widowed', 'predecessor', 'forgot', 'houseIdx', 'tone', 'prejudice', 'refused', 'slighted', 'daMare', 'conf', 'prayed', 'answered', 'unanswered', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
   function packPerson(v, histMax) {
     const o = {};
     for (const k of PERSON_KEYS) if (v[k] !== undefined && v[k] !== null) o[k] = v[k];
@@ -3664,6 +3727,7 @@
         events: world.events.slice(-1500), evN: world.evN, evCount: world.evCount,
         eco: { cassa: world.cassa, legna: world.legna, permits: world.permits, permitReq: world.permitReq, permitRetry: world.permitRetry,
           incomeTot: world.incomeTot, taxTot: world.taxTot, cutTot: world.cutTot, boughtTot: world.boughtTot, borgoNuovo: world.borgoNuovo,
+          prayStats: world.prayStats, prayers: world.prayers, ctrl: world.ctrl, massLast: world.massLast,
           trees: TREES.map(t => [t.state === 'stump' ? 1 : 0, Math.round(t.regrowAt)]) },
         project: p ? { id: p.id, progress: p.progress, proposer: p.proposer.id, withFilter: p.withFilter } : null,
         living: villagers.map(v => packPerson(v)),
@@ -3697,6 +3761,8 @@
         const e = data.eco;
         Object.assign(world, { cassa: e.cassa ?? 40, legna: e.legna ?? 14, permits: e.permits || {}, permitReq: e.permitReq || null, permitRetry: e.permitRetry || 0,
           incomeTot: e.incomeTot || 0, taxTot: e.taxTot || 0, cutTot: e.cutTot || 0, boughtTot: e.boughtTot || 0 });
+        if (e.prayStats) world.prayStats = e.prayStats;
+        world.prayers = e.prayers || []; world.ctrl = e.ctrl || []; world.massLast = e.massLast || 0;
         (e.trees || []).forEach((t, i) => { if (TREES[i]) { TREES[i].state = t[0] ? 'stump' : 'tree'; TREES[i].regrowAt = t[1]; } });
       }
       world.hist = data.hist || [];
@@ -3902,6 +3968,7 @@
     // 5. Ruota del mulino e acqua torbida
     drawWood();
     drawCemetery();
+    massUpdate();
     if (has('mulino')) {
       const mz = BUILDINGS.mulino.site.z;
       const rot = simClock * 1.3;
@@ -4025,6 +4092,9 @@
         if (mine) label('prop-' + v.name, `<b>${v.name}:</b> «${BUILDINGS[mine.id].faith ? cap(art(mine.id, true)) + ', per la grazia!' : BUILDINGS[mine.id].short + '!'}»`, v.x, v.y + 1.25, v.z, 'prop');
         continue;
       }
+
+      // A messa: i fedeli sono dentro la chiesa (e il parroco con loro)
+      if (massNow() && (attendsMass(v) || v.kind === 'priest') && !(p && workTime && (v.task === 'worker' || v.task === 'capo'))) { v.visible = false; continue; }
 
       // Al cantiere: i lavoranti fanno la spola tra il mucchio e l'edificio
       if (p && workTime && (v.task === 'worker' || v.task === 'capo') && p.depot) {
@@ -4524,6 +4594,8 @@
         ${cardHtml('ob-case', 'Abitanti e posti in casa', 'quando gli abitanti superano i posti comodi, serve spazio nuovo')}
         ${cardHtml('ob-preg', 'Pregiudizio medio degli adulti', 'una credenza falsa: cala vivendo vicini, lavorando insieme e vedendo i fatti')}
         ${cardHtml('ob-pelle', 'Abitanti per colore della pelle', 'nella simulazione il colore non cambia nessuna capacità')}
+        ${cardHtml('ob-messa', 'Fedeli alla messa del mattino', 'quanti entrano in chiesa ogni giorno')}
+        ${cardHtml('ob-preghiere', 'Preghiere e risposte', 'quota di casi in cui, un mese dopo, il bisogno è calato: con le preghiere e negli stessi periodi in generale')}
         ${cardHtml('ob-cassa', 'Cassa della comunità', 'ducati: entra il lavoro e la vendemmia, escono taglia, licenze e legna')}
         ${cardHtml('ob-legna', 'Legna in magazzino', 'carri: si brucia d’inverno, serve ai cantieri')}
         ${cardHtml('ob-bosco', 'Alberi del Bosco del Comune', `quanti sono in piedi, su ${TREES.length}`)}
@@ -4554,6 +4626,8 @@
     lineChart($('ob-bis'), { series: NEEDS.map((n, i) => ({ name: n.name, col: OBS_COLS[i], pts: ser(n.id) })), yMax: 100, yFmt: fmtInt });
     lineChart($('ob-opere'), { series: [{ name: 'Opere', col: OBS_COLS[0], pts: ser('opere') }], yFmt: fmtInt });
     lineChart($('ob-preg'), { series: [{ name: 'Pregiudizio', col: OBS_COLS[0], pts: H.filter(h => h.preg != null).map(h => [h.d, h.preg]) }], yMax: 100, yFmt: fmtPct });
+    lineChart($('ob-messa'), { series: [{ name: 'Fedeli', col: OBS_COLS[0], pts: H.filter(h => h.messa != null).map(h => [h.d, h.messa]) }], yFmt: fmtInt });
+    lineChart($('ob-preghiere'), { series: [{ name: 'Dopo le preghiere', col: OBS_COLS[0], pts: H.filter(h => h.pEs != null).map(h => [h.d, h.pEs]) }, { name: 'Bisogni alti in generale', col: OBS_COLS[1], pts: H.filter(h => h.pCtrl != null).map(h => [h.d, h.pCtrl]) }], yMax: 100, yFmt: fmtPct });
     lineChart($('ob-pelle'), { series: [{ name: 'Chiara', col: OBS_COLS[0], pts: H.filter(h => h.pc != null).map(h => [h.d, h.pc]) }, { name: 'Olivastra', col: OBS_COLS[1], pts: H.filter(h => h.po != null).map(h => [h.d, h.po]) }, { name: 'Scura', col: OBS_COLS[2], pts: H.filter(h => h.ps != null).map(h => [h.d, h.ps]) }], yFmt: fmtInt });
     lineChart($('ob-case'), { series: [{ name: 'Abitanti', col: OBS_COLS[0], pts: ser('pop') }, { name: 'Posti comodi', col: OBS_COLS[1], pts: H.filter(h => h.posti != null).map(h => [h.d, h.posti]) }], yFmt: fmtInt });
     lineChart($('ob-cassa'), { series: [{ name: 'Ducati', col: OBS_COLS[0], pts: H.filter(h => h.cassa != null).map(h => [h.d, h.cassa]) }], yMin: Math.min(0, ...H.filter(h => h.cassa != null).map(h => h.cassa)), yFmt: fmtInt });
@@ -4702,6 +4776,8 @@
       ['Età', Math.min(100, v.age / 80 * 100), `${Math.floor(v.age)} anni`],
       ['Colore della pelle', (v.tone || 0) * 100, toneName(v.tone || 0)],
       ['Pregiudizio (credenza falsa)', (v.prejudice || 0) * 100, `${Math.round((v.prejudice || 0) * 100)}%`],
+      ['Fede religiosa', 0, confName(v)],
+      ['Preghiere fatte', Math.min(100, (v.prayed || 0) * 5), `${v.prayed || 0} · sentite esaudite ${v.answered || 0}`],
     ];
     const aspHtml = asp.map(([n, p, t]) => `<div class="asp">${n}<b>${t}</b><div class="bar"><div style="width:${clamp(p, 0, 100).toFixed(0)}%"></div></div></div>`).join('');
     const aspEl = document.getElementById('pd-asp');
@@ -4992,7 +5068,7 @@
   //  Avvio
   // ======================================================================
   const loaded = loadState();
-  for (const v of villagers) { if (v.tone == null) v.tone = randRange(0.06, 0.3); if (v.prejudice == null) v.prejudice = v.age < 14 ? 0.1 : randRange(0.2, 0.6); }
+  for (const v of villagers) { if (v.conf == null) v.conf = 'cattolica'; if (v.tone == null) v.tone = randRange(0.06, 0.3); if (v.prejudice == null) v.prejudice = v.age < 14 ? 0.1 : randRange(0.2, 0.6); }
   assignHouses();
   rebuildInstances();
   started = true;
@@ -5006,7 +5082,7 @@
 
   // Strumenti per osservare la simulazione dalla console del browser
   if (location.hash === '#osservatorio') openObs();
-  window.HYDROGEN = { world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, cam, view: (x, z, zoom) => { cam.fly = null; cam.panX = x; cam.panZ = z; cam.zoom = zoom; updateCameraMatrices(); }, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
+  window.HYDROGEN = { world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, cam, clickAt: (x, y) => { handleCanvasClick(x, y); return selectedPlace ? (selectedPlace.type + ':' + (selectedPlace.ref.id ?? selectedPlace.ref)) : selectedVillager ? 'persona:' + selectedVillager.name : selectedBuilding ? 'opera:' + selectedBuilding : 'nulla'; }, view: (x, z, zoom) => { cam.fly = null; cam.panX = x; cam.panZ = z; cam.zoom = zoom; updateCameraMatrices(); }, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
 
   let lastTime = performance.now();
   function loop(now) {
