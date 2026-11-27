@@ -71,6 +71,7 @@
   .nrem { grid-column: 1 / 4; font-size: 10.5px; color: #a9c99a; margin: -2px 0 2px 76px; min-height: 0; }
   .nrem:empty { display: none; }
   .nrem.faith { color: #c7a7e6; }
+  .resline { font-size: 11px; color: #e8d8b4; border-top: 1px solid rgba(140, 109, 70, 0.4); padding-top: 4px; margin-top: 2px; }
 
   /* Registro Apprendimento Collettivo in alto a destra */
   #brain-log {
@@ -364,6 +365,7 @@
   <div class="panel" id="needs-panel">
     <div class="needs-title">Bisogni del borgo <span>pressione · oltre la tacca si riunisce la vicinia</span></div>
     <div id="needs-rows"></div>
+    <div class="resline" id="res-line"></div>
   </div>
 </div>
 
@@ -644,6 +646,7 @@
 
     // Prospettiva aerea, nebbia di pioggia e foschia del mattino
     lit = mix(lit, uSkyHorizon * 0.9, clamp((-vWorldPos.z - 18.0) / 40.0, 0.0, 1.0) * 0.35);
+    lit = mix(lit, uSkyHorizon * 0.95, clamp((vWorldPos.z - 34.0) / 40.0, 0.0, 1.0) * 0.4);
     if (uRainAmount > 0.1) {
       float distFog = clamp((-vWorldPos.z + 20.0) / 85.0, 0.0, 1.0) * uRainAmount * 0.22;
       lit = mix(lit, uSkyHorizon * 0.75, distFog);
@@ -852,6 +855,74 @@
   }
   addBox(0, 6.8, -28.0, 190, 13.6, 18.0, [0.39, 0.47, 0.30]);
   addBox(0, 8.6, -39.0, 200, 17.2, 16.0, [0.35, 0.43, 0.28]);
+
+  // Il monte a nord, alle spalle del borgo: boschi in basso, roccia, neve in cima
+  function mountain(cx, cz, baseW, baseD, H, tiers, y0) {
+    for (let t = 0; t < tiers; t++) {
+      const f = t / tiers;
+      const col = f < 0.45 ? [0.30, 0.40, 0.24] : f < 0.75 ? [0.50, 0.49, 0.44] : [0.90, 0.91, 0.93];
+      const h = H / tiers;
+      addBox(cx, y0 + h * (t + 0.5), cz, baseW * (1 - f * 0.82), h, baseD * (1 - f * 0.65), col);
+    }
+  }
+  mountain(-8, -50, 74, 20, 36, 8, 6);
+  mountain(30, -48, 46, 18, 25, 6, 6);
+  mountain(-44, -47, 40, 16, 22, 6, 6);
+
+  // A sud, oltre i campi, la strada bianca scende verso la città nuova sul grande mare
+  {
+    const cr = createRng(1532);
+    const cp = (arr) => arr[Math.floor(cr() * arr.length)];
+    const SABBIA = [0.86, 0.80, 0.62];
+    const MARE = [0.10, 0.26, 0.38];
+    addBox(-1.1, 0.06, 32.6, 1.2, 0.1, 35.4, STRADA_COL);                       // strada da Porta Padova al mare
+    addBox(0, 0.05, 51.6, 260, 0.1, 3.2, SABBIA);                               // spiaggia
+    addBox(0, -0.2, 92, 420, 0.46, 77.6, MARE, 0, 8);                          // il grande mare
+    const COLS_CITTA = [[0.80, 0.52, 0.42], [0.82, 0.68, 0.46], [0.70, 0.32, 0.24], [0.86, 0.82, 0.74], [0.78, 0.60, 0.52]];
+    for (const zr of [46.4, 48.9]) {
+      for (let i = 0; i < 10; i++) {
+        const x = -11 + i * 2.35 + (zr > 47 ? 0.6 : 0);
+        if (Math.abs(x - 2) < 2.6 && zr < 47) continue;                         // spazio per la chiesa grande
+        const h = 1.8 + cr() * 1.4, w = 1.9, d = 1.7;
+        const wall = cp(COLS_CITTA), roof = cp(COPPI_COLS);
+        addBox(x, h / 2, zr, w, h, d, wall);
+        addBox(x, h + 0.12, zr, w + 0.15, 0.24, d + 0.15, roof);
+        const sl = 21.4 + cr() * 1.5, wk = 5.6 + cr() * 0.8;
+        for (const fx of [-0.5, 0, 0.5]) addBox(x + fx, h * 0.65, zr + d / 2 + 0.03, 0.2, 0.3, 0.05, [0.16, 0.14, 0.13], 0, 1, sl + fx, wk);
+      }
+    }
+    // la chiesa grande con la cupola e il campanile altissimo
+    addBox(2, 1.8, 45.6, 4.2, 3.6, 3.4, [0.88, 0.84, 0.76]);
+    for (let t = 0; t < 5; t++) addBox(2, 3.6 + 0.3 * t + 0.15, 45.6, 3.0 * (1 - t * 0.18), 0.3, 2.6 * (1 - t * 0.18), [0.45, 0.55, 0.50]);
+    addBox(2, 5.4, 45.6, 0.14, 0.5, 0.14, [0.88, 0.70, 0.26]);
+    addBox(2, 1.9, 47.35, 1.0, 2.0, 0.1, [0.20, 0.16, 0.12], 0, 1, 22.5, 5.0);
+    addBox(6.6, 5.0, 45.2, 1.3, 10.0, 1.3, [0.74, 0.40, 0.30]);
+    addBox(6.6, 10.4, 45.2, 1.45, 0.8, 1.45, [0.86, 0.82, 0.74]);
+    for (let t = 0; t < 4; t++) addBox(6.6, 11.0 + t * 0.4, 45.2, 1.3 * (1 - t * 0.24), 0.4, 1.3 * (1 - t * 0.24), [0.45, 0.55, 0.50]);
+    addBox(6.6, 10.3, 45.9, 0.3, 0.3, 0.06, [0.30, 0.25, 0.20], 0, 2);
+    // il palazzo sull'acqua, col portico ad archi
+    addBox(-6.5, 1.6, 50.4, 6.4, 3.2, 1.6, [0.92, 0.88, 0.80]);
+    for (let k = 0; k <= 8; k++) addBox(-9.6 + k * 0.78, 0.6, 51.25, 0.16, 1.2, 0.16, [0.96, 0.94, 0.90]);
+    addBox(-6.5, 3.35, 50.4, 6.6, 0.3, 1.8, [0.70, 0.32, 0.24]);
+    for (let k = 0; k < 6; k++) addBox(-8.9 + k * 0.95, 2.3, 51.23, 0.32, 0.5, 0.05, [0.16, 0.14, 0.13], 0, 1, 23.0, 5.5);
+    // moli e navi
+    for (const px of [-2.5, 9.5]) {
+      addBox(px, 0.18, 54.4, 0.9, 0.12, 4.4, LEGNO_COL);
+      for (const pz of [52.6, 54.4, 56.2]) for (const dx of [-0.4, 0.4]) addBox(px + dx, 0.0, pz, 0.12, 0.6, 0.12, LEGNO_COL);
+    }
+    for (const [sx, sz, rot] of [[-7, 58.5, 0.2], [4.5, 61, -0.15], [15, 57.5, 0.05], [-17, 63, 0.3]]) {
+      addBox(sx, 0.22, sz, 2.6, 0.45, 0.9, [0.36, 0.24, 0.16], rot);
+      addBox(sx, 0.5, sz, 2.2, 0.12, 0.7, [0.46, 0.32, 0.20], rot);
+      addBox(sx, 1.8, sz, 0.08, 2.6, 0.08, LEGNO_COL);
+      addBox(sx, 2.0, sz + 0.02, 0.05, 1.5, 1.2, [0.94, 0.92, 0.86], rot + 1.5708);
+      addBox(sx + 0.6, 1.5, sz, 0.05, 1.0, 0.8, [0.88, 0.80, 0.66], rot + 1.5708);
+    }
+    for (const [tx, tz] of [[-14, 47.5], [16, 47], [18.5, 46], [-16.5, 46.5]]) {
+      addBox(tx, 0.4, tz, 0.18, 0.8, 0.18, LEGNO_COL);
+      addBox(tx, 1.3, tz, 0.54, 1.0, 0.54, [0.22, 0.36, 0.22]);
+      addBox(tx, 2.2, tz, 0.36, 0.9, 0.36, [0.26, 0.41, 0.24]);
+    }
+  }
 
   // Mura castellane e porte
   {
@@ -1285,6 +1356,56 @@
     }
   }
 
+  // Lotti per le case nuove: gli ultimi due spazi dentro le mura, poi il Borgo Nuovo a ovest
+  const INSIDE_LOTS = [
+    { x: 11.4, y: 1.1, z: 9.7, w: 1.35, d: 1.25, h: 1.5, farmer: true },
+    { x: 12.0, y: 6.3, z: -11.2, w: 1.3, d: 1.2, h: 1.5, farmer: true },
+  ];
+  const BORGO_LOTS = [
+    { x: -23.6, y: 0, z: 9.6 }, { x: -23.6, y: 0, z: 6.4 }, { x: -19.0, y: 0, z: 11.0 },
+    { x: -23.6, y: 0, z: 3.2 }, { x: -23.6, y: 0, z: -0.4 }, { x: -19.8, y: 0, z: 4.2 },
+    { x: -23.6, y: 0, z: -4.0 }, { x: -19.6, y: 0, z: -6.4 }, { x: -16.2, y: 0, z: -6.8 },
+  ].map(l => Object.assign(l, { w: 1.4, d: 1.3, h: 1.6, farmer: false }));
+  function bpHouseLot(add, lot, seed) {
+    const r = createRng(seed);
+    const rp = (arr) => arr[Math.floor(r() * arr.length)];
+    const wall = rp(WALL_COLS), roof = rp(COPPI_COLS);
+    const { x: hx, y: hy, z: hz, w, d, h } = lot;
+    const sleepH = lot.farmer ? 20.1 + r() * 0.8 : 21.2 + r() * 1.3, wakeH = lot.farmer ? 4.6 + r() * 0.7 : 5.8 + r() * 0.8;
+    add(hx, hy + 0.12, hz, w + 0.04, 0.24, d + 0.04, PIETRA_OMBRA);
+    add(hx, hy + h * 0.5, hz, w, h, d, wall);
+    roofTiers(add, hx, hy + h, hz, w, d, roof);
+    const wy = hy + h * 0.63, fz = hz + d * 0.5 + 0.03;
+    add(hx - w * 0.24, wy, fz, 0.22, 0.32, 0.05, [0.16, 0.14, 0.13], 0, 1, sleepH, wakeH);
+    add(hx + w * 0.24, wy, fz, 0.22, 0.32, 0.05, [0.16, 0.14, 0.13], 0, 1, sleepH + 0.15, wakeH + 0.1);
+    add(hx, hy + 0.36, fz, 0.32, 0.56, 0.05, LEGNO_COL);
+    const cx = hx + w * 0.25, cz = hz - d * 0.15;
+    add(cx, hy + h + 0.77, cz, 0.18, 0.34, 0.18, wall);
+    add(cx, hy + h + 0.98, cz, 0.30, 0.14, 0.30, wall);
+  }
+  function bpCaseNuove(add) { INSIDE_LOTS.forEach((l, i) => bpHouseLot(add, l, 9001 + i)); }
+  const bpBorgo = (k) => (add) => BORGO_LOTS.slice(k * 3, k * 3 + 3).forEach((l, i) => bpHouseLot(add, l, 9101 + k * 3 + i));
+  const MURO_NUOVO = [0.70, 0.66, 0.58];
+  function bpMura(add) {
+    const seg = (x, z, alongX) => {
+      add(x, 1.5, z, alongX ? 1.02 : 0.65, 3.0, alongX ? 0.65 : 1.02, MURO_NUOVO);
+      if (Math.round(alongX ? x : z) % 2 === 0) add(x, 3.22, z, alongX ? 0.55 : 0.68, 0.45, alongX ? 0.68 : 0.55, PIETRA_OMBRA);
+    };
+    const tower = (x, z) => { add(x, 2.3, z, 1.8, 4.6, 1.8, PIETRA_OMBRA); add(x, 4.95, z, 2.05, 0.7, 2.05, COPPI_COLS[1]); };
+    for (let x = -14.6; x >= -26.0; x -= 1.0) seg(x, 12.2, true);
+    tower(-26.5, 12.2);
+    for (let z = 11.2; z >= -9.5; z -= 1.0) { if (Math.abs(z - 1.5) < 1.3) continue; seg(-26.5, z, false); }
+    tower(-26.5, -10);
+    for (let x = -25.5; x <= -13.4; x += 1.0) seg(x, -10, true);
+    // Porta Nuova verso ovest
+    add(-26.5, 1.9, 1.5 - 1.35, 0.95, 3.8, 0.75, PIETRA_OMBRA);
+    add(-26.5, 1.9, 1.5 + 1.35, 0.95, 3.8, 0.75, PIETRA_OMBRA);
+    add(-26.5, 3.1, 1.5, 0.95, 1.4, 3.4, PIETRA_VICENZA);
+    add(-26.5, 3.95, 1.5, 1.05, 0.35, 3.6, COPPI_COLS[0]);
+    add(-27.05, 2.2, 1.5 - 1.45, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+    add(-27.05, 2.2, 1.5 + 1.45, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+  }
+
   // Catalogo degli edifici: bisogno, sapere necessario, nota storica
   const BUILDINGS = {
     cisterna: { name: 'Pozzo-cisterna alla veneziana', short: 'Cisterna', need: 'acqua', req: 'rain_collect', work: 229,
@@ -1327,6 +1448,26 @@
       site: { x: -19.4, y: 0, z: -1.2 }, depot: { dx: 2.6, dz: 1.2 }, mat: 'terra e piantine',
       note: 'I «semplici» sono le erbe medicinali. Nel 1545 Padova fonderà il suo Orto dei Semplici, il primo orto botanico universitario.',
       effect: 'Erbe medicinali a portata di mano: le febbri guariscono prima.', build: bpOrto },
+    casenuove: { name: 'Case nuove negli ultimi lotti dentro le mura', short: 'Case nuove', need: 'case', req: 'masonry', work: 220,
+      site: { x: 11.4, y: 1.1, z: 9.7 }, depot: { dx: -1.6, dz: -1.2 }, mat: 'pietre e travi', cost: { legna: 6, ducati: 8 },
+      note: 'Quando il borgo cresceva si costruiva negli ultimi spazi liberi tra le case, spesso addossandosi alle mura.',
+      effect: 'Due famiglie in più trovano casa dentro le mura.', build: bpCaseNuove, onBuilt: () => registerNewHouses(INSIDE_LOTS) },
+    mura: { name: 'Allargamento delle mura: il Borgo Nuovo', short: 'Mura nuove', need: 'case', req: 'masonry', after: 'casenuove', work: 1100, sortY: false,
+      site: { x: -20.0, y: 0, z: 12.2 }, depot: { dx: 0.0, dz: 1.6 }, mat: 'pietre', permit: true, cost: { legna: 18, ducati: 30, tassa: 25 },
+      note: 'Per allargare le mura serviva la licenza delle autorità: la comunità mandava una supplica al Podestà di Vicenza e pagava la tassa. Poi si tirava su la nuova cerchia, con una porta nuova verso ovest.',
+      effect: 'Nasce il Borgo Nuovo: dentro le mura nuove c’è terra per altre nove case.', build: bpMura, onBuilt: () => { world.borgoNuovo = true; cam.minPanX = -29; } },
+    borgo1: { name: 'Case del Borgo Nuovo, prima fila', short: 'Borgo Nuovo I', need: 'case', req: 'masonry', after: 'mura', work: 260,
+      site: { x: -22.1, y: 0, z: 9.0 }, depot: { dx: 2.2, dz: -1.6 }, mat: 'pietre e travi', cost: { legna: 8, ducati: 10 },
+      note: 'Dentro le mura nuove si tracciavano i lotti e ogni famiglia tirava su la sua casa, aiutata dai vicini.',
+      effect: 'Tre famiglie in più trovano casa nel Borgo Nuovo.', build: bpBorgo(0), onBuilt: () => registerNewHouses(BORGO_LOTS.slice(0, 3)) },
+    borgo2: { name: 'Case del Borgo Nuovo, seconda fila', short: 'Borgo Nuovo II', need: 'case', req: 'masonry', after: 'borgo1', work: 260,
+      site: { x: -22.3, y: 0, z: 2.3 }, depot: { dx: 2.4, dz: -1.2 }, mat: 'pietre e travi', cost: { legna: 8, ducati: 10 },
+      note: 'Il Borgo Nuovo si riempiva fila dopo fila: botteghe, orti e case per le famiglie giovani.',
+      effect: 'Altre tre famiglie trovano casa nel Borgo Nuovo.', build: bpBorgo(1), onBuilt: () => registerNewHouses(BORGO_LOTS.slice(3, 6)) },
+    borgo3: { name: 'Case del Borgo Nuovo, terza fila', short: 'Borgo Nuovo III', need: 'case', req: 'masonry', after: 'borgo2', work: 260,
+      site: { x: -19.8, y: 0, z: -5.7 }, depot: { dx: 1.8, dz: 1.8 }, mat: 'pietre e travi', cost: { legna: 8, ducati: 10 },
+      note: 'Con l’ultima fila il Borgo Nuovo era completo: chi cresceva ancora avrebbe dovuto pensare a mura più grandi.',
+      effect: 'Le ultime tre famiglie trovano casa nel Borgo Nuovo.', build: bpBorgo(2), onBuilt: () => registerNewHouses(BORGO_LOTS.slice(6, 9)) },
     capitello: { name: 'Capitello votivo della Madonna', short: 'Capitello', need: 'acqua', faith: true, work: 64,
       site: { x: -1.5, y: 1.1, z: 10.9 }, depot: { dx: 1.2, dz: -1.6 }, mat: 'pietre',
       note: 'I capitelli votivi agli incroci delle strade venete raccoglievano preghiere per la pioggia, il raccolto e la salute.',
@@ -1340,7 +1481,7 @@
       note: 'San Rocco era invocato contro la peste e le febbri: Venezia ne custodisce le reliquie dal 1485.',
       effect: 'Consola i malati, ma l’acqua torbida resta torbida.', build: bpSanRocco },
   };
-  const ARTICOLI = { cisterna: 'il', filtro: 'il', roggia: 'la', mulino: 'il', granaio: 'il', gelsi: 'il', barchessa: 'la', lanterne: 'le', portico: 'il', orto: 'l’', capitello: 'il', croce: 'la', sanrocco: 'l’' };
+  const ARTICOLI = { casenuove: 'le', mura: 'l’', borgo1: 'le', borgo2: 'le', borgo3: 'le', cisterna: 'il', filtro: 'il', roggia: 'la', mulino: 'il', granaio: 'il', gelsi: 'il', barchessa: 'la', lanterne: 'le', portico: 'il', orto: 'l’', capitello: 'il', croce: 'la', sanrocco: 'l’' };
   const lc = (t) => t.charAt(0).toLowerCase() + t.slice(1);
   const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
   const art = (id, short = false) => { const a = ARTICOLI[id]; const n = lc(short ? BUILDINGS[id].short : BUILDINGS[id].name); return a.endsWith('’') ? a + n : a + ' ' + n; };
@@ -1348,12 +1489,17 @@
   const plur = (id) => ARTICOLI[id] === 'le';
   const WAIT = 'attendere';
   const optTitle = (o) => o.id === WAIT ? 'Rimandare e tirare avanti' : BUILDINGS[o.id].name;
+  // legna richiesta dai cantieri delle opere già note
+  for (const [id, n] of Object.entries({ granaio: 6, barchessa: 8, mulino: 6, portico: 4, cisterna: 2, roggia: 4, orto: 2, gelsi: 1, capitello: 1, croce: 1, sanrocco: 1 })) {
+    BUILDINGS[id].cost = Object.assign({ legna: n }, BUILDINGS[id].cost || {});
+  }
   const NEEDS = [
     { id: 'acqua',     name: 'Acqua',     col: '#4aa3d8' },
     { id: 'riparo',    name: 'Riparo',    col: '#c9a227' },
     { id: 'sicurezza', name: 'Sicurezza', col: '#d9534f' },
     { id: 'cibo',      name: 'Cibo',      col: '#8fbf4a' },
     { id: 'salute',    name: 'Salute',    col: '#b07cd8' },
+    { id: 'case',      name: 'Case',      col: '#e0a060' },
   ];
   const NEED_NAME = Object.fromEntries(NEEDS.map(n => [n.id, n.name]));
   const COUNCIL_AT = 55;
@@ -1375,6 +1521,7 @@
     sand_filter:  'Filtrare l’acqua della cisterna con strati di sabbia',
     masonry:      'Squadrare e murare la pietra di Vicenza',
     carpentry:    'Armare ponteggi e capriate di legno',
+    coppice:      'Tagliare il bosco a turno (ceduo), lasciando ricrescere i polloni',
     faith_limit:  'Le preghiere confortano, ma ai bisogni serve anche il lavoro',
   };
 
@@ -1475,7 +1622,7 @@
   let timeSpeed = 0.5;   // «Normale»: un giorno del borgo dura poco più di 3 minuti
   let started = false;
 
-  const need = { acqua: 18, riparo: 8, sicurezza: 16, cibo: 22, salute: 5 };
+  const need = { acqua: 18, riparo: 8, sicurezza: 16, cibo: 22, salute: 5, case: 0 };
   const world = {
     built: {},          // id -> { day, by, faith }
     project: null,
@@ -1706,7 +1853,7 @@
   const people = new Map();             // tutte le persone, vive e morte, per id
   let nextId = 1;
   const POP_CAP = 72;
-  const BIRTH_RATE = 0.6;   // figli all'anno per coppia fertile (in pratica uno ogni due-tre anni)
+  const BIRTH_RATE = 0.75;   // figli all'anno per coppia fertile (in pratica uno ogni due-tre anni)
   const SPECIAL_KINDS = ['ox_driver', 'washer', 'vineyard', 'guard', 'townfolk', 'priest'];
   const ETA = { priest: [50, 58], guard: [26, 36], ox_driver: [30, 48], washer: [22, 44], vineyard: [38, 50], townfolk: [34, 56], citizen: [17, 58] };
   world.hist = []; world.births = 0; world.deaths = 0; world.dead = []; world.marriages = 0;
@@ -1953,7 +2100,7 @@
   function updateDemography(dt) {
     if (dt <= 0) return;
     const yearDt = dt / SIM_SEC_PER_YEAR;
-    const capF = clamp(1.25 - villagers.length / POP_CAP, 0, 1);
+    const capF = clamp(1.5 - villagers.length / housingCap(), 0, 1);
     const hm = hazardMul();
     for (let i = villagers.length - 1; i >= 0; i--) {
       const v = villagers[i];
@@ -1969,11 +2116,23 @@
       if (!v.spouseId && v.kind !== 'priest' && v.kind !== 'child' && v.age >= 17 && v.age <= 45 && rng() < 0.45 * yearDt) {
         const s = findSpouse(v);
         if (s) marry(v, s, false);
+        else if (v.age >= 19 && v.age <= 40 && rng() < 0.6) {
+          // nel borgo non c'è nessuno libero: ci si sposa con qualcuno di un paese vicino
+          const sx = v.sex === 'F' ? 'M' : 'F';
+          const sp = newcomer(sx, pick(sx === 'F' ? MESTIERI_F : MESTIERI_M));
+          sp.age = clamp(v.age + randRange(-5, 4), 17, 44); sp.bornDay = birthDayFor(sp.age);
+          const da = pick(['da un paese dei colli Berici', 'dalla città sul mare', 'da una contrada vicina', 'dalla pianura verso Padova']);
+          marry(v, sp, true);
+          world.marriages = (world.marriages || 0) + 1;
+          chronicle(`${v.name} ${v.cognome} sposò ${sp.name} ${sp.cognomeNascita || sp.cognome}, ${sp.sex === 'F' ? 'venuta' : 'venuto'} ${da} a vivere nel borgo.`);
+          pushBrainLog(`💍 Nozze con chi viene da fuori: <b>${v.name}</b> e <b>${sp.name}</b>`, 'social');
+        }
       }
     }
     // quando il borgo si svuota, arriva gente dalla campagna e dai colli
     if (villagers.length < 36 && rng() < 0.4 * (36 - villagers.length) * yearDt) {
-      const sex = rng() < 0.5 ? 'F' : 'M';
+      const nF = villagers.filter(o => o.sex === 'F' && o.age >= 16).length, nM = villagers.filter(o => o.sex === 'M' && o.age >= 16).length;
+      const sex = rng() < (nF < nM ? 0.75 : 0.35) ? 'F' : 'M';   // arriva più spesso chi manca
       const nv = newcomer(sex, pick(sex === 'F' ? MESTIERI_F : MESTIERI_M));
       nv.age = randRange(17, 30); nv.bornDay = birthDayFor(nv.age);
       chronicle(`Venne ad abitare nel borgo ${nv.name} ${nv.cognome}, ${lc(nv.role)}, dalla campagna dei colli Berici.`);
@@ -2012,7 +2171,7 @@
   const EV_CATS = {
     nascita: '👶 Nascita', morte: '✝ Morte', nozze: '💍 Nozze', crescita: '🎓 Maggiore età', arrivo: '🧳 Arrivo',
     successione: '🔑 Successione', scoperta: '💡 Scoperta', errore: '⚠ Errore', insegnamento: '🗣 Insegnamento',
-    oblio: '🌫 Oblio', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
+    oblio: '🌫 Oblio', permesso: '📜 Licenza', tasse: '💰 Tasse', legna: '🪵 Legna', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
     coprifuoco: '🌙 Coprifuoco', bisogno: '📉 Bisogno', meteo: '☁ Meteo', stagione: '🍂 Stagione', cronaca: '📜 Cronaca',
   };
   function catOfChron(t) {
@@ -2025,6 +2184,9 @@
     if (/vicinia/i.test(t)) return 'vicinia';
     if (/cantiere/.test(t)) return 'cantiere';
     if (/^Si inaugur/.test(t)) return 'opera';
+    if (/supplica|licenza|Podestà/.test(t)) return 'permesso';
+    if (/San Martino|taglia/.test(t)) return 'tasse';
+    if (/(^|[^a-z])legna|bosco/.test(t)) return 'legna';
     if (/benedisse|grazia|Passarono i giorni/.test(t)) return 'fede';
     if (/chiusi fuori/.test(t)) return 'coprifuoco';
     if (/patisce/.test(t)) return 'bisogno';
@@ -2060,6 +2222,7 @@
     if (dayCount === lastSampleDay) return;
     lastSampleDay = dayCount;
     assignHouses();
+    economyDaily();
     const adults = villagers.filter(v => v.age >= 15);
     const kn = {};
     for (const id of KNOW_IDS) kn[id] = 0;
@@ -2075,6 +2238,7 @@
       acqua: r1(need.acqua), riparo: r1(need.riparo), sicurezza: r1(need.sicurezza), cibo: r1(need.cibo), salute: r1(need.salute),
       opere: Object.keys(world.built).filter(id => !BUILDINGS[id].faith).length,
       eta: r1(villagers.reduce((a, v) => a + v.age, 0) / Math.max(1, villagers.length)),
+      cassa: r1(world.cassa), legna: r1(world.legna), alberi: standingTrees(), casetot: dwellings(), posti: r1(housingCap()),
     });
     thin(world.hist, 500);
     for (const v of villagers) {
@@ -2222,7 +2386,7 @@
   // ======================================================================
   const cam = {
     panX: 1.5, panZ: 2.0, zoom: 1.12,
-    minPanX: -21.0, maxPanX: 19.0, minPanZ: -11.0, maxPanZ: 22.0,
+    minPanX: -21.0, maxPanX: 19.0, minPanZ: -34.0, maxPanZ: 56.0,
     minZoom: 0.42, maxZoom: 1.9,
     fly: null,
   };
@@ -2587,7 +2751,7 @@
   //  Case e luoghi del borgo: chi ci abita, cosa sono, cosa raccontano
   // ======================================================================
   const CONTRADE = { '1.1': 'Contrada Bassa', '2.3': 'Contrada dei Portici', '3.6': 'Piazza Grande', '4.9': 'Sagrato di San Marco', '6.3': 'Contrada Alta' };
-  const contradaOf = (y) => CONTRADE[y.toFixed(1)] || 'fuori dalle mura';
+  const contradaOf = (y, x) => (x != null && x < -13.6 && world.borgoNuovo) ? 'Borgo Nuovo' : (CONTRADE[y.toFixed(1)] || 'fuori dalle mura');
   function isFarmer(v) { return v.kind === 'ox_driver' || /Contadin|Bifolco|Braccian|Ortolan/.test(v.role || ''); }
   function residents(idx) { return villagers.filter(v => v.houseIdx === idx); }
   function freeHouse(preferFarmer) {
@@ -2654,6 +2818,21 @@
     { id: 'vigne', name: 'Vigneti dei colli', kind: 'Campagna', x: 22, y: 0.9, z: 2.0,
       note: 'Sui colli vicentini la vite si coltivava da secoli: il vino era ricchezza, si vendeva al mercato e scaldava le feste.',
       info: () => { const z = villagers.find(v => v.kind === 'vineyard'); return `${z ? `Vignaiolo: <span class="pl-in" data-pid="${z.id}">${z.name} ${z.cognome}</span>. ` : ''}${has('roggia') ? 'La roggia porta acqua ai filari.' : 'Senza irrigazione, la siccità brucia le foglie.'}`; } },
+    { id: 'bosco', name: 'Bosco del Comune', kind: 'Pendici del monte', x: 21.5, y: 15.2, z: -23.5,
+      note: 'Sulle pendici del monte a nord il bosco era della comunità: ci si tagliava la legna per il fuoco e per i cantieri. Tagliato a turno (a ceduo) ricresceva dalle ceppaie in pochi anni.',
+      info: () => { const c = villagers.filter(v => v.task === 'bosco'); return `Alberi in piedi: <b>${standingTrees()}</b> su ${TREES.length} · legna in magazzino: <b>${Math.floor(world.legna)}</b> carri · tagliati in tutto: ${world.cutTot}.${c.length ? `<br>Al lavoro con l’ascia: ${c.map(v => `<span class="pl-in" data-pid="${v.id}">${v.name} ${v.cognome}</span>`).join(', ')}.` : ''}${knowsCoppice() ? '<br>Si taglia a turno, lasciando sempre in piedi quasi metà del bosco.' : ''}`; } },
+    { id: 'monte', name: 'Il monte a nord', kind: 'Monte', x: -8, y: 30, z: -45,
+      note: 'Il borgo fu fondato ai piedi del monte: d’inverno la neve resta sulle cime, e dal monte scendono il torrente e la legna.',
+      info: () => `Stagione: <b>${seasonName}</b>${snowCover > 0.2 ? ' · la neve copre anche il borgo' : ''}.` },
+    { id: 'citta', name: 'La città nuova sul grande mare', kind: 'A sud, oltre i campi', x: 2, y: 4, z: 47,
+      note: 'Scendendo a sud per la strada bianca si arriva alla città nuova sul grande mare: moli, navi, un campanile altissimo e la chiesa con la cupola. Di lì arrivano i mercanti, la legna da comprare e le notizie del mondo.',
+      info: () => `Legna comprata dal mercante della città: <b>${world.boughtTot}</b> carri, a ${PREZZO_LEGNA} ducati il carro.` },
+    { id: 'mare', name: 'Il grande mare', kind: 'A sud', x: 0, y: 0.6, z: 64,
+      note: 'Oltre la città si apre il grande mare: le navi portano grano, sale, spezie e legname, e partono col vino dei colli.',
+      info: () => '' },
+    { id: 'strada', name: 'La strada bianca', kind: 'Da Porta Padova al mare', x: -1.1, y: 0.4, z: 34,
+      note: 'Una strada di ghiaia e polvere scende da Porta Padova, passa tra i campi e arriva fino alla città sul mare.',
+      info: () => '' },
   ];
 
   function houseDescription(h, res) {
@@ -2683,7 +2862,7 @@
     const lit = (currentHour >= 18 && currentHour < 21.8) || (currentHour >= 5 && currentHour < 7) || (smoothWeather.cloud > 0.65 && currentHour > 7 && currentHour < 18);
     const tipo = h.osteria ? 'osteria' : h.farmer ? 'casa contadina' : h.portico ? 'casa con portico' : 'casa';
     document.getElementById('cc-name').textContent = h.osteria ? 'Osteria del Moro' : head ? `Casa ${head.cognome}` : 'Casa vuota';
-    document.getElementById('cc-role').textContent = `— ${contradaOf(h.y)} · ${tipo} · ${res.length} ${res.length === 1 ? 'abitante' : 'abitanti'}${res.length ? ` · finestre ${lit ? 'accese' : 'spente'}` : ''}`;
+    document.getElementById('cc-role').textContent = `— ${contradaOf(h.y, h.x)} · ${tipo} · ${res.length} ${res.length === 1 ? 'abitante' : 'abitanti'}${res.length ? ` · finestre ${lit ? 'accese' : 'spente'}` : ''}`;
     document.getElementById('cc-speech').textContent = houseDescription(h, res);
     let html = res.length
       ? '<strong>Vi abitano:</strong> ' + res.map(v => `<span class="pl-in" data-pid="${v.id}">${v.name} ${v.cognome}</span> (${lc(v.role)}, ${v.age < 1 ? 'pochi mesi' : Math.floor(v.age) + ' anni'})`).join(' · ')
@@ -2722,6 +2901,170 @@
       openObs('persone');
     }
   });
+
+  // ======================================================================
+  //  Economia della comunità: cassa, taglia di San Martino, legna, bosco, case e licenze
+  // ======================================================================
+  world.cassa = 40; world.legna = 14; world.permits = {}; world.permitReq = null; world.permitRetry = 0;
+  world.incomeTot = 0; world.taxTot = 0; world.cutTot = 0; world.boughtTot = 0; world.borgoNuovo = false;
+  const PREZZO_LEGNA = 1.5;      // ducati per carro, dal mercante della città sul mare
+  const CUT_TIME = 30;           // secondi simulati d'ascia per abbattere un albero
+  const REGROW_YEARS = 2.5;      // i polloni del ceduo ridanno legna in qualche anno
+  // Il Bosco del Comune, sulle pendici del monte a nord
+  const TREES = [];
+  for (let i = 0; i < 36; i++) {
+    TREES.push({ x: 15.5 + (i % 9) * 1.45 + randRange(-0.3, 0.3), z: -21.0 - Math.floor(i / 9) * 1.7 + randRange(-0.3, 0.3), y: 13.6,
+      state: 'tree', regrowAt: 0, s: randRange(0.85, 1.15) });
+  }
+  const standingTrees = () => TREES.filter(t => t.state === 'tree').length;
+  const knowsCoppice = () => villagers.some(v => v.learnedSet.has('coppice'));
+  function dwellings() { return HOUSES.filter(h => !h.osteria).length; }
+  function housingCap() { return dwellings() * 1.0; }
+  function occupiedHouses() { return new Set(villagers.filter(v => v.houseIdx >= 0).map(v => v.houseIdx)).size; }
+  function registerNewHouses(lots) {
+    for (const l of lots) {
+      if (HOUSES.some(h => h.x === l.x && h.z === l.z)) continue;
+      HOUSES.push({ x: l.x, y: l.y, z: l.z, w: l.w, d: l.d, h: l.h, portico: false, farmer: !!l.farmer, nuova: true });
+      chimneys.push({ x: l.x + l.w * 0.25, y: l.y + l.h + 1.10, z: l.z - l.d * 0.15, phase: Math.abs(l.x * 7.3 + l.z) % 10 });
+    }
+  }
+  function woodTarget() {
+    const p = world.project;
+    const proj = p && p.stage === 'prep' ? ((BUILDINGS[p.id].cost || {}).legna || 0) : 0;
+    return occupiedHouses() * 1.2 + proj;
+  }
+
+  // Ogni giorno simulato: lavoro e vendemmia riempiono la cassa; a San Martino si paga la taglia; il Podestà risponde
+  function economyDaily() {
+    const workers = villagers.filter(v => v.age >= 16 && v.age < 65 && v.kind !== 'priest' && v.kind !== 'child').length;
+    let inc = workers * 0.08 + (has('mulino') ? 0.3 : 0) + (has('granaio') ? 0.2 : 0);
+    if (seasonW.autunno > 0.5) inc += has('roggia') ? 1.5 : 0.8;      // vendemmia
+    world.cassa += inc; world.incomeTot += inc;
+    const d = calDate(dayCount), prev = calDate(dayCount - 1);
+    const sm = new Date(d.getFullYear(), 10, 11);
+    if (prev < sm && d >= sm) {
+      const fuochi = occupiedHouses(), taglia = fuochi * 2;
+      world.cassa -= taglia; world.taxTot += taglia;
+      chronicle(`Per San Martino si pagò la taglia alla Serenissima: ${fuochi} fuochi, ${taglia} ducati. In cassa restano ${Math.round(world.cassa)} ducati${world.cassa < 0 ? ': la comunità resta in debito' : ''}.`);
+      pushBrainLog(`💰 Taglia di San Martino: −${taglia} ducati`, world.cassa < 0 ? 'mistake' : 'build');
+    }
+    const pr = world.permitReq;
+    if (pr && dayCount - pr.day >= 2) {
+      const b = BUILDINGS[pr.id], tassa = (b.cost && b.cost.tassa) || 0;
+      world.permitReq = null;
+      if (world.cassa >= tassa) {
+        world.cassa -= tassa; world.permits[pr.id] = true; world.taxTot += tassa;
+        chronicle(`Il Podestà di Vicenza concesse la licenza per ${art(pr.id)}. La comunità pagò la tassa di ${tassa} ducati.`);
+        pushBrainLog(`📜 Licenza concessa: <b>${b.short}</b> (−${tassa} ducati)`, 'build');
+      } else {
+        world.permitRetry = simClock + 96 * 3;
+        chronicle(`Il Podestà di Vicenza respinse la supplica per ${art(pr.id)}: in cassa non c’erano i ${tassa} ducati della tassa.`);
+        pushBrainLog('📜 Supplica respinta: mancano i soldi della tassa', 'mistake');
+      }
+    }
+  }
+
+  // Preparazione del cantiere: licenza, legna e soldi prima di cominciare
+  function projectPrep(p) {
+    const b = BUILDINGS[p.id], c = b.cost || {};
+    if (b.permit && !world.permits[p.id]) {
+      if (!world.permitReq) {
+        if (simClock < world.permitRetry) { p.prepMsg = '<i>supplica respinta: si raccolgono i soldi della tassa</i>'; return; }
+        world.permitReq = { id: p.id, day: dayCount };
+        chronicle(`La comunità mandò una supplica al Podestà di Vicenza per ${art(p.id)}: si chiedeva la licenza, con la tassa di ${c.tassa || 0} ducati.`);
+        pushBrainLog(`📜 Supplica al Podestà di Vicenza per <b>${b.short}</b>`, 'build');
+      }
+      p.prepMsg = '<i>in attesa della licenza del Podestà</i>';
+      return;
+    }
+    const needL = c.legna || 0, needD = c.ducati || 0;
+    if (world.legna < needL) { p.prepMsg = `<i>serve legna: ${Math.floor(world.legna)}/${needL} carri</i>`; return; }
+    if (world.cassa < needD) { p.prepMsg = `<i>mancano ${Math.ceil(needD - world.cassa)} ducati</i>`; return; }
+    world.legna -= needL; world.cassa -= needD;
+    p.stage = 'lavori';
+    if (needL || needD) chronicle(`Per ${art(p.id)} si usarono ${needL} carri di legna${needD ? ` e si pagarono ${needD} ducati ai mastri` : ''}: cominciano i lavori.`);
+  }
+
+  // Legna: d'inverno si brucia per scaldarsi, si taglia nel bosco o si compra dal mercante
+  let woodDay = false;
+  function updateWood(dt, isNight) {
+    const occ = occupiedHouses();
+    if (seasonW.inverno > 0.3 && occ) {
+      world.legna = Math.max(0, world.legna - occ * 0.25 / 96 * dt * seasonW.inverno);
+      if (world.legna <= 0) {
+        need.salute = Math.min(100, need.salute + 0.35 * dt);
+        if (simClock - (world.coldLogged || -1e9) > 96 * 3) {
+          world.coldLogged = simClock;
+          chronicle('Senza legna per il fuoco, le case gelano: le febbri aumentano.');
+        }
+      }
+    }
+    for (const t of TREES) if (t.state === 'stump' && simClock >= t.regrowAt) t.state = 'tree';
+    const target = woodTarget();
+    const standing = standingTrees();
+    const minKeep = knowsCoppice() ? Math.ceil(TREES.length * 0.4) : 0;
+    const canCut = standing > minKeep;
+    woodDay = !isNight && currentHour > 7 && currentHour < 17.5 && smoothWeather.rain < 0.6 && snowCover < 0.4;
+    const urgent = world.legna < occ * 0.3;
+    // dal mercante, quando nel bosco non si può tagliare o d'inverno c'è poca legna
+    if (world.legna < target * 0.5 && (!canCut || seasonW.inverno > 0.5 || urgent) && simClock - (world.lastBuy || -1e9) > 96) {
+      const n = Math.min(Math.ceil(target - world.legna), Math.floor(world.cassa / PREZZO_LEGNA));
+      if (n >= 1) {
+        world.lastBuy = simClock;
+        world.legna += n; world.cassa -= n * PREZZO_LEGNA; world.boughtTot += n;
+        chronicle(`Si comprarono ${n} carri di legna dal mercante della città sul mare, per ${Math.round(n * PREZZO_LEGNA)} ducati.`);
+        pushBrainLog(`🪵 Comprati ${n} carri di legna (−${Math.round(n * PREZZO_LEGNA)} ducati)`, 'build');
+      }
+    }
+    let cutters = villagers.filter(v => v.task === 'bosco');
+    const wantCut = world.legna < target && canCut && woodDay && (seasonW.inverno < 0.5 || urgent) && !world.council;
+    if (!wantCut) { for (const c of cutters) { c.task = null; c.tree = null; } return; }
+    while (cutters.length < 3) {
+      const cand = villagers.find(v => v.kind === 'citizen' && !v.task && v.sex === 'M' && v.age >= 16 && v.age <= 58);
+      if (!cand) break;
+      cand.task = 'bosco'; cand.chop = 0; cutters.push(cand);
+    }
+    for (const c of cutters) {
+      if (!c.tree || c.tree.state !== 'tree') {
+        c.tree = TREES.find(t => t.state === 'tree' && !cutters.some(o => o !== c && o.tree === t)) || null;
+        c.chop = 0;
+        if (!c.tree) continue;
+      }
+      c.chop += dt / CUT_TIME;
+      if (c.chop >= 1) {
+        c.tree.state = 'stump';
+        c.tree.regrowAt = simClock + REGROW_YEARS * SIM_SEC_PER_YEAR;
+        c.tree = null; c.chop = 0;
+        world.legna += 2; world.cutTot++;
+        if (standingTrees() <= 3 && !knowsCoppice()) {
+          recordMistakeAndLearn(c, 'coppice', 'Tagliato quasi tutto il bosco del comune', simClock);
+          chronicle('Il bosco del comune è quasi tutto tagliato: per anni ci sarà poca legna.');
+        }
+      }
+    }
+  }
+  function drawWood() {
+    const yrs = SIM_SEC_PER_YEAR;
+    for (const t of TREES) {
+      if (t.state === 'tree') {
+        pushDyn(t.x, t.y + 0.45 * t.s, t.z, 0.2, 0.9 * t.s, 0.2, LEGNO_COL);
+        pushDyn(t.x, t.y + 1.25 * t.s, t.z, 1.0 * t.s, 0.8 * t.s, 1.0 * t.s, [0.22, 0.38, 0.20]);
+        pushDyn(t.x, t.y + 1.8 * t.s, t.z, 0.62 * t.s, 0.5 * t.s, 0.62 * t.s, [0.26, 0.44, 0.23]);
+      } else {
+        pushDyn(t.x, t.y + 0.1, t.z, 0.24, 0.2, 0.24, [0.46, 0.34, 0.22]);
+        const grow = 1 - clamp((t.regrowAt - simClock) / (REGROW_YEARS * yrs), 0, 1);
+        if (grow > 0.3) pushDyn(t.x + 0.12, t.y + 0.2 + grow * 0.35, t.z, 0.3 * grow, 0.6 * grow, 0.3 * grow, [0.30, 0.48, 0.26]);
+      }
+    }
+    for (const v of villagers) {
+      if (v.task === 'bosco' && v.tree) pushDyn(v.tree.x - 0.4, v.tree.y + 0.05, v.tree.z + 0.45, 0.5, 0.1, 0.3, [0.60, 0.44, 0.28]);   // ceppi e trucioli
+    }
+  }
+  const resLine = document.getElementById('res-line');
+  function updateResLine() {
+    const t = `💰 ${Math.round(world.cassa)} ducati · 🪵 ${Math.floor(world.legna)} carri di legna · 🌲 ${standingTrees()}/${TREES.length} alberi · 🏠 ${dwellings()} case per ${villagers.length} abitanti${world.permitReq ? ' · 📜 supplica in corso' : ''}`;
+    if (resLine.textContent !== t) resLine.textContent = t;
+  }
 
   // ======================================================================
   //  Etichette fluttuanti, pannello bisogni, vicinia
@@ -2903,7 +3246,7 @@
       id: opt.id, boxes, n: boxes.length, progress: 0, proposer: opt.proposer,
       voters, withFilter: opt.id === 'cisterna' ? opt.proposer.learnedSet.has('sand_filter') : true,
       bbox: { minX, maxX, minZ, maxZ, maxY }, tall: (maxY - b.site.y) > 1.4 && b.sortY !== false,
-      hammerT: 0,
+      hammerT: 0, stage: 'prep', prepMsg: '',
     };
     // squadra di lavoro: prima chi sa murare o armare il legno
     const crew = villagers.filter(v => v.kind === 'citizen' && !v.task && v !== opt.proposer && v.age >= 15 && v.age <= 62)
@@ -2920,6 +3263,7 @@
     const p = world.project, b = BUILDINGS[p.id];
     for (const q of p.boxes) builtVoxels.push(...q);
     rebuildInstances();
+    if (b.onBuilt) b.onBuilt();
     world.built[p.id] = { day: dayCount, by: p.proposer.name, faith: !!b.faith };
     if (p.id === 'cisterna') world.turbid = !p.withFilter;
     if (p.id === 'filtro') world.turbid = false;
@@ -3044,6 +3388,10 @@
     } else if (toolType === 'halberd') {
       pushDyn(v.x + 0.18, v.y + 0.65, v.z, 0.04, 1.30, 0.04, LEGNO_COL, 0);
       pushDyn(v.x + 0.18, v.y + 1.25, v.z, 0.12, 0.24, 0.03, [0.65, 0.68, 0.72], 0);
+    } else if (toolType === 'axe') {
+      const sw = Math.sin(t * 9 + v.x * 3);
+      pushDyn(v.x + 0.2, v.y + 0.62 + sw * 0.16, v.z, 0.035, 0.6, 0.035, LEGNO_COL, 0);
+      pushDyn(v.x + 0.27, v.y + 0.9 + sw * 0.16, v.z, 0.14, 0.12, 0.03, [0.65, 0.68, 0.72], 0);
     } else if (toolType === 'staff') {
       pushDyn(v.x + 0.17, v.y + 0.55, v.z, 0.035, 1.05, 0.035, LEGNO_COL, 0);
     }
@@ -3086,6 +3434,7 @@
     // più bocche da sfamare, più bisogni
     const folla = Math.max(0, villagers.length - 29) / 29;
     need.cibo += folla * 0.08 * sd; need.acqua += folla * 0.05 * sd;
+    need.case = (villagers.length / housingCap() - 0.7) / 0.35 * 100;   // quando le case si riempiono
     for (const n of NEEDS) need[n.id] = clamp(need[n.id], 0, 100);
   }
 
@@ -3129,8 +3478,13 @@
       if (opts.length) { startCouncil(n.id, opts); return; }
       if (simClock - (world.noIdeaLog[n.id] || -999) > 150) {
         world.noIdeaLog[n.id] = simClock;
-        chronicle(`Il borgo patisce per il bisogno di ${n.name.toLowerCase()}, ma nessuno sa ancora come porvi rimedio.`);
-        pushBrainLog(`Bisogno di <b>${n.name.toLowerCase()}</b> alto, ma nessuno sa ancora come rimediare`, 'mistake');
+        if (n.id === 'case' && has('borgo3')) {
+          chronicle('Le famiglie crescono, ma non c’è più terra nemmeno nel Borgo Nuovo: si vive stretti, e le nascite calano.');
+          pushBrainLog('Bisogno di <b>case</b> alto: anche il Borgo Nuovo è pieno', 'mistake');
+        } else {
+          chronicle(`Il borgo patisce per il bisogno di ${n.name.toLowerCase()}, ma nessuno sa ancora come porvi rimedio.`);
+          pushBrainLog(`Bisogno di <b>${n.name.toLowerCase()}</b> alto, ma nessuno sa ancora come rimediare`, 'mistake');
+        }
       }
     }
   }
@@ -3179,6 +3533,9 @@
         built: world.built, turbid: world.turbid, faithTried: world.faithTried, chron: world.chron, firstKnown,
         births: world.births, deaths: world.deaths, marriages: world.marriages, hist: world.hist,
         events: world.events.slice(-1500), evN: world.evN, evCount: world.evCount,
+        eco: { cassa: world.cassa, legna: world.legna, permits: world.permits, permitReq: world.permitReq, permitRetry: world.permitRetry,
+          incomeTot: world.incomeTot, taxTot: world.taxTot, cutTot: world.cutTot, boughtTot: world.boughtTot, borgoNuovo: world.borgoNuovo,
+          trees: TREES.map(t => [t.state === 'stump' ? 1 : 0, Math.round(t.regrowAt)]) },
         project: p ? { id: p.id, progress: p.progress, proposer: p.proposer.id, withFilter: p.withFilter } : null,
         living: villagers.map(v => packPerson(v)),
         dead: world.dead.slice(-160).map(v => packPerson(v, 40)),
@@ -3207,6 +3564,12 @@
       world.chron = data.chron || [];
       world.births = data.births || 0; world.deaths = data.deaths || 0; world.marriages = data.marriages || 0;
       world.events = data.events || []; world.evN = data.evN || world.events.length; world.evCount = data.evCount || {};
+      if (data.eco) {
+        const e = data.eco;
+        Object.assign(world, { cassa: e.cassa ?? 40, legna: e.legna ?? 14, permits: e.permits || {}, permitReq: e.permitReq || null, permitRetry: e.permitRetry || 0,
+          incomeTot: e.incomeTot || 0, taxTot: e.taxTot || 0, cutTot: e.cutTot || 0, boughtTot: e.boughtTot || 0 });
+        (e.trees || []).forEach((t, i) => { if (TREES[i]) { TREES[i].state = t[0] ? 'stump' : 'tree'; TREES[i].regrowAt = t[1]; } });
+      }
       world.hist = data.hist || [];
       Object.assign(firstKnown, data.firstKnown || {});
       for (const id of Object.keys(data.built || {})) {
@@ -3214,6 +3577,7 @@
         world.built[id] = data.built[id];
         if (world.built[id].faith) world.faithTried[BUILDINGS[id].need] = true;
         BUILDINGS[id].build((px, py, pz, sx, sy, sz, col, rotY = 0, t = 0, sl = 21, wk = 5.5) => builtVoxels.push(px, py, pz, sx, sy, sz, col[0], col[1], col[2], rotY, t, sl, wk), BUILDINGS[id].site);
+        if (BUILDINGS[id].onBuilt) BUILDINGS[id].onBuilt();
       }
       updateTotalWisdom();
       if (data.project && BUILDINGS[data.project.id] && !world.built[data.project.id]) {
@@ -3317,6 +3681,7 @@
     // --- Bisogni, scoperte, vicinia ---
     updateNeeds(scaledDt, currentWeatherIdx, isNight);
     updateDemography(scaledDt);
+    updateWood(scaledDt, isNight);
     sampleHistory();
     knowledgeEvents(scaledDt, currentWeatherIdx, isNight);
     if (councilTimer > 1.0) { councilTimer = 0; councilCheck(); }
@@ -3406,6 +3771,7 @@
     }
 
     // 5. Ruota del mulino e acqua torbida
+    drawWood();
     if (has('mulino')) {
       const mz = BUILDINGS.mulino.site.z;
       const rot = simClock * 1.3;
@@ -3425,7 +3791,8 @@
 
     // 6. Cantiere in corso
     const p = world.project;
-    const workTime = !!p && currentHour >= 7.0 && currentHour <= 18.5 && smoothWeather.rain < 0.55 && !world.council;
+    if (p && p.stage === 'prep') projectPrep(p);
+    const workTime = !!p && p.stage === 'lavori' && currentHour >= 7.0 && currentHour <= 18.5 && smoothWeather.rain < 0.55 && !world.council;
     if (p) {
       const b = BUILDINGS[p.id];
       if (workTime) {
@@ -3490,7 +3857,7 @@
       p.depot = depot;
       p.cur = cur;
       const c = siteCenter(p.id);
-      label('site', `⚒ ${b.short} · ${Math.round(p.progress * 100)}%${workTime ? '' : ' · <i>cantiere fermo</i>'}`, c.x, (p.tall ? bb.maxY + 1.6 : c.y + 0.9), c.z, 'site');
+      label('site', `⚒ ${b.short} · ${p.stage === 'prep' ? p.prepMsg : Math.round(p.progress * 100) + '%' + (workTime ? '' : ' · <i>cantiere fermo</i>')}`, c.x, (p.tall ? bb.maxY + 1.6 : c.y + 0.9), c.z, 'site');
       if (p.progress >= 1) completeProject();
     }
 
@@ -3552,6 +3919,13 @@
           if (toSite) carry = b.mat.includes('sabbia') || b.mat.includes('terra') ? 'sack' : (v.crewIdx % 3 === 2 ? 'beam' : 'stone');
         }
         drawPerson(v, yaw, stride, armPhase, toolType, simClock, carry);
+        continue;
+      }
+
+      // Nel Bosco del Comune: i boscaioli abbattono gli alberi con l'ascia
+      if (v.task === 'bosco' && v.tree && woodDay) {
+        v.x = v.tree.x - 0.45; v.y = v.tree.y; v.z = v.tree.z + 0.3;
+        drawPerson(v, 0, 0, simClock * 9, 'axe', simClock, null);
         continue;
       }
 
@@ -3675,6 +4049,7 @@
       updateNeedsPanel();
       renderCouncil();
       obsTick(0.35);
+      updateResLine();
     }
     if (saveTimer > 8) { saveTimer = 0; saveState(); }
 
@@ -3999,6 +4374,7 @@
   const TILES = [
     { k: 'pop', label: 'abitanti' }, { k: 'kids', label: 'bambini' }, { k: 'eta', label: 'età media' },
     { k: 'nati', label: 'nati dall’inizio' }, { k: 'morti', label: 'morti dall’inizio' }, { k: 'coppie', label: 'coppie sposate' },
+    { k: 'cassa', label: 'ducati in cassa' }, { k: 'legna', label: 'carri di legna' }, { k: 'casetot', label: 'case' },
     { k: 'opere', label: 'opere costruite' }, { k: 'noti', label: 'regole conosciute' },
   ];
   function buildBorgo() {
@@ -4014,6 +4390,10 @@
         ${cardHtml('ob-noti', 'Regole conosciute nel borgo', `quante delle ${KNOW_IDS.length} regole sono note ad almeno una persona viva`)}
         ${cardHtml('ob-bis', 'Bisogni del borgo', 'pressione 0–100 · oltre 55 si riunisce la vicinia', 'tall')}
         ${cardHtml('ob-opere', 'Opere pratiche costruite', 'cisterne, rogge, granai, portici…')}
+        ${cardHtml('ob-case', 'Abitanti e posti in casa', 'quando gli abitanti superano i posti comodi, serve spazio nuovo')}
+        ${cardHtml('ob-cassa', 'Cassa della comunità', 'ducati: entra il lavoro e la vendemmia, escono taglia, licenze e legna')}
+        ${cardHtml('ob-legna', 'Legna in magazzino', 'carri: si brucia d’inverno, serve ai cantieri')}
+        ${cardHtml('ob-bosco', 'Alberi del Bosco del Comune', `quanti sono in piedi, su ${TREES.length}`)}
       </div>`;
     built.borgo = true;
   }
@@ -4025,6 +4405,7 @@
       eta: (villagers.reduce((a, v) => a + v.age, 0) / Math.max(1, villagers.length)).toFixed(1),
       nati: world.births, morti: world.deaths, coppie: villagers.filter(v => v.sex === 'F' && v.spouseId).length,
       opere: Object.keys(world.built).filter(id => !BUILDINGS[id].faith).length,
+      cassa: Math.round(world.cassa), legna: Math.floor(world.legna), casetot: dwellings(),
       noti: `${KNOW_IDS.filter(id => villagers.some(v => v.learnedSet.has(id))).length}/${KNOW_IDS.length}`,
     };
     secBorgo.querySelectorAll('[data-k]').forEach(el => { el.textContent = tv[el.dataset.k]; });
@@ -4039,6 +4420,10 @@
     lineChart($('ob-noti'), { series: [{ name: 'Regole conosciute', col: OBS_COLS[0], pts: ser('noti') }], yMax: KNOW_IDS.length, yFmt: fmtInt });
     lineChart($('ob-bis'), { series: NEEDS.map((n, i) => ({ name: n.name, col: OBS_COLS[i], pts: ser(n.id) })), yMax: 100, yFmt: fmtInt });
     lineChart($('ob-opere'), { series: [{ name: 'Opere', col: OBS_COLS[0], pts: ser('opere') }], yFmt: fmtInt });
+    lineChart($('ob-case'), { series: [{ name: 'Abitanti', col: OBS_COLS[0], pts: ser('pop') }, { name: 'Posti comodi', col: OBS_COLS[1], pts: H.filter(h => h.posti != null).map(h => [h.d, h.posti]) }], yFmt: fmtInt });
+    lineChart($('ob-cassa'), { series: [{ name: 'Ducati', col: OBS_COLS[0], pts: H.filter(h => h.cassa != null).map(h => [h.d, h.cassa]) }], yMin: Math.min(0, ...H.filter(h => h.cassa != null).map(h => h.cassa)), yFmt: fmtInt });
+    lineChart($('ob-legna'), { series: [{ name: 'Carri', col: OBS_COLS[0], pts: H.filter(h => h.legna != null).map(h => [h.d, h.legna]) }], yFmt: fmtInt });
+    lineChart($('ob-bosco'), { series: [{ name: 'Alberi', col: OBS_COLS[0], pts: H.filter(h => h.alberi != null).map(h => [h.d, h.alberi]) }], yMax: TREES.length, yFmt: fmtInt });
   }
 
   // ---------------- Pagina «Persone» ----------------
@@ -4192,7 +4577,7 @@
     if (famEl._h !== famHtml) { famEl.innerHTML = famHtml; famEl._h = famHtml; }
     if (v.alive) {
       const sm = simulateLife(v);
-      const capF = clamp(1.25 - villagers.length / POP_CAP, 0, 1);
+      const capF = clamp(1.5 - villagers.length / housingCap(), 0, 1);
       const pFiglio = v.sex === 'F' && v.spouseId && v.age >= 18 && v.age <= 43 ? 1 - Math.exp(-BIRTH_RATE * capF * (need.cibo > 70 ? 0.6 : 1)) : null;
       const pNozze = !v.spouseId && v.kind !== 'priest' && v.kind !== 'child' && v.age >= 17 && v.age <= 45 ? (findSpouse(v) ? 1 - Math.exp(-0.45) : 0) : null;
       const tiles = [
@@ -4483,7 +4868,7 @@
 
   // Strumenti per osservare la simulazione dalla console del browser
   if (location.hash === '#osservatorio') openObs();
-  window.HYDROGEN = { world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
+  window.HYDROGEN = { world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, cam, view: (x, z, zoom) => { cam.fly = null; cam.panX = x; cam.panZ = z; cam.zoom = zoom; updateCameraMatrices(); }, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
 
   let lastTime = performance.now();
   function loop(now) {

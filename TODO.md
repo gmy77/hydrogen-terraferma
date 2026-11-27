@@ -39,7 +39,9 @@ Ogni evento mette alla prova il sapere accumulato: chi è preparato passa, chi n
 ## 4. Un'economia vera
 
 - [ ] I mestieri producono davvero: grano, farina, vino, panni, pane
-- [ ] Materiali da procurare: pietra dalla cava, legno dal bosco, coppi dalla fornace, ferro dal fabbro
+- [x] Cassa della comunità in ducati, taglia di San Martino, licenze pagate al Podestà (27/11/2026)
+- [x] Legna dal Bosco del Comune o dal mercante della città sul mare, riscaldamento d'inverno, ceduo (27/11/2026)
+- [ ] Materiali da procurare: pietra dalla cava, coppi dalla fornace, ferro dal fabbro
 - [ ] Un'opera si costruisce solo se ci sono i materiali (oggi basta il lavoro)
 - [ ] Mercato in piazza con prezzi che salgono e scendono secondo la stagione e gli eventi
 - [ ] Ricchezza delle famiglie: case che si ingrandiscono, matrimoni con dote, poveri e benestanti
@@ -55,10 +57,14 @@ Ogni evento mette alla prova il sapere accumulato: chi è preparato passa, chi n
 
 ## 6. Il borgo che cresce
 
-- [ ] Nuove case costruite quando la popolazione aumenta (oggi le case sono fisse)
+- [x] Nuove case negli ultimi lotti dentro le mura quando il borgo si affolla (27/11/2026)
+- [x] Allargamento delle mura col Borgo Nuovo, dopo supplica e tassa (27/11/2026)
+- [ ] Una seconda cerchia quando anche il Borgo Nuovo è pieno (oggi il borgo resta «stretto»)
 - [ ] Le case vuote cadono in rovina se il borgo si spopola
 - [ ] Il cimitero accanto alla chiesa che si riempie con le generazioni
 - [ ] Nuove contrade fuori dalle mura
+- [x] Il monte a nord, la strada bianca e la città nuova sul grande mare (27/11/2026)
+- [ ] Viaggi e commerci verso la città sul mare: carri sulla strada, navi che arrivano e partono
 
 ## 7. Giocare e vedere meglio
 

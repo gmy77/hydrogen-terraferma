@@ -73,6 +73,24 @@ Il pulsante **📊 Osservatorio** (o `index.html#osservatorio`) apre una pagina 
 
 Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre direttamente la sua pagina.
 
+## Il borgo che cresce: case, mura, licenze, tasse e legna
+
+- **Il paese**: il borgo è fondato ai piedi del **monte a nord**, con il Bosco del Comune sulle pendici.
+  A sud ci sono la porta e i campi; più giù la **strada bianca** scende fino alla **città nuova sul grande mare**,
+  con moli, navi, un campanile altissimo e la chiesa con la cupola.
+- **Spazio per le famiglie**: ogni casa ha posto per una famiglia. Quando gli abitanti superano i posti comodi
+  nasce il bisogno **Case** e le nascite rallentano. La vicinia costruisce prima negli **ultimi lotti dentro le mura**,
+  poi vota l'**allargamento delle mura** verso ovest: il **Borgo Nuovo**, con la Porta Nuova e tre file di case.
+- **Licenza e tassa**: per allargare le mura la comunità manda una **supplica al Podestà di Vicenza**, che risponde dopo un mese.
+  La licenza costa una tassa: se in cassa non ci sono i soldi, la supplica è respinta e si riprova più avanti.
+- **Cassa della comunità** (ducati): entrano il lavoro dei paesani, la vendemmia, il mulino e il granaio;
+  escono la **taglia alla Serenissima**, pagata a **San Martino** per ogni focolare, le licenze, i mastri dei cantieri e la legna comprata.
+- **Legna**: serve ai cantieri e per scaldarsi d'inverno (senza legna le case gelano e arrivano le febbri).
+  Si **taglia nel Bosco del Comune**, dove i boscaioli lavorano con l'ascia e gli alberi ricrescono dalle ceppaie in qualche anno,
+  oppure si **compra dal mercante della città sul mare**. Chi taglia quasi tutto il bosco impara a farlo a turno (il «ceduo»).
+- **Nozze con chi viene da fuori**: se in paese non c'è nessuno libero, ci si sposa con qualcuno dei paesi vicini,
+  che viene a vivere nel borgo.
+
 ## Case e luoghi
 
 Ogni casa ha la sua famiglia: le spose vanno a vivere dal marito, i figli restano coi genitori, chi arriva trova una casa libera.
