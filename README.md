@@ -53,4 +53,4 @@ per i computer meno potenti.
 
 ## Copyright
 
-Copyright (c) 2026 Pignolo Gimmy. Tutti i diritti riservati. Vedi [LICENSE](LICENSE).
+Copyright (c) 2026 Pignolo Gimmy, con la collaborazione di Gemini e Claude. Tutti i diritti riservati. Vedi [LICENSE](LICENSE).
