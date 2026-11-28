@@ -1233,8 +1233,12 @@
       }
     };
     for (let z = -18.2; z <= 24.4; z += 1.0) seg(15.2, z, true);
-    add(15.2, 0.03, 24.8, 0.62, 0.06, 0.62, ACQUA, 0, 8);
-    for (let x = 14.7; x >= -13.0; x -= 1.0) seg(x, 24.8, false);
+    // l'angolo dove la roggia gira verso ovest: acqua continua, argine esterno chiuso, niente muri dentro il canale
+    add(15.2, 0.03, 24.705, 0.62, 0.06, 0.81, ACQUA, 0, 8);
+    add(14.81, 0.09, 24.355, 0.16, 0.18, 0.11, PIETRA_OMBRA);
+    add(15.59, 0.09, 24.785, 0.16, 0.18, 0.97, PIETRA_OMBRA);
+    add(15.28, 0.09, 25.19, 0.78, 0.18, 0.16, PIETRA_OMBRA);
+    for (let x = 14.39; x >= -13.0; x -= 1.0) seg(x, 24.8, false);
     add(15.2, 0.22, 4.8, 1.3, 0.06, 1.5, LEGNO_COL);                     // ponticello alla Porta dei Colli
     add(7.0, 0.30, 24.8, 0.10, 0.50, 0.95, LEGNO_COL);                   // chiavica (paratoia) per i campi
     add(7.0, 0.58, 24.8, 0.08, 0.08, 1.15, FERRO);
