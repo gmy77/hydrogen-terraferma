@@ -2625,7 +2625,7 @@
   const EV_CATS = {
     nascita: '👶 Nascita', morte: '✝ Morte', nozze: '💍 Nozze', crescita: '🎓 Maggiore età', arrivo: '🧳 Arrivo',
     successione: '🔑 Successione', scoperta: '💡 Scoperta', errore: '⚠ Errore', insegnamento: '🗣 Insegnamento',
-    oblio: '🌫 Oblio', invenzione: '💡 Invenzione', superstizione: '🔮 Superstizione', storpiata: '🗣 Regola storpiata', rancore: '😠 Rancore', epidemia: '☠ Epidemia', carestia: '🌾 Carestia', piena: '🌊 Piena', novita: '🌽 Novità', preghiera: '📿 Preghiera', pregiudizio: '🚫 Pregiudizio', permesso: '📜 Licenza', tasse: '💰 Tasse', legna: '🪵 Legna', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
+    oblio: '🌫 Oblio', marigo: '🎖 Marigo', pace: '🤝 Pace', rissa: '🗡 Rissa', bando: '⛓ Bando e Podestà', invenzione: '💡 Invenzione', superstizione: '🔮 Superstizione', storpiata: '🗣 Regola storpiata', rancore: '😠 Rancore', epidemia: '☠ Epidemia', carestia: '🌾 Carestia', piena: '🌊 Piena', novita: '🌽 Novità', preghiera: '📿 Preghiera', pregiudizio: '🚫 Pregiudizio', permesso: '📜 Licenza', tasse: '💰 Tasse', legna: '🪵 Legna', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
     coprifuoco: '🌙 Coprifuoco', bisogno: '📉 Bisogno', meteo: '☁ Meteo', stagione: '🍂 Stagione', cronaca: '📜 Cronaca',
   };
   function catOfChron(t) {
@@ -2638,6 +2638,10 @@
     if (/vicinia/i.test(t)) return 'vicinia';
     if (/cantiere/.test(t)) return 'cantiere';
     if (/^Si inaugur/.test(t)) return 'opera';
+    if (/carta di pace/.test(t)) return 'pace';
+    if (/^Rissa/.test(t)) return 'rissa';
+    if (/al bando|tornò nel borgo|condannò/.test(t)) return 'bando';
+    if (/elessero marigo/.test(t)) return 'marigo';
     if (/inventò|convinse la comunità/.test(t)) return 'invenzione';
     if (/cometa|amulet|malocchio/.test(t)) return 'superstizione';
     if (/peste|lazzaretto|sanità/i.test(t)) return 'epidemia';
@@ -2688,6 +2692,7 @@
     faithDaily();
     eventsDaily();
     mindDaily();
+    justiceDaily();
     const adults = villagers.filter(v => v.age >= 15);
     const kn = {};
     for (const id of KNOW_IDS) kn[id] = 0;
@@ -2709,6 +2714,7 @@
       sM: r1(villagers.reduce((s, v) => s + ((v.sup && v.sup.malocchio) || 0), 0) / Math.max(1, villagers.length) * 100),
       fD: villagers.filter(v => factionOf(v) === 'devoti').length, fP: villagers.filter(v => factionOf(v) === 'pratici').length, fR: villagers.filter(v => factionOf(v) === 'prudenti').length,
       storp: villagers.reduce((s, v) => s + ((v.wrongs && v.wrongs.length) || 0), 0),
+      jPace: world.justice.mediated + world.justice.priest, jCarte: world.justice.peaces, jRisse: world.justice.brawls, jPod: world.justice.fines + world.justice.bans,
       pEs: world.prayStats.prayed ? r1(world.prayStats.answered / world.prayStats.prayed * 100) : null,
       pCtrl: world.prayStats.ctrl ? r1(world.prayStats.ctrlOk / world.prayStats.ctrl * 100) : null,
       preg: r1(avgPrejudice() * 100), pc: villagers.filter(v => (v.tone || 0) < 0.3).length,
@@ -3106,6 +3112,13 @@
       if (v.role === 'Speziale') return '«La cometa? La osservo ogni notte e annoto come si sposta. È un corpo del cielo, non un messaggio: vedremo, ma io non credo che porti sventure.»';
       if (v.sup && v.sup.cometa > 0.5) return '«Avete visto la cometa? È un segno: verranno sventure, carestia o peste. Bisogna pregare!»';
     }
+    if (v.id === world.marigoId && Math.floor(currentHour * 2) % 3 === 0) return '«Quest’anno sono io il marigo: tengo i conti del comune e, se litigate, venite da me prima che dal notaio.»';
+    if (v.exiledSpouse && Math.floor(currentHour * 2) % 3 === 2) { const e = people.get(v.exiledSpouse); if (e && e.banished) return `«${e.name} è al bando, lontano dal territorio di Vicenza. Conto gli anni che mancano al suo ritorno.»`; }
+    {
+      let enemy = null, worst = -0.6;
+      for (const [id, x] of Object.entries(v.rel || {})) if (x < worst) { const o = people.get(+id); if (o && o.alive) { worst = x; enemy = o; } }
+      if (enemy && Math.floor(currentHour * 2) % 3 === 1) return `«Con ${enemy.name} non ci parlo più: se me lo trovo davanti all’osteria, finisce male.»`;
+    }
     if (v.wrongs && v.wrongs.length && Math.floor(currentHour * 2) % 4 === 3) return `«Me l’hanno insegnato e funziona sempre: ${lc(v.wrongs[0].title)}!»`;
     if (v.inventions && Math.floor(currentHour * 2) % 4 === 1) return '«L’idea mi è venuta mettendo insieme due cose che sapevo già. Il segreto è non smettere mai di chiedersi: e se…?»';
     if (world.plague && Math.floor(currentHour * 2) % 2 === 0) {
@@ -3146,7 +3159,7 @@
     const v = selectedVillager;
     cardEl.classList.remove('building');
     document.getElementById('cc-name').textContent = `${v.name} ${v.cognome || ''}`;
-    const taskTxt = v.task === 'worker' ? ' · al cantiere' : v.task === 'capo' ? ' · capomastro' : '';
+    const taskTxt = (v.task === 'worker' ? ' · al cantiere' : v.task === 'capo' ? ' · capomastro' : '') + (v.id === world.marigoId ? ' · marigo del comune' : '');
     document.getElementById('cc-role').textContent = `— ${v.role}, ${Math.floor(v.age)} anni (${v.visible ? v.place : 'In casa al riparo'}${taskTxt})`;
     const speech = v.visible
       ? speakOf(v)
@@ -3617,7 +3630,7 @@
   const GRAVE_SLOTS = [];
   for (let r = 0; r < 5; r++) for (const gx of [-3.62, -3.18]) GRAVE_SLOTS.push({ x: gx, z: -7.6 + r * 0.62 });
   function drawCemetery() {
-    const recent = world.dead.slice(-GRAVE_SLOTS.length);
+    const recent = world.dead.filter(v => !v.banished).slice(-GRAVE_SLOTS.length);
     recent.forEach((v, i) => {
       const g = GRAVE_SLOTS[i], y = 4.9, small = v.age < 12 ? 0.65 : 1;
       pushDyn(g.x, y + 0.05, g.z, 0.26 * small, 0.08, 0.40 * small, [0.40, 0.31, 0.22]);
@@ -3885,6 +3898,127 @@
         pushDyn(x, 0.05 + 0.55 * g, z, 0.12, 1.1 * g, 0.12, col);
         if (g > 0.9) pushDyn(x + 0.08, 0.6, z, 0.08, 0.22, 0.08, [0.95, 0.80, 0.25]);
       }
+    }
+  }
+
+  // ======================================================================
+  //  Liti e giustizia come nella Terraferma veneziana del Cinquecento:
+  //  il marigo (capo del comune) eletto ogni anno, il parroco paciere a Pasqua,
+  //  la carta di pace dal notaio, il Podestà di Vicenza con multe e bando
+  // ======================================================================
+  world.justice = { mediated: 0, priest: 0, brawls: 0, peaces: 0, broken: 0, fines: 0, bans: 0 };
+  world.peaces = []; world.exiles = []; world.marigoId = null; world.marigoYear = null;
+  function electMarigo(yr) {
+    // nel Cinquecento potevano essere eletti solo i capifamiglia maschi
+    const cand = villagers.filter(v => v.sex === 'M' && v.age >= 25 && v.age <= 68 && v.kind !== 'priest' && v.kind !== 'child');
+    if (!cand.length) return;
+    const score = (v) => (v.rep ?? 0.5) + 0.15 * (v.traits ? v.traits.prud : 0.5) - 0.2 * (v.traits ? v.traits.test : 0.5) + rng() * 0.15;
+    let best = cand[0], bs = -1e9;
+    for (const v of cand) { const sc = score(v); if (sc > bs) { bs = sc; best = v; } }
+    const again = world.marigoId === best.id;
+    world.marigoId = best.id; world.marigoYear = yr;
+    chronicle(`Per l’anno ${yr} i capifamiglia elessero marigo ${best.name} ${best.cognome}, ${lc(best.role)}${again ? ', confermato per un altro anno' : ''}: a lui toccava tenere i conti del comune e mettere pace nelle liti.`);
+  }
+  function makePeace(a, b, by) { addRel(a, b, by); addRel(b, a, by); }
+  function setRel(a, b, x) { addRel(a, b, x - relOf(a, b)); }
+  function brawl(a, b) {
+    const J = world.justice;
+    J.brawls++;
+    const hurt = rng() < 0.5 ? a : b;
+    hurt.energy = Math.max(10, hurt.energy - 40);
+    need.sicurezza = Math.min(100, need.sicurezza + 6);
+    chronicle(`Rissa all’osteria tra ${a.name} ${a.cognome} e ${b.name} ${b.cognome}: volarono pugni e spuntò un coltello, e ${hurt.name} ${hurt.sex === 'F' ? 'finì ferita' : 'finì ferito'}.`);
+    const prior = world.peaces.find(p => (p.a === a.id && p.b === b.id) || (p.a === b.id && p.b === a.id));
+    if (prior) { world.peaces.splice(world.peaces.indexOf(prior), 1); podesta(a, b); return; }
+    world.peaces.push({ a: a.id, b: b.id, day: dayCount });
+    J.peaces++;
+    setRel(a, b, -0.1); setRel(b, a, -0.1);
+    const M = people.get(world.marigoId);
+    chronicle(`${M && M.alive ? `Il marigo ${M.name}` : 'Il parroco'} li portò dal notaio: davanti a due testimoni ${a.name} e ${b.name} firmarono una carta di pace, con la pena di 25 ducati per chi l’avesse rotta. Ognuna delle due famiglie pagò 3 ducati al notaio.`);
+  }
+  function podesta(a, b) {
+    const J = world.justice;
+    J.broken++;
+    const guilty = ((a.traits && a.traits.test) || 0.5) >= ((b.traits && b.traits.test) || 0.5) ? a : b;
+    const other = guilty === a ? b : a;
+    if (((guilty.traits && guilty.traits.test) || 0.5) > 0.75 && rng() < 0.5) {
+      J.bans++;
+      chronicle(`${a.name} e ${b.name} ruppero la carta di pace. Il caso andò al Podestà di Vicenza, che condannò ${guilty.name} ${guilty.cognome} al bando: dovette lasciare il borgo e il territorio vicentino per cinque anni.`);
+      banish(guilty);
+    } else {
+      J.fines++;
+      chronicle(`${a.name} e ${b.name} ruppero la carta di pace. Il Podestà di Vicenza condannò ${guilty.name} ${guilty.cognome} a pagare la pena di 25 ducati, metà al fisco e metà alla famiglia di ${other.name}.`);
+      setRel(guilty, other, -0.25); setRel(other, guilty, -0.2);
+    }
+  }
+  function banish(v) {
+    const i = villagers.indexOf(v);
+    if (i < 0) return;
+    villagers.splice(i, 1);
+    v.alive = false; v.banished = true; v.visible = false; v.task = null;
+    const sp = people.get(v.spouseId);
+    if (sp && sp.alive) sp.exiledSpouse = v.id;
+    if (selectedVillager === v) closeCard();
+    const c = world.council;
+    if (c) { c.parts = c.parts.filter(x => x !== v); c.order = c.order.filter(x => x !== v); }
+    if (world.marigoId === v.id) world.marigoId = null;
+    world.exiles.push({ id: v.id, until: dayCount + Math.round(5 * 365 / DAYS_PER_SIMDAY) });
+    pushBrainLog(`⛓ <b>${v.name} ${v.cognome}</b> bandito per cinque anni`, 'mistake');
+    succeed(v);
+  }
+  function returnFromExile(e) {
+    const v = people.get(e.id);
+    if (!v) return;
+    v.alive = true; v.banished = false; v.task = null;
+    const lost = SPECIAL_KINDS.includes(v.kind) ? v.role : null;
+    if (lost) {
+      v.kind = 'citizen'; v.speakKey = 'citizen'; v.speak = SPEAK.citizen;
+      v.role = pick(v.sex === 'F' ? MESTIERI_F : MESTIERI_M); v.mestiere = v.role;
+      v.place = 'Contrade del borgo murato';
+    }
+    v.path = v.homePath || pick(WALK_PATHS);
+    v.houseIdx = null;
+    for (const o of villagers) if (relOf(o, v) < -0.2) setRel(o, v, -0.2);
+    villagers.push(v);
+    chronicle(lost
+      ? `Finito il bando, ${v.name} ${v.cognome} tornò nel borgo: invecchiato, senza più il suo posto di ${lc(lost)}, ma deciso a ricominciare come ${lc(v.role)}.`
+      : `Finito il bando, ${v.name} ${v.cognome} tornò nel borgo, invecchiato, e riprese il suo mestiere di ${lc(v.role)}.`);
+  }
+  function justiceDaily() {
+    const d = calDate(dayCount), yr = d.getFullYear();
+    const M = people.get(world.marigoId);
+    if (!M || !M.alive || world.marigoYear !== yr) electMarigo(yr);
+    const J = world.justice, marigo = people.get(world.marigoId);
+    for (const e of world.exiles.slice()) if (dayCount >= e.until) { world.exiles.splice(world.exiles.indexOf(e), 1); returnFromExile(e); }
+    const pairs = [];
+    for (const a of villagers) for (const [id, x] of Object.entries(a.rel || {})) {
+      if (x >= -0.3) continue;
+      const b = people.get(+id);
+      if (!b || !b.alive || (b.id < a.id && relOf(b, a) < -0.3)) continue;
+      pairs.push([a, b]);
+    }
+    const easter = d.getMonth() === 3 && d.getDate() <= 16;   // il tempo di Pasqua, all’incirca
+    const pr = getPriest();
+    for (const [a, b] of pairs) {
+      const worst = Math.min(relOf(a, b), relOf(b, a));
+      const stubborn = (((a.traits && a.traits.test) || 0.5) + ((b.traits && b.traits.test) || 0.5)) / 2;
+      if (easter && pr && pr !== a && pr !== b && rng() < 0.5 * ((a.faith + b.faith) / 2)) {
+        makePeace(a, b, 0.35); J.priest++;
+        logEvent('pace', `A Pasqua ${pr.name} convinse ${a.name} e ${b.name} a fare pace prima della comunione.`);
+        continue;
+      }
+      if (worst > -0.6 && marigo && marigo !== a && marigo !== b && rng() < 0.3 * (1 - stubborn) * (0.5 + (marigo.rep ?? 0.5))) {
+        makePeace(a, b, 0.35); J.mediated++;
+        logEvent('pace', `Il marigo ${marigo.name} mise pace tra ${a.name} e ${b.name}.`);
+        continue;
+      }
+      if (worst <= -0.6 && rng() < 0.15) brawl(a, b);
+    }
+    // le carte di pace valgono due anni: se in quel tempo l’odio torna forte, si va dal Podestà
+    for (const p of world.peaces.slice()) {
+      const a = people.get(p.a), b = people.get(p.b);
+      if (!a || !b || !a.alive || !b.alive || dayCount - p.day > 48) { world.peaces.splice(world.peaces.indexOf(p), 1); continue; }
+      if (Math.min(relOf(a, b), relOf(b, a)) <= -0.6) { world.peaces.splice(world.peaces.indexOf(p), 1); podesta(a, b); }
     }
   }
 
@@ -4385,7 +4519,7 @@
     for (const n of cands) {
       const opts = optionsFor(n.id);
       if (opts.length) { startCouncil(n.id, opts); return; }
-      if (simClock - (world.noIdeaLog[n.id] || -999) > 150) {
+      if (simClock - (world.noIdeaLog[n.id] || -999) > (n.id === 'case' ? SIM_SEC_PER_YEAR : 150)) {
         world.noIdeaLog[n.id] = simClock;
         if (n.id === 'salute' && world.plague) {
           // durante la peste non resta che curare i malati e aspettare
@@ -4407,7 +4541,7 @@
   let skipSave = false;
   const PERSON_KEYS = ['id', 'name', 'cognome', 'cognomeNascita', 'sex', 'kind', 'role', 'mestiere', 'place', 'oxIdx', 'speakKey',
     'phase', 'speed', 'zOff', 'tunic', 'hose', 'hat', 'faceX', 'faceZ', 'homeX', 'homeY', 'homeZ', 'fatherId', 'motherId', 'spouseId',
-    'widowed', 'predecessor', 'forgot', 'houseIdx', 'tone', 'prejudice', 'refused', 'slighted', 'daMare', 'conf', 'prayed', 'answered', 'unanswered', 'sick', 'immune', 'traits', 'rep', 'rel', 'sup', 'wrongs', 'amulet', 'inventions', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
+    'widowed', 'predecessor', 'forgot', 'houseIdx', 'tone', 'prejudice', 'refused', 'slighted', 'daMare', 'conf', 'prayed', 'answered', 'unanswered', 'sick', 'immune', 'traits', 'rep', 'rel', 'sup', 'wrongs', 'amulet', 'inventions', 'banished', 'exiledSpouse', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
   function packPerson(v, histMax) {
     const o = {};
     for (const k of PERSON_KEYS) if (v[k] !== undefined && v[k] !== null) o[k] = v[k];
@@ -4446,12 +4580,13 @@
         events: world.events.slice(-1500), evN: world.evN, evCount: world.evCount,
         eco: { cassa: world.cassa, legna: world.legna, permits: world.permits, permitReq: world.permitReq, permitRetry: world.permitRetry,
           incomeTot: world.incomeTot, taxTot: world.taxTot, cutTot: world.cutTot, boughtTot: world.boughtTot, borgoNuovo: world.borgoNuovo,
-          ev: { comet: world.comet || null, c2Start: world.c2Start ?? null, ponente: !!world.ponente, plagueDeadTot: world.plagueDeadTot || 0, recovery: world.recovery || null, plague: world.plague, cityPlague: world.cityPlague, maize: world.maize, maizeTrial: world.maizeTrial, happened: world.happened, floodDay: world.floodDay },
+          ev: { justice: world.justice, peaces: world.peaces, marigoId: world.marigoId, marigoYear: world.marigoYear, comet: world.comet || null, c2Start: world.c2Start ?? null, ponente: !!world.ponente, plagueDeadTot: world.plagueDeadTot || 0, recovery: world.recovery || null, plague: world.plague, cityPlague: world.cityPlague, maize: world.maize, maizeTrial: world.maizeTrial, happened: world.happened, floodDay: world.floodDay },
           prayStats: world.prayStats, prayers: world.prayers, ctrl: world.ctrl, massLast: world.massLast,
           trees: TREES.map(t => [t.state === 'stump' ? 1 : 0, Math.round(t.regrowAt)]) },
         project: p ? { id: p.id, progress: p.progress, proposer: p.proposer.id, withFilter: p.withFilter } : null,
         living: villagers.map(v => packPerson(v)),
         dead: world.dead.slice(-160).map(v => packPerson(v, 40)),
+        exiles: world.exiles.map(e => { const x = people.get(e.id); return x ? Object.assign(packPerson(x, 40), { until: e.until }) : null; }).filter(Boolean),
       };
       localStorage.setItem(SAVE_KEY, JSON.stringify(data));
     } catch (e) { /* salvataggio non disponibile */ }
@@ -4467,6 +4602,8 @@
       if (!living.length) return false;
       people.clear(); villagers.length = 0; world.dead.length = 0;
       for (const v of dead) { people.set(v.id, v); world.dead.push(v); }
+      world.exiles = [];
+      for (const o of data.exiles || []) { const v = Object.assign(unpackPerson(o), { alive: false, banished: true }); people.set(v.id, v); world.exiles.push({ id: v.id, until: o.until }); }
       for (const v of living) { people.set(v.id, v); villagers.push(v); }
       nextId = data.nextId || (Math.max(...people.keys()) + 1);
       simClock = data.simClock || simClock;
@@ -4482,6 +4619,7 @@
         Object.assign(world, { cassa: e.cassa ?? 40, legna: e.legna ?? 14, permits: e.permits || {}, permitReq: e.permitReq || null, permitRetry: e.permitRetry || 0,
           incomeTot: e.incomeTot || 0, taxTot: e.taxTot || 0, cutTot: e.cutTot || 0, boughtTot: e.boughtTot || 0 });
         if (e.prayStats) world.prayStats = e.prayStats;
+        if (e.ev && e.ev.justice) Object.assign(world, { justice: e.ev.justice, peaces: e.ev.peaces || [], marigoId: e.ev.marigoId ?? null, marigoYear: e.ev.marigoYear ?? null });
         if (e.ev) Object.assign(world, { comet: e.ev.comet || null, c2Start: e.ev.c2Start ?? undefined, plagueDeadTot: e.ev.plagueDeadTot || 0, recovery: e.ev.recovery || null, plague: e.ev.plague || null, cityPlague: e.ev.cityPlague || null, maize: !!e.ev.maize, maizeTrial: e.ev.maizeTrial || null, happened: e.ev.happened || {}, floodDay: e.ev.floodDay || null });
         world.prayers = e.prayers || []; world.ctrl = e.ctrl || []; world.massLast = e.massLast || 0;
         (e.trees || []).forEach((t, i) => { if (TREES[i]) { TREES[i].state = t[0] ? 'stump' : 'tree'; TREES[i].regrowAt = t[1]; } });
@@ -5322,6 +5460,7 @@
         ${cardHtml('ob-pelle', 'Abitanti per colore della pelle', 'nella simulazione il colore non cambia nessuna capacità')}
         ${cardHtml('ob-sup', 'Superstizioni', 'quanto ci crede in media il borgo: si diffondono coi pettegolezzi, i fatti le smentiscono')}
         ${cardHtml('ob-faz', 'Fazioni in vicinia', 'devoti (molta fede), pratici (poca fede o molta curiosità), prudenti')}
+        ${cardHtml('ob-giust', 'Liti e giustizia', 'totale dall’inizio: paci del marigo e del parroco, risse, carte di pace dal notaio, condanne del Podestà')}
         ${cardHtml('ob-storp', 'Regole storpiate in giro', 'regole passate di bocca in bocca e arrivate sbagliate')}
         ${cardHtml('ob-malati', 'Malati di peste', 'a letto o nel lazzaretto; il contagio passa in casa e tra i vicini')}
         ${cardHtml('ob-messa', 'Fedeli alla messa del mattino', 'quanti entrano in chiesa ogni giorno')}
@@ -5358,6 +5497,7 @@
     lineChart($('ob-preg'), { series: [{ name: 'Pregiudizio', col: OBS_COLS[0], pts: H.filter(h => h.preg != null).map(h => [h.d, h.preg]) }], yMax: 100, yFmt: fmtPct });
     lineChart($('ob-sup'), { series: [{ name: 'Aria cattiva', col: OBS_COLS[0], pts: H.filter(h => h.sA != null).map(h => [h.d, h.sA]) }, { name: 'Comete', col: OBS_COLS[1], pts: H.filter(h => h.sC != null).map(h => [h.d, h.sC]) }, { name: 'Malocchio', col: OBS_COLS[2], pts: H.filter(h => h.sM != null).map(h => [h.d, h.sM]) }], yMax: 100, yFmt: fmtPct });
     lineChart($('ob-faz'), { series: [{ name: 'Devoti', col: OBS_COLS[0], pts: H.filter(h => h.fD != null).map(h => [h.d, h.fD]) }, { name: 'Pratici', col: OBS_COLS[1], pts: H.filter(h => h.fP != null).map(h => [h.d, h.fP]) }, { name: 'Prudenti', col: OBS_COLS[2], pts: H.filter(h => h.fR != null).map(h => [h.d, h.fR]) }], yFmt: fmtInt });
+    lineChart($('ob-giust'), { series: [{ name: 'Paci (marigo e parroco)', col: OBS_COLS[0], pts: H.filter(h => h.jPace != null).map(h => [h.d, h.jPace]) }, { name: 'Risse', col: OBS_COLS[1], pts: H.filter(h => h.jRisse != null).map(h => [h.d, h.jRisse]) }, { name: 'Carte di pace', col: OBS_COLS[2], pts: H.filter(h => h.jCarte != null).map(h => [h.d, h.jCarte]) }, { name: 'Condanne del Podestà', col: OBS_COLS[3], pts: H.filter(h => h.jPod != null).map(h => [h.d, h.jPod]) }], yFmt: fmtInt });
     lineChart($('ob-storp'), { series: [{ name: 'Regole storpiate', col: OBS_COLS[0], pts: H.filter(h => h.storp != null).map(h => [h.d, h.storp]) }], yFmt: fmtInt });
     lineChart($('ob-malati'), { series: [{ name: 'Malati', col: OBS_COLS[0], pts: H.filter(h => h.malati != null).map(h => [h.d, h.malati]) }], yFmt: fmtInt });
     lineChart($('ob-messa'), { series: [{ name: 'Fedeli', col: OBS_COLS[0], pts: H.filter(h => h.messa != null).map(h => [h.d, h.messa]) }], yFmt: fmtInt });
@@ -5826,7 +5966,7 @@
 
   // Strumenti per osservare la simulazione dalla console del browser
   if (location.hash === '#osservatorio') openObs();
-  window.HYDROGEN = { ev: { startComet, startCityPlague, startPlague, famine, flood, maizeArrives }, world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, cam, clickAt: (x, y) => { handleCanvasClick(x, y); return selectedPlace ? (selectedPlace.type + ':' + (selectedPlace.ref.id ?? selectedPlace.ref)) : selectedVillager ? 'persona:' + selectedVillager.name : selectedBuilding ? 'opera:' + selectedBuilding : 'nulla'; }, view: (x, z, zoom) => { cam.fly = null; cam.panX = x; cam.panZ = z; cam.zoom = zoom; updateCameraMatrices(); }, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
+  window.HYDROGEN = { ev: { brawl, banish, startComet, startCityPlague, startPlague, famine, flood, maizeArrives }, world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, cam, clickAt: (x, y) => { handleCanvasClick(x, y); return selectedPlace ? (selectedPlace.type + ':' + (selectedPlace.ref.id ?? selectedPlace.ref)) : selectedVillager ? 'persona:' + selectedVillager.name : selectedBuilding ? 'opera:' + selectedBuilding : 'nulla'; }, view: (x, z, zoom) => { cam.fly = null; cam.panX = x; cam.panZ = z; cam.zoom = zoom; updateCameraMatrices(); }, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
 
   let lastTime = performance.now();
   function loop(now) {

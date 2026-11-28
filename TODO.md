@@ -35,6 +35,7 @@ Ogni evento mette alla prova il sapere accumulato: chi è preparato passa, chi n
 - [x] **Fiducia tra le persone**: si dà più peso a chi ha avuto ragione in passato; chi ha proposto opere riuscite guadagna credito
 - [x] **Carattere** di ogni paesano (curioso, prudente, testardo, chiacchierone) che cambia come impara e come insegna
 - [x] **Amicizie e rancori** che decidono chi parla con chi
+- [x] **Liti e giustizia**: marigo eletto, parroco paciere, carta di pace dal notaio, Podestà con multa o bando (28/11/2026)
 
 ## 4. Un'economia vera
 

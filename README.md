@@ -149,6 +149,18 @@ Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre 
 - **Invenzioni**: un curioso combina due regole e ne scopre una nuova: la **gualchiera** (mulino + legno), la **fornace** per mattoni e coppi
   (murare + ceduo, cantieri più economici), il mais irrigato, la distillazione delle erbe.
 
+## Liti e giustizia
+
+Come nella Terraferma veneziana del Cinquecento:
+- ogni anno i capifamiglia eleggono il **marigo**, il capo del comune (di solito chi gode di più fiducia, prudente e poco testardo):
+  tiene i conti e compone le **liti piccole**;
+- a **Pasqua** il **parroco** fa da paciere prima della comunione;
+- quando un rancore diventa grosso si arriva alla **rissa** all'osteria, con un ferito: allora si va dal **notaio** per la **carta di pace**,
+  con testimoni e 25 ducati di pena per chi la rompe;
+- se la pace si rompe, il caso va al **Podestà di Vicenza**: **multa** o, per i più testardi, **bando** per cinque anni.
+  Il bandito poi torna, e chi aveva un ruolo speciale lo trova preso da altri.
+- Nell'Osservatorio il grafico «Liti e giustizia»; nel Registro le categorie Marigo, Pace, Rissa, Bando e Podestà.
+
 ## Il borgo diventa città
 
 - Dopo il Borgo Nuovo, una **seconda cerchia di mura**, il **Borgo di Ponente**, con la Porta di Ponente e dodici case (nuova licenza e tassa più alta).
