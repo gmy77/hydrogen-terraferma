@@ -16,10 +16,10 @@ Ogni punto si spunta quando è online su https://gmy77.github.io/hydrogen-terraf
 
 Ogni evento mette alla prova il sapere accumulato: chi è preparato passa, chi non lo è paga.
 
-- [ ] **Peste** (ondate come quella del 1576-77): contagio tra vicini, quarantena, lazzaretto fuori dalle mura come nuova opera; San Rocco come risposta devota
-- [ ] **Carestia**: raccolti persi, prezzi alle stelle; il granaio pubblico fa la differenza
-- [ ] **Arrivo del «sorgo turco» (mais)** verso metà Cinquecento: chi lo prova per primo rischia, se funziona tutti lo copiano
-- [ ] **Piene del Bacchiglione**: argini come nuova opera, la roggia diventa un pericolo se non ha la chiavica
+- [x] **Peste** dalla città sul mare (ratti delle navi), contagio in casa e tra vicini, castigo divino e capro espiatorio smentiti dai fatti, lazzaretto, porta chiusa (28/11/2026)
+- [x] **Carestia** (e quella del 1590): il granaio fa la differenza (28/11/2026)
+- [x] **Arrivo del «sorgo turco» (mais)**: prova, possibile fallimento, poi campo di mais (28/11/2026)
+- [x] **Piene del torrente** e argini come nuova opera (28/11/2026)
 - [ ] **Tasse e decime della Serenissima**: il borgo deve produrre abbastanza o indebitarsi
 - [ ] **Grandine sulle vigne**, incendi di fienili, lupi in inverno
 - [ ] **Passaggio di soldati** (guerre del primo Cinquecento): saccheggi, mura da rinforzare
@@ -64,7 +64,8 @@ Ogni evento mette alla prova il sapere accumulato: chi è preparato passa, chi n
 - [ ] Il cimitero accanto alla chiesa che si riempie con le generazioni
 - [ ] Nuove contrade fuori dalle mura
 - [x] Il monte a nord, la strada bianca e la città nuova sul grande mare (27/11/2026)
-- [ ] Viaggi e commerci verso la città sul mare: carri sulla strada, navi che arrivano e partono
+- [x] Carri sulla strada e navi che entrano ed escono dal porto (28/11/2026)
+- [ ] Commercio vero con la città: vendere vino e grano, comprare sale e attrezzi
 
 ## 7. Giocare e vedere meglio
 

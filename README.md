@@ -117,6 +117,23 @@ Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre 
 - Nella simulazione **non c'è un intervento divino programmato**: ciò che accade dipende dal tempo, dal lavoro e dal caso.
   Se ci sia una risposta, come nella vita, resta una questione di fede.
 
+## Eventi storici: la città sul mare, la peste, la carestia, le piene, il mais
+
+- **La città sul mare** è viva: di giorno i **carri** salgono e scendono la strada bianca, le **navi** entrano ed escono dal porto.
+- **La peste** arriva prima in città, con le navi del grano piene di **ratti** (si vedono sui moli), poi può salire al borgo coi carri.
+  C'è anche la grande peste del **1576**. Nel borgo il contagio passa in casa e tra i vicini; chi si ammala guarisce (e resta immune) o muore.
+- **Come nella vita vera**: dal pulpito la peste è il **castigo di Dio** per i peccati, si fanno processioni (che però radunano la gente e
+  **aumentano il contagio**) e si cerca un **capro espiatorio** nei forestieri venuti dal porto: il pregiudizio cresce.
+  Quando la peste finisce, i fatti lo smentiscono: sono morti borghigiani e forestieri, devoti e no, e la colpa non era di nessuno.
+- **Ciò che si impara**: isolare i malati (il **lazzaretto**, come quello di Venezia del 1423) e **chiudere la porta** a chi viene da luoghi appestati
+  (le «fedi di sanità»): durante le epidemie in città i carri restano fermi lungo la strada.
+- La simulazione segue il **meccanismo vero** (le pulci dei ratti, scoperto nel 1898), mentre i paesani credono all'«aria cattiva».
+- **Dopo la peste**, come accadde davvero, arriva gente dalla campagna a riempire case e mestieri e ci si sposa di più: il borgo si riprende in pochi anni.
+  Nel 1577 arriva la notizia del voto del Doge per la chiesa del **Redentore** di Palladio.
+- **Carestia** (anche quella grande del **1590**): chi ha il granaio resiste. **Piene del torrente**: campi allagati e legna perduta,
+  finché non si alzano gli **argini**. **Il mais** («sorgo turco») arriva dalla città verso metà secolo: il primo raccolto può fallire,
+  poi rende più del frumento e accanto alla strada del mare cresce un campo che cambia colore con le stagioni.
+
 ## Case e luoghi
 
 Ogni casa ha la sua famiglia: le spose vanno a vivere dal marito, i figli restano coi genitori, chi arriva trova una casa libera.
