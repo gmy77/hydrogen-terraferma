@@ -1439,6 +1439,72 @@
     add(15.95, 0.17, 24.95, 0.3, 0.34, 0.4, COL);
     for (let x = 15.6; x >= -13.0; x -= 1.0) add(x, 0.17, 25.5, 1.02, 0.34, 0.3, COL);
   }
+  // Seconda cerchia di mura: il Borgo di Ponente, con 12 lotti per le case
+  const PONENTE_LOTS = [];
+  for (const z of [9.6, 6.2, -2.4, -5.8]) for (const x of [-29.8, -33.4, -37.0]) PONENTE_LOTS.push({ x, y: 0, z, w: 1.4, d: 1.3, h: 1.6, farmer: false });
+  const bpPonente = (k) => (add) => PONENTE_LOTS.slice(k * 4, k * 4 + 4).forEach((l, i) => bpHouseLot(add, l, 9201 + k * 4 + i));
+  function bpMura2(add) {
+    const C = [0.74, 0.70, 0.62];
+    const seg = (x, z, alongX) => {
+      add(x, 1.5, z, alongX ? 1.02 : 0.65, 3.0, alongX ? 0.65 : 1.02, C);
+      if (Math.round(alongX ? x : z) % 2 === 0) add(x, 3.22, z, alongX ? 0.55 : 0.68, 0.45, alongX ? 0.68 : 0.55, PIETRA_OMBRA);
+    };
+    const tower = (x, z) => { add(x, 2.3, z, 1.8, 4.6, 1.8, PIETRA_OMBRA); add(x, 4.95, z, 2.05, 0.7, 2.05, COPPI_COLS[3]); };
+    for (let x = -27.5; x >= -40.0; x -= 1.0) seg(x, 12.2, true);
+    tower(-40.5, 12.2);
+    for (let z = 11.2; z >= -9.5; z -= 1.0) { if (Math.abs(z - 1.5) < 1.3) continue; seg(-40.5, z, false); }
+    tower(-40.5, -10);
+    for (let x = -39.5; x <= -27.5; x += 1.0) seg(x, -10, true);
+    add(-40.5, 1.9, 1.5 - 1.35, 0.95, 3.8, 0.75, PIETRA_OMBRA);           // Porta di Ponente
+    add(-40.5, 1.9, 1.5 + 1.35, 0.95, 3.8, 0.75, PIETRA_OMBRA);
+    add(-40.5, 3.1, 1.5, 0.95, 1.4, 3.4, PIETRA_VICENZA);
+    add(-40.5, 3.95, 1.5, 1.05, 0.35, 3.6, COPPI_COLS[1]);
+    add(-41.05, 2.2, 1.5 - 1.45, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+    add(-41.05, 2.2, 1.5 + 1.45, 0.14, 0.22, 0.14, [0.30, 0.25, 0.20], 0, 2);
+    add(-33.5, 0.04, 1.5, 13.6, 0.07, 1.6, STRADA_COL);                     // la via di Ponente
+  }
+  // Camposanto nuovo fuori dalle mura
+  function bpCamposanto2(add, s) {
+    const { x, y, z } = s, W = 7.2, D = 5.2;
+    add(x, y + 0.03, z, W, 0.06, D, [0.36, 0.44, 0.28]);
+    add(x, y + 0.35, z - D / 2, W + 0.2, 0.7, 0.2, MURO_ANTICO);
+    add(x - W / 2, y + 0.35, z, 0.2, 0.7, D, MURO_ANTICO);
+    add(x + W / 2, y + 0.35, z, 0.2, 0.7, D, MURO_ANTICO);
+    add(x - 2.15, y + 0.35, z + D / 2, 2.9, 0.7, 0.2, MURO_ANTICO);
+    add(x + 2.15, y + 0.35, z + D / 2, 2.9, 0.7, 0.2, MURO_ANTICO);
+    add(x - 0.7, y + 0.55, z + D / 2, 0.2, 1.1, 0.25, PIETRA_VICENZA);
+    add(x + 0.7, y + 0.55, z + D / 2, 0.2, 1.1, 0.25, PIETRA_VICENZA);
+    add(x, y + 1.1, z + D / 2, 1.6, 0.12, 0.28, PIETRA_VICENZA);
+    add(x, y + 0.7, z - D / 2 + 0.85, 1.4, 1.4, 1.1, INTONACO_CALCE);     // cappella
+    roofTiers(add, x, y + 1.4, z - D / 2 + 0.85, 1.4, 1.1, COPPI_COLS[0], 3, 0.5);
+    add(x, y + 2.15, z - D / 2 + 0.85, 0.06, 0.5, 0.06, LEGNO_COL);
+    add(x, y + 2.25, z - D / 2 + 0.85, 0.3, 0.06, 0.06, LEGNO_COL);
+    for (const [cx, cz] of [[x - W / 2 + 0.5, z - D / 2 + 0.5], [x + W / 2 - 0.5, z - D / 2 + 0.5], [x - W / 2 + 0.5, z + D / 2 - 0.5], [x + W / 2 - 0.5, z + D / 2 - 0.5]]) {
+      add(cx, y + 0.4, cz, 0.18, 0.8, 0.18, LEGNO_COL);
+      add(cx, y + 1.3, cz, 0.5, 1.0, 0.5, [0.20, 0.34, 0.20]);
+      add(cx, y + 2.2, cz, 0.34, 0.9, 0.34, [0.24, 0.38, 0.22]);
+    }
+  }
+  // Invenzioni con un’opera
+  function bpGualchiera(add, s) {
+    const { x, y, z } = s;
+    add(x, y + 0.1, z, 1.8, 0.2, 1.4, PIETRA_OMBRA);
+    add(x, y + 0.75, z, 1.6, 1.1, 1.2, INTONACO_OCRA);
+    roofTiers(add, x, y + 1.3, z, 1.6, 1.2, COPPI_COLS[2]);
+    add(x + 0.81, y + 0.5, z, 0.06, 0.8, 0.5, LEGNO_COL);
+    add(x + 1.05, y + 0.3, z + 0.35, 0.4, 0.3, 0.35, [0.62, 0.30, 0.28]);
+    add(x + 1.05, y + 0.3, z - 0.15, 0.4, 0.3, 0.35, [0.28, 0.40, 0.62]);
+    add(16.1, y + 0.55, z, 0.9, 0.1, 0.1, LEGNO_COL);
+  }
+  function bpFornace(add, s) {
+    const { x, y, z } = s;
+    add(x, y + 0.1, z, 2.6, 0.2, 2.2, PIETRA_OMBRA);
+    for (let t = 0; t < 4; t++) add(x, y + 0.38 + t * 0.35, z, 1.8 * (1 - t * 0.18), 0.36, 1.8 * (1 - t * 0.18), MATTONE);
+    add(x, y + 2.0, z, 0.32, 0.9, 0.32, MATTONE);
+    add(x, y + 0.45, z + 0.92, 0.5, 0.5, 0.06, [0.15, 0.08, 0.05], 0, 2);
+    for (let i = 0; i < 3; i++) add(x + 1.6, y + 0.18 + i * 0.12, z - 0.4 + (i % 2) * 0.2, 0.7, 0.12, 0.4, MATTONE);
+    add(x - 1.6, y + 0.25, z + 0.3, 0.5, 0.5, 0.5, [0.85, 0.80, 0.62]);
+  }
   // Catalogo degli edifici: bisogno, sapere necessario, nota storica
   const BUILDINGS = {
     cisterna: { name: 'Pozzo-cisterna alla veneziana', short: 'Cisterna', need: 'acqua', req: 'rain_collect', work: 229,
@@ -1501,6 +1567,34 @@
       site: { x: -19.8, y: 0, z: -5.7 }, depot: { dx: 1.8, dz: 1.8 }, mat: 'pietre e travi', cost: { legna: 8, ducati: 10 },
       note: 'Con l’ultima fila il Borgo Nuovo era completo: chi cresceva ancora avrebbe dovuto pensare a mura più grandi.',
       effect: 'Le ultime tre famiglie trovano casa nel Borgo Nuovo.', build: bpBorgo(2), onBuilt: () => registerNewHouses(BORGO_LOTS.slice(6, 9)) },
+    mura2: { name: 'Seconda cerchia di mura: il Borgo di Ponente', short: 'Mura di Ponente', need: 'case', req: 'masonry', after: 'borgo3', work: 1300, sortY: false,
+      site: { x: -34.0, y: 0, z: 12.2 }, depot: { dx: 0.0, dz: 1.8 }, mat: 'pietre', permit: true, cost: { legna: 24, ducati: 45, tassa: 40 },
+      note: 'Quando anche il borgo nuovo era pieno, si chiedeva al Podestà una nuova licenza per una seconda cerchia di mura, con una tassa più alta. Molte città venete crebbero così, cerchia dopo cerchia.',
+      effect: 'Nasce il Borgo di Ponente: terra per altre dodici case.', build: bpMura2, onBuilt: () => { world.ponente = true; cam.minPanX = -43; } },
+    ponente1: { name: 'Case del Borgo di Ponente, prima parte', short: 'Ponente I', need: 'case', req: 'masonry', after: 'mura2', work: 300,
+      site: { x: -33.0, y: 0, z: 8.0 }, depot: { dx: 2.4, dz: -1.8 }, mat: 'pietre e travi', cost: { legna: 10, ducati: 12 },
+      note: 'Nel Borgo di Ponente le famiglie giovani tiravano su la casa nei lotti tracciati dalla comunità.',
+      effect: 'Quattro famiglie in più trovano casa nel Borgo di Ponente.', build: bpPonente(0), onBuilt: () => registerNewHouses(PONENTE_LOTS.slice(0, 4)) },
+    ponente2: { name: 'Case del Borgo di Ponente, seconda parte', short: 'Ponente II', need: 'case', req: 'masonry', after: 'ponente1', work: 300,
+      site: { x: -33.4, y: 0, z: 2.0 }, depot: { dx: 2.4, dz: 0.0 }, mat: 'pietre e travi', cost: { legna: 10, ducati: 12 },
+      note: 'Lungo la via di Ponente sorgevano botteghe e case.',
+      effect: 'Altre quattro famiglie trovano casa nel Borgo di Ponente.', build: bpPonente(1), onBuilt: () => registerNewHouses(PONENTE_LOTS.slice(4, 8)) },
+    ponente3: { name: 'Case del Borgo di Ponente, terza parte', short: 'Ponente III', need: 'case', req: 'masonry', after: 'ponente2', work: 300,
+      site: { x: -33.4, y: 0, z: -5.0 }, depot: { dx: 2.4, dz: 1.8 }, mat: 'pietre e travi', cost: { legna: 10, ducati: 12 },
+      note: 'Con l’ultima parte il Borgo di Ponente era completo.',
+      effect: 'Le ultime quattro famiglie trovano casa nel Borgo di Ponente.', build: bpPonente(2), onBuilt: () => registerNewHouses(PONENTE_LOTS.slice(8, 12)) },
+    camposanto2: { name: 'Camposanto nuovo fuori dalle mura', short: 'Camposanto nuovo', need: 'novita', req: 'masonry', work: 200,
+      site: { x: -34.0, y: 0, z: 19.0 }, depot: { dx: 4.4, dz: 0.0 }, mat: 'pietre', cost: { legna: 2, ducati: 6 },
+      note: 'Quando il sagrato non bastava più, e soprattutto dopo le pestilenze, i morti si seppellivano in un camposanto fuori dalle mura: lo chiedevano le autorità sanitarie, per tenere il contagio lontano dalle case.',
+      effect: 'Spazio per le sepolture di tutte le generazioni a venire.', build: bpCamposanto2, onBuilt: () => { world.c2Start = world.deaths; } },
+    gualchiera: { name: 'Gualchiera sulla roggia', short: 'Gualchiera', need: 'novita', req: 'fulling', work: 220,
+      site: { x: 17.2, y: 0, z: 12.9 }, depot: { dx: 1.6, dz: -0.2 }, mat: 'pietre e travi', cost: { legna: 4, ducati: 10 },
+      note: 'La gualchiera usava la ruota ad acqua per battere i panni di lana con grandi magli di legno, rendendoli fitti e resistenti: un’invenzione che liberò le braccia di tante donne e uomini.',
+      effect: 'I panni battuti dalla roggia si vendono in città: entrano ducati ogni giorno.', build: bpGualchiera },
+    fornace: { name: 'Fornace per mattoni e coppi', short: 'Fornace', need: 'novita', req: 'kiln', work: 220,
+      site: { x: -19.0, y: 0, z: 21.0 }, depot: { dx: 1.8, dz: -1.4 }, mat: 'mattoni e argilla', cost: { legna: 6, ducati: 8 },
+      note: 'Nelle fornaci di campagna si cuocevano mattoni e coppi con la legna dei boschi a ceduo: costavano molto meno della pietra squadrata.',
+      effect: 'I cantieri costano molti meno ducati: mattoni e coppi si fanno in casa.', build: bpFornace },
     lazzaretto: { name: 'Lazzaretto fuori dalle mura', short: 'Lazzaretto', need: 'salute', req: 'quarantine', work: 300,
       site: { x: 22, y: 0, z: 19 }, depot: { dx: -2.8, dz: 0 }, mat: 'pietre e calce', cost: { legna: 8, ducati: 20 },
       note: 'Venezia aprì nel 1423 il primo lazzaretto della storia, su un’isola della laguna: i malati di peste venivano isolati lontano dalla città. I borghi della Terraferma impararono a fare lo stesso.',
@@ -1522,7 +1616,7 @@
       note: 'San Rocco era invocato contro la peste e le febbri: Venezia ne custodisce le reliquie dal 1485.',
       effect: 'Consola i malati, ma l’acqua torbida resta torbida.', build: bpSanRocco },
   };
-  const ARTICOLI = { lazzaretto: 'il', argini: 'gli', casenuove: 'le', mura: 'l’', borgo1: 'le', borgo2: 'le', borgo3: 'le', cisterna: 'il', filtro: 'il', roggia: 'la', mulino: 'il', granaio: 'il', gelsi: 'il', barchessa: 'la', lanterne: 'le', portico: 'il', orto: 'l’', capitello: 'il', croce: 'la', sanrocco: 'l’' };
+  const ARTICOLI = { mura2: 'la', ponente1: 'le', ponente2: 'le', ponente3: 'le', camposanto2: 'il', gualchiera: 'la', fornace: 'la', lazzaretto: 'il', argini: 'gli', casenuove: 'le', mura: 'l’', borgo1: 'le', borgo2: 'le', borgo3: 'le', cisterna: 'il', filtro: 'il', roggia: 'la', mulino: 'il', granaio: 'il', gelsi: 'il', barchessa: 'la', lanterne: 'le', portico: 'il', orto: 'l’', capitello: 'il', croce: 'la', sanrocco: 'l’' };
   const lc = (t) => t.charAt(0).toLowerCase() + t.slice(1);
   const cap = (t) => t.charAt(0).toUpperCase() + t.slice(1);
   const art = (id, short = false) => { const a = ARTICOLI[id]; const n = lc(short ? BUILDINGS[id].short : BUILDINGS[id].name); return a.endsWith('’') ? a + n : a + ' ' + n; };
@@ -1567,6 +1661,10 @@
     health_pass:  'Chiudere la porta a chi viene da luoghi appestati (fedi di sanità)',
     levee:        'Alzare argini lungo l’acqua contro le piene',
     maize:        'Coltivare il «sorgo turco» (mais), che rende più del frumento',
+    fulling:      'Usare la ruota della roggia per battere i panni (gualchiera)',
+    kiln:         'Cuocere mattoni e coppi in una fornace, con la legna del ceduo',
+    irrig_maize:  'Irrigare il mais con l’acqua della roggia',
+    distill:      'Distillare le erbe in acqua pulita: rimedi più forti contro le febbri',
     no_prejudice: 'Il colore della pelle non dice niente di una persona: contano ciò che sa e ciò che fa',
     faith_limit:  'Le preghiere confortano, ma ai bisogni serve anche il lavoro',
   };
@@ -1603,10 +1701,12 @@
     if (ruleId === 'rain_shelter') agent.rainCaution = Math.min(agent.rainCaution, fromOther ? 0.35 : 0.32);
     if (ruleId === 'ox_rest') agent.restRatio = Math.max(agent.restRatio, 0.42);
     if (ruleId === 'well_ration') agent.faith = Math.max(fromOther ? 0.20 : 0.15, agent.faith - (fromOther ? 0.15 : 0.28));
+    if (ruleId === 'quarantine' && agent.sup) agent.sup.aria = Math.min(agent.sup.aria, 0.3);
     if (ruleId === 'no_prejudice') agent.prejudice = fromOther ? Math.max(0, (agent.prejudice || 0) - 0.2) : 0;   // sentirselo dire aiuta, ma serve anche l'esperienza
     if (ruleId === 'faith_limit' && agent.kind !== 'priest') agent.faith = Math.max(0.12, agent.faith - (fromOther ? 0.06 : 0.0));
   }
   function addLesson(agent, ruleId, source) {
+    if (agent.wrongs && agent.wrongs.length) agent.wrongs = agent.wrongs.filter(w => w.id !== ruleId);
     if (agent.learnedSet.has(ruleId)) return false;
     agent.learnedSet.add(ruleId);
     agent.lessons.push({ id: ruleId, title: LESSONS[ruleId], source });
@@ -1633,8 +1733,10 @@
       if (!b.learnedSet.has(lesson.id)) {
         if (TECH_LESSONS.has(lesson.id) && !canTeachTech(a, b)) continue;   // i segreti di mestiere non si dicono a tutti
         a.lastShareTick = simTick;
-        if (rng() > 0.35) return;                                            // non ogni chiacchierata insegna qualcosa
+        if (rng() > teachChance(a, b)) return;                               // dipende da chi parla e da chi ascolta
         if (prejudiceBlocks(a, b)) return;                                   // il pregiudizio chiude le orecchie
+        if (mindBlocks(a, b)) return;                                        // testardaggine e rancori
+        if (DISTORT[lesson.id] && rng() < distortChance(a, b)) { learnWrong(b, lesson.id, a, false); return; }   // telefono senza fili
         addLesson(b, lesson.id, `Appreso da ${a.name}`);
         if (differs(a, b)) lowerPrejudice(b, 0.12);
         applyLessonEffect(b, lesson.id, true);
@@ -1671,7 +1773,7 @@
   let timeSpeed = 0.5;   // «Normale»: un giorno del borgo dura poco più di 3 minuti
   let started = false;
 
-  const need = { acqua: 18, riparo: 8, sicurezza: 16, cibo: 22, salute: 5, case: 0 };
+  const need = { acqua: 18, riparo: 8, sicurezza: 16, cibo: 22, salute: 5, case: 0, novita: 0 };
   const world = {
     built: {},          // id -> { day, by, faith }
     project: null,
@@ -1847,6 +1949,278 @@
   const byName = (n) => villagers.find(v => v.name === n);
 
   // ======================================================================
+  //  Menti più profonde: carattere, fiducia, amicizie e rancori, regole storpiate,
+  //  superstizioni (con la cometa), fazioni in vicinia, invenzioni
+  // ======================================================================
+  const TRAITS = ['curio', 'prud', 'test', 'loq'];
+  const TRAIT_M = { curio: 'curioso', prud: 'prudente', test: 'testardo', loq: 'chiacchierone' };
+  const TRAIT_F = { curio: 'curiosa', prud: 'prudente', test: 'testarda', loq: 'chiacchierona' };
+  const SUPS = {
+    aria: 'La peste viene dall’aria cattiva: basta bruciare erbe e chiudere le finestre',
+    cometa: 'Le comete annunciano sventure',
+    malocchio: 'Il malocchio fa ammalare: ci vuole l’amuleto',
+  };
+  const SUP_SHORT = { aria: 'Aria cattiva', cometa: 'Comete di sventura', malocchio: 'Malocchio' };
+  // come si storpia una regola passando di bocca in bocca
+  const DISTORT = {
+    rain_collect: 'Raccogliere la pioggia in botti aperte (e l’acqua marcisce)',
+    sand_filter: 'Mettere la sabbia sopra la vera del pozzo, non sotto il selciato',
+    quarantine: 'Bruciare erbe profumate davanti ai malati per scacciare l’aria cattiva',
+    ox_rest: 'Far riposare i buoi solo la domenica',
+    well_ration: 'Bere poco anche quando il pozzo è pieno',
+    granary: 'Tenere il grano in cantina, al fresco (dove ammuffisce)',
+    herbs: 'Ogni erba che profuma è una medicina',
+    levee: 'Scavare fossi più profondi accanto alle case',
+    coppice: 'Tagliare il bosco solo con la luna piena',
+    rain_shelter: 'Ripararsi sotto gli alberi quando tuona',
+    curfew_gate: 'Rientrare prima del tramonto solo d’inverno',
+  };
+  function initMind(v, parents) {
+    const ps = (parents || []).filter(p => p && p.traits);
+    v.traits = {};
+    for (const t of TRAITS) v.traits[t] = clamp(ps.length ? ps.reduce((s, p) => s + p.traits[t], 0) / ps.length * 0.6 + rng() * 0.4 : rng(), 0, 1);
+    v.rep = 0.5; v.rel = {}; v.wrongs = [];
+    v.sup = {};
+    for (const k of Object.keys(SUPS)) {
+      v.sup[k] = ps.length
+        ? clamp(ps.reduce((s, p) => s + ((p.sup && p.sup[k]) || 0), 0) / ps.length * 0.9 + randRange(-0.1, 0.1), 0, 1)
+        : clamp(randRange(0.2, 0.8) * (0.6 + (v.faith ?? 0.5) * 0.6), 0, 1);
+    }
+  }
+  function characterOf(v) {
+    if (!v.traits) return '—';
+    const top = TRAITS.slice().sort((a, b) => v.traits[b] - v.traits[a]).filter(t => v.traits[t] > 0.6).slice(0, 2);
+    return top.length ? top.map(t => (v.sex === 'F' ? TRAIT_F : TRAIT_M)[t]).join(' e ') : (v.sex === 'F' ? 'tranquilla' : 'tranquillo');
+  }
+  const FAZ = { devoti: 'Devoti', pratici: 'Pratici', prudenti: 'Prudenti', indecisi: 'Indecisi' };
+  function factionOf(v) {
+    if (v.age < 15 || !v.traits) return null;
+    if (v.faith > 0.62) return 'devoti';
+    if (v.traits.prud > 0.62) return 'prudenti';
+    if (v.faith < 0.45 || v.traits.curio > 0.6) return 'pratici';
+    return 'indecisi';
+  }
+  function factionLeader(f) {
+    let best = null;
+    for (const v of villagers) if (factionOf(v) === f && (!best || (v.rep ?? 0.5) > (best.rep ?? 0.5))) best = v;
+    return best;
+  }
+  function factionsTxt(list) {
+    const c = { devoti: 0, pratici: 0, prudenti: 0 };
+    for (const v of list || villagers) { const f = factionOf(v); if (c[f] != null) c[f]++; }
+    return Object.keys(c).map(f => { const l = factionLeader(f); return `${FAZ[f]} ${c[f]}${l ? ` (guida: ${l.name})` : ''}`; }).join(' · ');
+  }
+  const relOf = (a, b) => (a && b && a.rel && a.rel[b.id]) || 0;
+  function addRel(a, b, d) {
+    if (!a || !b || a === b) return;
+    if (!a.rel) a.rel = {};
+    const x = clamp((a.rel[b.id] || 0) + d, -1, 1);
+    if (Math.abs(x) < 0.02) delete a.rel[b.id]; else a.rel[b.id] = Math.round(x * 1000) / 1000;
+  }
+  function teachChance(a, b) {
+    const t = a.traits, u = b.traits;
+    if (!t || !u) return 0.35;
+    return clamp((0.2 + 0.35 * t.loq) * (0.6 + 0.8 * u.curio) * (0.6 + 0.8 * (a.rep ?? 0.5)) * (1 + relOf(b, a) * 0.6), 0.03, 0.9);
+  }
+  function mindBlocks(a, b) {
+    const r = relOf(b, a);
+    if (r < -0.3 && rng() < -r) {
+      if (rng() < 0.15) logEvent('rancore', `${b.name} non vuole ascoltare ${a.name}: tra loro c’è rancore.`);
+      return true;
+    }
+    return !!(b.traits && rng() < b.traits.test * 0.35);
+  }
+  function distortChance(a, b) { return b.traits ? 0.06 * (1.3 - b.traits.curio) * (1 + (a.traits ? a.traits.loq : 0.5) * 0.5) : 0.05; }
+  function learnWrong(b, id, from, viaWrong) {
+    if (!DISTORT[id] || b.learnedSet.has(id) || (b.wrongs || []).some(w => w.id === id)) return false;
+    b.wrongs = b.wrongs || [];
+    b.wrongs.push({ id, title: DISTORT[id], source: `Sentito da ${from.name}` });
+    b.lastThought = `${from.name} mi ha spiegato: ${DISTORT[id]}`;
+    if (!viaWrong) logEvent('storpiata', `Passando da ${from.name} a ${b.name}, la regola «${LESSONS[id]}» si è storpiata in «${DISTORT[id]}».`);
+    return true;
+  }
+  function mindContact(a, b, dt) {
+    const grow = (x, y) => (relOf(x, y) < -0.1 ? 0.0003 : 0.004) * dt;   // un rancore si scioglie solo piano piano
+    addRel(a, b, grow(a, b)); addRel(b, a, grow(b, a));                // chi sta vicino diventa amico
+    for (const [x, y] of [[a, b], [b, a]]) {
+      if (!x.traits || !y.traits || !x.sup || !y.sup) continue;
+      // le regole storpiate passano di bocca in bocca; chi sa quella giusta, a volte, corregge
+      if (x.wrongs && x.wrongs.length && rng() < 0.02 * dt * x.traits.loq) {
+        const w = x.wrongs[Math.floor(rng() * x.wrongs.length)];
+        if (!y.learnedSet.has(w.id)) learnWrong(y, w.id, x, true);
+        else if (rng() < 0.2 * (1 - x.traits.test)) {
+          x.wrongs = x.wrongs.filter(q => q.id !== w.id);
+          addLesson(x, w.id, `Corretto da ${y.name}`);
+          applyLessonEffect(x, w.id, true);
+          logEvent('storpiata', `${y.name} ha corretto ${x.name}: non «${w.title}», ma «${LESSONS[w.id]}».`);
+        }
+      }
+      // le superstizioni si diffondono coi pettegolezzi (meno tra i curiosi)
+      for (const k of Object.keys(SUPS)) {
+        const d = (x.sup[k] || 0) - (y.sup[k] || 0);
+        if (d > 0) y.sup[k] = clamp((y.sup[k] || 0) + d * 0.003 * dt * x.traits.loq * (1 - y.traits.curio * 0.6), 0, 1);
+      }
+    }
+  }
+  function voteBias(v, o) {
+    if (o.id === WAIT) return v.traits ? v.traits.prud * 0.35 : 0;
+    if (!o.proposer || o.proposer === v) return 0;
+    return ((o.proposer.rep ?? 0.5) - 0.5) * 0.6 + relOf(v, o.proposer) * 0.4;
+  }
+  function councilAftermath(c) {
+    const win = c.winner;
+    for (const o of c.options) {
+      if (o === win || !o.proposer || !win.proposer) continue;
+      addRel(o.proposer, win.proposer, -0.25);                         // chi perde in vicinia se la lega al dito
+      if (relOf(o.proposer, win.proposer) < -0.3) logEvent('rancore', `${o.proposer.name} ha perso in vicinia contro ${win.proposer.name} e gli porta rancore.`);
+    }
+    for (const v of c.parts) if (v.vote === win && win.proposer) addRel(win.proposer, v, 0.05);
+  }
+  function repOnBuilt(p, b) {
+    if (!p.proposer || b.faith) return;
+    p.proposer.rep = clamp((p.proposer.rep ?? 0.5) + 0.15, 0, 1);
+    for (const v of p.voters || []) addRel(v, p.proposer, 0.1);
+  }
+
+  // La cometa: paura, preghiere, e il pregiudizio di conferma
+  world.comet = null;
+  function startComet(why) {
+    const bel = villagers.filter(v => v.sup && v.sup.cometa > 0.5);
+    world.comet = { start: dayCount, believers: bel.length };
+    need.sicurezza = Math.min(100, need.sicurezza + bel.length * 0.6);
+    chronicle(`${why} ${bel.length} paesani la presero per un segno di sventura e ${priestName()} invitò alla penitenza. Lo speziale invece la osservava ogni notte e annotava come si spostava tra le stelle.`);
+    pushBrainLog('☄ Una <b>cometa</b> nel cielo', 'mistake');
+  }
+  function cometDaily() {
+    const C = world.comet;
+    if (!C || dayCount - C.start < 24) return;
+    const bel = villagers.filter(v => v.sup && v.sup.cometa > 0.3);
+    if ((world.lastDisaster || -999) >= C.start) {
+      for (const v of bel) v.sup.cometa = Math.min(1, v.sup.cometa * 1.25 + 0.05);
+      chronicle('Dopo la cometa venne una disgrazia, e molti dissero: «Ve l’avevamo detto». Nessuno ricordò le comete passate senza nulla di male: così la superstizione si rafforzò.');
+    } else {
+      let n = 0;
+      for (const v of bel) if ((v.traits && v.traits.curio > 0.35) || rng() < 0.4) { v.sup.cometa *= 0.5; n++; }
+      chronicle(`Era passato un anno dalla cometa e non era accaduto nulla di male: ${n} paesani smisero di credere che le comete annuncino sventure.`);
+    }
+    world.comet = null;
+  }
+  function supAfterPlague(P) {
+    if (P.amuletDied) {
+      let n = 0;
+      for (const v of villagers) if (v.sup && v.sup.malocchio > 0.3 && ((v.traits && v.traits.curio > 0.3) || rng() < 0.4)) { v.sup.malocchio *= 0.6; n++; }
+      chronicle(`Morirono di peste anche ${P.amuletDied} di quelli che portavano l’amuleto contro il malocchio: ${n} paesani capirono che gli amuleti del ciarlatano non servivano a niente.`);
+    }
+    for (const v of villagers) {
+      if (v.learnedSet.has('quarantine') && v.sup) v.sup.aria *= (v.traits && v.traits.test > 0.6) ? 0.9 : 0.6;
+      v.amulet = false;
+    }
+  }
+
+  // Invenzioni: un curioso mette insieme due cose che sa e ne scopre una nuova
+  const INVENTIONS = [
+    { id: 'fulling', needs: ['mill', 'carpentry'], built: 'mulino', opera: 'gualchiera' },
+    { id: 'kiln', needs: ['masonry', 'coppice'], opera: 'fornace' },
+    { id: 'irrig_maize', needs: ['maize', 'vine_drought'], built: 'roggia' },
+    { id: 'distill', needs: ['herbs', 'sand_filter'] },
+  ];
+  function invent(v, inv) {
+    addLesson(v, inv.id, 'Invenzione propria');
+    v.inventions = (v.inventions || 0) + 1;
+    v.rep = clamp((v.rep ?? 0.5) + 0.12, 0, 1);
+    updateTotalWisdom();
+    chronicle(`${v.name} ${v.cognome}, ${lc(v.role)}, mise insieme due cose che sapeva («${LESSONS[inv.needs[0]]}» e «${LESSONS[inv.needs[1]]}») e inventò qualcosa di nuovo: «${LESSONS[inv.id]}».`);
+    pushBrainLog(`💡 Invenzione di <b>${v.name}</b>: <i>${LESSONS[inv.id]}</i>`, 'build');
+  }
+  function mindDaily() {
+    cometDaily();
+    const d = calDate(dayCount), yr = d.getFullYear();
+    if (!world.comet && yr >= 1577 && !world.happened.cometa1577 && (yr > 1577 || d.getMonth() >= 10)) {
+      world.happened.cometa1577 = true;
+      startComet('Nel novembre del 1577 apparve in cielo una grande cometa dalla coda lunghissima: la stessa che in Danimarca Tycho Brahe misurava, scoprendo che stava più lontana della Luna.');
+    } else if (!world.comet && rng() < ANNUAL(0.04)) startComet('Una notte apparve in cielo una cometa.');
+    for (const inv of INVENTIONS) {
+      if (villagers.some(v => v.learnedSet.has(inv.id)) || (inv.built && !has(inv.built))) continue;
+      for (const v of villagers) {
+        if (v.age >= 16 && v.traits && v.traits.curio > 0.55 && inv.needs.every(n => v.learnedSet.has(n)) && rng() < 0.05 * v.traits.curio) { invent(v, inv); break; }
+      }
+    }
+    // liti di vicinato: i testardi litigano per poco, e il rancore dura
+    if (rng() < 0.35) {
+      const a = pick(villagers.filter(v => v.age >= 16 && v.traits && v.traits.test > 0.55));
+      const near = a ? villagers.filter(o => o !== a && o.age >= 16 && (o.houseIdx === a.houseIdx || Math.abs((o.homeY ?? o.y) - (a.homeY ?? a.y)) < 0.2)) : [];
+      const b = near.length ? pick(near) : null;
+      if (a && b) {
+        addRel(a, b, -0.4); addRel(b, a, -0.3);
+        const why = pick(['il confine dell’orto', 'una gallina finita nell’orto del vicino', 'un debito non restituito', 'il turno al pozzo', 'una parola di troppo all’osteria', 'il letame davanti alla porta']);
+        logEvent('rancore', `${a.name} e ${b.name} hanno litigato per ${why}: da allora non si parlano.`);
+      }
+    }
+    // le invenzioni con un’opera: le costruisce chi le ha inventate, se non c’è già un cantiere
+    if (!world.project && !world.council && world.cassa >= 15) {
+      for (const inv of INVENTIONS) {
+        if (!inv.opera || has(inv.opera)) continue;
+        const who = villagers.find(v => v.learnedSet.has(inv.id) && v.age >= 16);
+        if (!who) continue;
+        chronicle(`${who.name} ${who.cognome} convinse la comunità a costruire ${art(inv.opera)}: non per un bisogno, ma per una novità che avrebbe fatto bene a tutti.`);
+        startProject({ id: inv.opera, proposer: who, votes: 0 }, null);
+        break;
+      }
+    }
+    // il camposanto nuovo, quando il sagrato non basta più
+    if (!world.project && !world.council && !has('camposanto2') && (world.deaths >= 30 || (world.plague && world.plague.deaths >= 4))) {
+      const pr = getPriest() || villagers.find(v => v.age >= 18);
+      if (pr) {
+        chronicle(`Il camposanto del sagrato era pieno e l’ossario traboccava: ${priestName()} e la vicinia decisero un camposanto nuovo fuori dalle mura, come chiedeva anche il Magistrato alla Sanità.`);
+        startProject({ id: 'camposanto2', proposer: pr, votes: 0 }, null);
+      }
+    }
+  }
+  function drawMind() {
+    // la cometa, di notte, per qualche giorno
+    if (world.comet && dayCount - world.comet.start < 4) {
+      const night = currentHour > 19.6 || currentHour < 4.6;
+      if (night) {
+        const hx = 26, hy = 34, hz = -47;
+        pushDyn(hx, hy, hz, 0.9, 0.9, 0.9, [1, 1, 0.92], 0, 7);
+        for (let i = 1; i <= 14; i++) {
+          const f = 1 - i / 15;
+          pushDyn(hx + i * 0.9, hy + i * 0.45, hz, 0.7 * f + 0.2, 0.5 * f + 0.15, 0.5, [0.75 * f, 0.85 * f, 1.0 * f], 0, 7);
+        }
+      }
+    }
+    // la ruota della gualchiera e il fumo della fornace
+    if (has('gualchiera')) {
+      const z = BUILDINGS.gualchiera.site.z, rot = simClock * 1.5;
+      for (let k = 0; k < 10; k++) {
+        const a = k / 10 * Math.PI * 2 + rot;
+        pushDyn(15.2, 0.55 + Math.sin(a) * 0.5, z + Math.cos(a) * 0.5, 0.42, 0.08, 0.14, LEGNO_COL);
+      }
+    }
+    if (has('fornace') && currentHour > 6 && currentHour < 19) {
+      const s = BUILDINGS.fornace.site;
+      for (let p = 0; p < 3; p++) {
+        const age = (simClock * 0.6 + p * 0.33) % 1, sz = 0.2 + age * 0.3;
+        pushDyn(s.x + Math.sin(simClock + age * 3) * 0.2 * age, 2.6 + age * 2.2, s.z, sz, sz, sz, [0.6, 0.6, 0.6], age, 6);
+      }
+    }
+    // il nuovo camposanto: una croce per ogni sepoltura (e la fossa comune durante la peste)
+    if (has('camposanto2')) {
+      const s = BUILDINGS.camposanto2.site;
+      const n = Math.min(40, Math.max(0, world.deaths - (world.c2Start ?? world.deaths)));
+      for (let i = 0; i < n; i++) {
+        const gx = s.x - 2.8 + (i % 8) * 0.8, gz = s.z - 0.6 + Math.floor(i / 8) * 0.62;
+        pushDyn(gx, 0.05, gz, 0.26, 0.08, 0.4, [0.40, 0.31, 0.22]);
+        pushDyn(gx, 0.24, gz - 0.16, 0.04, 0.34, 0.04, [0.80, 0.77, 0.70]);
+        pushDyn(gx, 0.30, gz - 0.16, 0.18, 0.04, 0.04, [0.80, 0.77, 0.70]);
+      }
+    } else if (world.plague && world.plague.deaths >= 2) {
+      pushDyn(-31, 0.1, 18.5, 2.6, 0.2, 1.4, [0.42, 0.32, 0.22]);
+      label('fossa', '✝ Fossa comune dei morti di peste', -31, 1.4, 18.5, 'site');
+    }
+  }
+
+  // ======================================================================
   //  Calendario e stagioni (1 giorno simulato = 15 giorni del calendario)
   // ======================================================================
   const DAYS_PER_SIMDAY = 15;
@@ -1946,6 +2320,7 @@
     v.tone = randRange(0.06, 0.3);              // pelle dei fondatori: da chiara a olivastra
     v.prejudice = randRange(0.2, 0.7);          // diffidenza verso chi è diverso, comune nel 1532
     v.conf = 'cattolica';
+    initMind(v);
   }
 
   const related = (a, b) => a.id === b.fatherId || a.id === b.motherId || b.id === a.fatherId || b.id === a.motherId ||
@@ -1987,6 +2362,7 @@
     const tm = mother.tone ?? 0.15, tf = father ? (father.tone ?? tm) : tm;
     c.tone = clamp((tm + tf) / 2 + randRange(-0.05, 0.05), 0, 1);   // via di mezzo tra i genitori
     c.conf = (father && father.conf) || mother.conf || 'cattolica';
+    initMind(c, [mother, father]);
     const knowsTruth = mother.learnedSet.has('no_prejudice') || (father && father.learnedSet.has('no_prejudice'));
     c.prejudice = knowsTruth ? 0.03 : clamp(((mother.prejudice || 0) + (father ? father.prejudice || 0 : mother.prejudice || 0)) / 2 * 0.85, 0, 1);
     mother.children.push(c.id);
@@ -2045,7 +2421,7 @@
     initAgentBrain(v, randRange(0.35, 0.8));
     v.homeX = v.x; v.homeY = v.y; v.homeZ = v.z;
     v.bornDay = birthDayFor(v.age);
-    v.tone = randRange(0.06, 0.35); v.prejudice = randRange(0.15, 0.55); v.conf = 'cattolica';
+    v.tone = randRange(0.06, 0.35); v.prejudice = randRange(0.15, 0.55); v.conf = 'cattolica'; initMind(v);
     villagers.push(v);
     return v;
   }
@@ -2121,7 +2497,7 @@
     pushBrainLog(`👶 Nato <b>${c.name} ${c.cognome}</b>`, 'social');
   }
   // Saperi di mestiere: passano in famiglia, tra chi fa lo stesso lavoro o tra chi lavora insieme al cantiere
-  const TECH_LESSONS = new Set(['masonry', 'carpentry', 'mill', 'iron_lantern', 'granary', 'herbs', 'sand_filter']);
+  const TECH_LESSONS = new Set(['fulling', 'kiln', 'distill', 'masonry', 'carpentry', 'mill', 'iron_lantern', 'granary', 'herbs', 'sand_filter']);
   function canTeachTech(a, b) {
     return (a.task && b.task) || a.id === b.fatherId || a.id === b.motherId || b.id === a.fatherId || b.id === a.motherId ||
       a.spouseId === b.id || (a.mestiere && a.mestiere === b.mestiere);
@@ -2249,7 +2625,7 @@
   const EV_CATS = {
     nascita: '👶 Nascita', morte: '✝ Morte', nozze: '💍 Nozze', crescita: '🎓 Maggiore età', arrivo: '🧳 Arrivo',
     successione: '🔑 Successione', scoperta: '💡 Scoperta', errore: '⚠ Errore', insegnamento: '🗣 Insegnamento',
-    oblio: '🌫 Oblio', epidemia: '☠ Epidemia', carestia: '🌾 Carestia', piena: '🌊 Piena', novita: '🌽 Novità', preghiera: '📿 Preghiera', pregiudizio: '🚫 Pregiudizio', permesso: '📜 Licenza', tasse: '💰 Tasse', legna: '🪵 Legna', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
+    oblio: '🌫 Oblio', invenzione: '💡 Invenzione', superstizione: '🔮 Superstizione', storpiata: '🗣 Regola storpiata', rancore: '😠 Rancore', epidemia: '☠ Epidemia', carestia: '🌾 Carestia', piena: '🌊 Piena', novita: '🌽 Novità', preghiera: '📿 Preghiera', pregiudizio: '🚫 Pregiudizio', permesso: '📜 Licenza', tasse: '💰 Tasse', legna: '🪵 Legna', vicinia: '⚖ Vicinia', cantiere: '⚒ Cantiere', opera: '🏛 Opera', fede: '🙏 Fede',
     coprifuoco: '🌙 Coprifuoco', bisogno: '📉 Bisogno', meteo: '☁ Meteo', stagione: '🍂 Stagione', cronaca: '📜 Cronaca',
   };
   function catOfChron(t) {
@@ -2262,6 +2638,8 @@
     if (/vicinia/i.test(t)) return 'vicinia';
     if (/cantiere/.test(t)) return 'cantiere';
     if (/^Si inaugur/.test(t)) return 'opera';
+    if (/inventò|convinse la comunità/.test(t)) return 'invenzione';
+    if (/cometa|amulet|malocchio/.test(t)) return 'superstizione';
     if (/peste|lazzaretto|sanità/i.test(t)) return 'epidemia';
     if (/carestia/i.test(t)) return 'carestia';
     if (/straripò|piena|argini tennero|torrente crebbe/.test(t)) return 'piena';
@@ -2309,6 +2687,7 @@
     economyDaily();
     faithDaily();
     eventsDaily();
+    mindDaily();
     const adults = villagers.filter(v => v.age >= 15);
     const kn = {};
     for (const id of KNOW_IDS) kn[id] = 0;
@@ -2325,6 +2704,11 @@
       opere: Object.keys(world.built).filter(id => !BUILDINGS[id].faith).length,
       eta: r1(villagers.reduce((a, v) => a + v.age, 0) / Math.max(1, villagers.length)),
       messa: world.massLast || 0, malati: villagers.filter(v => v.sick).length,
+      sA: r1(villagers.reduce((s, v) => s + ((v.sup && v.sup.aria) || 0), 0) / Math.max(1, villagers.length) * 100),
+      sC: r1(villagers.reduce((s, v) => s + ((v.sup && v.sup.cometa) || 0), 0) / Math.max(1, villagers.length) * 100),
+      sM: r1(villagers.reduce((s, v) => s + ((v.sup && v.sup.malocchio) || 0), 0) / Math.max(1, villagers.length) * 100),
+      fD: villagers.filter(v => factionOf(v) === 'devoti').length, fP: villagers.filter(v => factionOf(v) === 'pratici').length, fR: villagers.filter(v => factionOf(v) === 'prudenti').length,
+      storp: villagers.reduce((s, v) => s + ((v.wrongs && v.wrongs.length) || 0), 0),
       pEs: world.prayStats.prayed ? r1(world.prayStats.answered / world.prayStats.prayed * 100) : null,
       pCtrl: world.prayStats.ctrl ? r1(world.prayStats.ctrlOk / world.prayStats.ctrl * 100) : null,
       preg: r1(avgPrejudice() * 100), pc: villagers.filter(v => (v.tone || 0) < 0.3).length,
@@ -2718,6 +3102,12 @@
       const b = BUILDINGS[p.id];
       return `«L’ho proposto io in vicinia: ${b.name}. Ora sorveglio che sia fatto a regola d’arte: siamo al ${Math.round(p.progress * 100)}%.»`;
     }
+    if (world.comet && dayCount - world.comet.start < 4) {
+      if (v.role === 'Speziale') return '«La cometa? La osservo ogni notte e annoto come si sposta. È un corpo del cielo, non un messaggio: vedremo, ma io non credo che porti sventure.»';
+      if (v.sup && v.sup.cometa > 0.5) return '«Avete visto la cometa? È un segno: verranno sventure, carestia o peste. Bisogna pregare!»';
+    }
+    if (v.wrongs && v.wrongs.length && Math.floor(currentHour * 2) % 4 === 3) return `«Me l’hanno insegnato e funziona sempre: ${lc(v.wrongs[0].title)}!»`;
+    if (v.inventions && Math.floor(currentHour * 2) % 4 === 1) return '«L’idea mi è venuta mettendo insieme due cose che sapevo già. Il segreto è non smettere mai di chiedersi: e se…?»';
     if (world.plague && Math.floor(currentHour * 2) % 2 === 0) {
       if (v.kind === 'priest') return '«È il castigo di Dio per i nostri peccati: bestemmie, gioco, taverne! Pentitevi, digiunate, seguite la processione di San Rocco.»';
       if ((v.prejudice || 0) > 0.4 && !isDifferent(v)) return '«Prima che arrivassero i forestieri dal porto, qui la peste non c’era… Io dico che l’hanno portata loro.»';
@@ -2838,7 +3228,7 @@
   //  Case e luoghi del borgo: chi ci abita, cosa sono, cosa raccontano
   // ======================================================================
   const CONTRADE = { '1.1': 'Contrada Bassa', '2.3': 'Contrada dei Portici', '3.6': 'Piazza Grande', '4.9': 'Sagrato di San Marco', '6.3': 'Contrada Alta' };
-  const contradaOf = (y, x) => (x != null && x < -13.6 && world.borgoNuovo) ? 'Borgo Nuovo' : (CONTRADE[y.toFixed(1)] || 'fuori dalle mura');
+  const contradaOf = (y, x) => (x != null && x < -27 && world.ponente) ? 'Borgo di Ponente' : (x != null && x < -13.6 && world.borgoNuovo) ? 'Borgo Nuovo' : (CONTRADE[y.toFixed(1)] || 'fuori dalle mura');
   function isFarmer(v) { return v.kind === 'ox_driver' || /Contadin|Bifolco|Braccian|Ortolan/.test(v.role || ''); }
   function residents(idx) { return villagers.filter(v => v.houseIdx === idx); }
   function freeHouse(preferFarmer) {
@@ -2905,6 +3295,9 @@
     { id: 'vigne', name: 'Vigneti dei colli', kind: 'Campagna', x: 22, y: 0.9, z: 2.0,
       note: 'Sui colli vicentini la vite si coltivava da secoli: il vino era ricchezza, si vendeva al mercato e scaldava le feste.',
       info: () => { const z = villagers.find(v => v.kind === 'vineyard'); return `${z ? `Vignaiolo: <span class="pl-in" data-pid="${z.id}">${z.name} ${z.cognome}</span>. ` : ''}${has('roggia') ? 'La roggia porta acqua ai filari.' : 'Senza irrigazione, la siccità brucia le foglie.'}`; } },
+    { id: 'camposanto2', name: 'Camposanto nuovo', kind: 'Fuori dalle mura', x: -34.0, y: 1.2, z: 19.0,
+      note: 'Il camposanto fuori dalle mura: le autorità sanitarie volevano i morti, soprattutto quelli di peste, lontano dalle case.',
+      info: () => has('camposanto2') ? `Sepolti qui: <b>${Math.max(0, world.deaths - (world.c2Start ?? world.deaths))}</b> · morti di peste dall’inizio: <b>${world.plagueDeadTot || 0}</b>.` : 'Non è ancora stato costruito: per ora si seppellisce sul sagrato.' },
     { id: 'camposanto', name: 'Camposanto', kind: 'Sagrato di San Marco', x: -3.4, y: 5.4, z: -6.6,
       note: 'Nel Cinquecento i morti si seppellivano accanto alla chiesa. Quando lo spazio finiva, le ossa più vecchie si raccoglievano nell’ossario, per fare posto ai nuovi sepolti.',
       info: () => {
@@ -3032,7 +3425,7 @@
   // Ogni giorno simulato: lavoro e vendemmia riempiono la cassa; a San Martino si paga la taglia; il Podestà risponde
   function economyDaily() {
     const workers = villagers.filter(v => v.age >= 16 && v.age < 65 && v.kind !== 'priest' && v.kind !== 'child').length;
-    let inc = workers * 0.06 + (has('mulino') ? 0.3 : 0) + (has('granaio') ? 0.2 : 0);
+    let inc = workers * 0.06 + (has('gualchiera') ? 0.5 : 0) + (has('mulino') ? 0.3 : 0) + (has('granaio') ? 0.2 : 0);
     if (seasonW.autunno > 0.5) inc += has('roggia') ? 1.5 : 0.8;      // vendemmia
     world.cassa += inc; world.incomeTot += inc;
     const d = calDate(dayCount), prev = calDate(dayCount - 1);
@@ -3072,7 +3465,7 @@
       p.prepMsg = '<i>in attesa della licenza del Podestà</i>';
       return;
     }
-    const needL = c.legna || 0, needD = c.ducati || 0;
+    const needL = c.legna || 0, needD = Math.round((c.ducati || 0) * (has('fornace') ? 0.6 : 1));
     if (world.legna < needL) { p.prepMsg = `<i>serve legna: ${Math.floor(world.legna)}/${needL} carri</i>`; return; }
     if (world.cassa < needD) { p.prepMsg = `<i>mancano ${Math.ceil(needD - world.cassa)} ducati</i>`; return; }
     world.legna -= needL; world.cassa -= needD;
@@ -3203,6 +3596,7 @@
     if (!differs(teacher, learner) || rng() >= (learner.prejudice || 0) * 0.8) return false;
     learner.refused = (learner.refused || 0) + 1;
     teacher.slighted = (teacher.slighted || 0) + 1;
+    addRel(teacher, learner, -0.2);                 // chi viene snobbato se la lega al dito
     if (rng() < 0.3) pushBrainLog(`🚫 <b>${learner.name}</b> non ha voluto ascoltare <b>${teacher.name}</b> per il colore della sua pelle`, 'mistake');
     return true;
   }
@@ -3253,6 +3647,7 @@
   }
   function startPlague(why) {
     world.plague = { start: dayCount, cases: 0, deaths: 0 };
+    world.lastDisaster = dayCount;
     const pool = villagers.filter(v => !v.immune && v.age >= 5);
     const names = [];
     for (let i = 0; i < 2 && pool.length; i++) {
@@ -3276,6 +3671,9 @@
       chronicle(`In piazza qualcuno cominciò a dire che il morbo l’avevano portato i forestieri venuti dalla città sul mare. ${accusers ? `${accusers} paesani lo credettero, e ${forestieri.slice(0, 3).map(v => v.name).join(', ')} si trovarono le porte chiuse in faccia.` : 'Ma pochi gli diedero ascolto.'}`);
       logEvent('pregiudizio', `Durante la peste si accusano i forestieri: il pregiudizio cresce in ${accusers} paesani.`);
     }
+    const am = villagers.filter(v => v.sup && v.sup.malocchio > 0.6);
+    for (const v of am) v.amulet = true;
+    if (am.length) chronicle(`Un ciarlatano venuto dal porto vendette amuleti contro il malocchio: ${am.length} paesani li comprarono e li portavano al collo.`);
     ringBells(6);
     pushBrainLog('☠ La <b>peste</b> è entrata nel borgo', 'mistake');
     flyTo(0.5, -0.4, 0.9);
@@ -3286,7 +3684,7 @@
     // 1) il contagio: chi è malato contagia chi vive in casa con lui e, attraverso i ratti, il resto del borgo
     let sick = sickNow();
     const pop = villagers.length;
-    const know = villagers.filter(v => v.learnedSet.has('quarantine')).length / Math.max(1, pop);
+    const know = villagers.filter(v => v.learnedSet.has('quarantine') && !((v.sup && v.sup.aria) > 0.6)).length / Math.max(1, pop);   // chi crede all’aria cattiva non isola i malati
     const lazz = has('lazzaretto');
     const comm = 1.0 * sick.length / pop * (lazz ? 0.25 : 1) * (1 - 0.6 * know) * (has('granaio') && !lazz ? 1.15 : 1)   // i ratti amano il granaio
       * (P.procession > 0 ? 1.5 : 1);                                                                                      // le processioni radunano la gente
@@ -3300,8 +3698,10 @@
     // 2) dopo circa un mese di malattia si muore o si guarisce (e si resta immuni)
     for (const v of sick) {
       if (dayCount - v.sick < 2) continue;
-      if (rng() < 0.4 * (has('orto') ? 0.75 : 1)) {
+      if (rng() < 0.4 * (has('orto') ? 0.75 : 1) * (villagers.some(o => o.learnedSet.has('distill')) ? 0.8 : 1)) {
         P.deaths++;
+        if (v.amulet) P.amuletDied = (P.amuletDied || 0) + 1;
+        world.plagueDeadTot = (world.plagueDeadTot || 0) + 1;
         const kin = villagers.filter(o => o !== v && !o.sick && o.age >= 14 &&
           (o.houseIdx === v.houseIdx || o.id === v.spouseId || o.id === v.fatherId || o.id === v.motherId || v.children.includes(o.id)));
         die(v);
@@ -3325,6 +3725,7 @@
         world.recovery = { until: dayCount + 49 };   // circa due anni di ripresa
         chronicle(`Dopo la peste il borgo era mezzo vuoto: ${P.deaths} morti, case chiuse, botteghe senza padrone. Come accadde davvero dopo le grandi pesti, nei mesi seguenti arrivò gente dalla campagna e dai colli a prendere case e mestieri, e i vedovi e i giovani si sposarono presto.`);
       }
+      supAfterPlague(P);
       world.plague = null;
       return;
     }
@@ -3349,6 +3750,7 @@
   }
   function famine(why) {
     const g = has('granaio');
+    world.lastDisaster = dayCount;
     need.cibo = Math.min(100, need.cibo + (g ? 22 : 48));
     if (!g) world.cassa -= 10;
     chronicle(`${why} ${g ? 'Il granaio pubblico salvò il borgo dalla fame peggiore.' : 'Senza un granaio comune, molte famiglie patirono la fame e la comunità dovette comprare grano caro.'}`);
@@ -3364,6 +3766,7 @@
       chronicle('Dopo giorni di pioggia il torrente crebbe, ma gli argini tennero: campi e case restarono all’asciutto.');
       return;
     }
+    world.lastDisaster = dayCount;
     need.riparo = Math.min(100, Math.max(need.riparo + 30, 62));   // case infangate: si chiede subito un rimedio
     need.cibo = Math.min(100, need.cibo + 15);
     world.legna = Math.max(0, world.legna - 6);
@@ -3613,7 +4016,7 @@
     if (!c) { councilEl.classList.remove('visible'); return; }
     if (!councilEl.classList.contains('visible')) councilEl.classList.add('visible');
     const phase = c.t < 3 ? 'I capifamiglia si radunano attorno al pozzo…' : c.t < 6 ? 'Si ascoltano le proposte…' : c.t < 11 ? 'Si vota con le ballotte…' : 'Esito della vicinia';
-    document.getElementById('council-sub').textContent = `Bisogno: ${NEED_NAME[c.need]} (${Math.round(need[c.need])}) · ${phase}`;
+    document.getElementById('council-sub').textContent = `Bisogno: ${NEED_NAME[c.need]} (${Math.round(need[c.need])}) · ${phase} · ${factionsTxt(c.parts)}`;
     const total = Math.max(1, c.parts.length);
     document.getElementById('council-opts').innerHTML = c.options.map(o => {
       const b = BUILDINGS[o.id];
@@ -3691,6 +4094,7 @@
       else if (b.faith) s = v.faith * 1.1 + rng() * 0.35;
       else s = (1 - v.faith) * 0.8 + (v.learnedSet.has(b.req) ? 0.55 : 0) + 0.15 + rng() * 0.35;
       if (o.proposer && o.proposer !== v && differs(o.proposer, v)) s -= (v.prejudice || 0) * 0.35;   // il pregiudizio pesa sul voto
+      s += voteBias(v, o);
       if (o.proposer === v) s += 5;
       if (s > bs) { bs = s; best = o; }
     }
@@ -3711,6 +4115,7 @@
     if (c.t >= 11 && !c.winner) {
       while (c.cast < c.order.length) { const v = c.order[c.cast++]; v.vote = voteOf(v, c.options); v.vote.votes++; }
       c.winner = c.options.reduce((a, b) => (b.votes > a.votes ? b : a), c.options[0]);
+      councilAftermath(c);
       if (c.winner.id === WAIT) {
         chronicle(`La vicinia votò di rimandare (${c.winner.votes} ballotte su ${c.parts.length}): per ora non si costruì nulla, e il bisogno di ${NEED_NAME[c.need].toLowerCase()} restò.`);
         pushBrainLog(`La vicinia ha deciso di <b>rimandare</b>`, 'mistake');
@@ -3767,6 +4172,7 @@
     if (p.id === 'cisterna') world.turbid = !p.withFilter;
     if (p.id === 'filtro') world.turbid = false;
     if (!b.faith) need[b.need] = Math.max(0, need[b.need] - 25);
+    repOnBuilt(p, b);
     workedTogether(villagers.filter(v => v.task === 'worker' || v.task === 'capo'), p);
     for (const v of villagers) if (v.task) v.task = null;
     world.project = null;
@@ -3789,6 +4195,7 @@
     const f = world.faithCheck, b = BUILDINGS[f.id];
     world.faithCheck = null;
     world.faithTried[f.need] = true;
+    { const pr0 = getPriest(); if (pr0) pr0.rep = clamp((pr0.rep ?? 0.5) + (need[f.need] <= f.start - 15 ? 0.06 : -0.08), 0, 1); }
     const voters = f.voters.map(byName).filter(Boolean);
     if (need[f.need] <= f.start - 15) {
       for (const v of voters) if (v.kind !== 'priest') v.faith = Math.min(0.98, v.faith + 0.08);
@@ -3921,6 +4328,7 @@
     let cPos = 0.12 + (w === 0 ? 0.12 : 0) + (w === 3 ? 0.3 * (has('granaio') ? 0.25 : 1) : 0);
     cPos *= has('granaio') ? 0.55 : 1;
     cPos *= world.maize ? 0.75 : 1;
+    if (world.maize && villagers.some(o => o.learnedSet.has('irrig_maize'))) cPos *= 0.88;
     let plowing = oxTeams.filter(o => o.active && !o.resting).length;
     let cNeg = plowing * 0.12 * (has('gelsi') ? 1.6 : 1) + (has('mulino') ? 0.25 : 0);
     need.cibo += (cPos - cNeg) * sd;
@@ -3981,9 +4389,9 @@
         world.noIdeaLog[n.id] = simClock;
         if (n.id === 'salute' && world.plague) {
           // durante la peste non resta che curare i malati e aspettare
-        } else if (n.id === 'case' && has('borgo3')) {
-          chronicle('Le famiglie crescono, ma non c’è più terra nemmeno nel Borgo Nuovo: si vive stretti, e le nascite calano.');
-          pushBrainLog('Bisogno di <b>case</b> alto: anche il Borgo Nuovo è pieno', 'mistake');
+        } else if (n.id === 'case' && has('ponente3')) {
+          chronicle('Le famiglie crescono, ma non c’è più terra nemmeno nel Borgo di Ponente: si vive stretti, e le nascite calano.');
+          pushBrainLog('Bisogno di <b>case</b> alto: anche il Borgo di Ponente è pieno', 'mistake');
         } else {
           chronicle(`Il borgo patisce per il bisogno di ${n.name.toLowerCase()}, ma nessuno sa ancora come porvi rimedio.`);
           pushBrainLog(`Bisogno di <b>${n.name.toLowerCase()}</b> alto, ma nessuno sa ancora come rimediare`, 'mistake');
@@ -3999,7 +4407,7 @@
   let skipSave = false;
   const PERSON_KEYS = ['id', 'name', 'cognome', 'cognomeNascita', 'sex', 'kind', 'role', 'mestiere', 'place', 'oxIdx', 'speakKey',
     'phase', 'speed', 'zOff', 'tunic', 'hose', 'hat', 'faceX', 'faceZ', 'homeX', 'homeY', 'homeZ', 'fatherId', 'motherId', 'spouseId',
-    'widowed', 'predecessor', 'forgot', 'houseIdx', 'tone', 'prejudice', 'refused', 'slighted', 'daMare', 'conf', 'prayed', 'answered', 'unanswered', 'sick', 'immune', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
+    'widowed', 'predecessor', 'forgot', 'houseIdx', 'tone', 'prejudice', 'refused', 'slighted', 'daMare', 'conf', 'prayed', 'answered', 'unanswered', 'sick', 'immune', 'traits', 'rep', 'rel', 'sup', 'wrongs', 'amulet', 'inventions', 'children', 'lessons', 'mistakes', 'curfewBuffer', 'rainCaution', 'restRatio', 'bornDay', 'deathDay', 'newcomer'];
   function packPerson(v, histMax) {
     const o = {};
     for (const k of PERSON_KEYS) if (v[k] !== undefined && v[k] !== null) o[k] = v[k];
@@ -4038,7 +4446,7 @@
         events: world.events.slice(-1500), evN: world.evN, evCount: world.evCount,
         eco: { cassa: world.cassa, legna: world.legna, permits: world.permits, permitReq: world.permitReq, permitRetry: world.permitRetry,
           incomeTot: world.incomeTot, taxTot: world.taxTot, cutTot: world.cutTot, boughtTot: world.boughtTot, borgoNuovo: world.borgoNuovo,
-          ev: { recovery: world.recovery || null, plague: world.plague, cityPlague: world.cityPlague, maize: world.maize, maizeTrial: world.maizeTrial, happened: world.happened, floodDay: world.floodDay },
+          ev: { comet: world.comet || null, c2Start: world.c2Start ?? null, ponente: !!world.ponente, plagueDeadTot: world.plagueDeadTot || 0, recovery: world.recovery || null, plague: world.plague, cityPlague: world.cityPlague, maize: world.maize, maizeTrial: world.maizeTrial, happened: world.happened, floodDay: world.floodDay },
           prayStats: world.prayStats, prayers: world.prayers, ctrl: world.ctrl, massLast: world.massLast,
           trees: TREES.map(t => [t.state === 'stump' ? 1 : 0, Math.round(t.regrowAt)]) },
         project: p ? { id: p.id, progress: p.progress, proposer: p.proposer.id, withFilter: p.withFilter } : null,
@@ -4074,7 +4482,7 @@
         Object.assign(world, { cassa: e.cassa ?? 40, legna: e.legna ?? 14, permits: e.permits || {}, permitReq: e.permitReq || null, permitRetry: e.permitRetry || 0,
           incomeTot: e.incomeTot || 0, taxTot: e.taxTot || 0, cutTot: e.cutTot || 0, boughtTot: e.boughtTot || 0 });
         if (e.prayStats) world.prayStats = e.prayStats;
-        if (e.ev) Object.assign(world, { recovery: e.ev.recovery || null, plague: e.ev.plague || null, cityPlague: e.ev.cityPlague || null, maize: !!e.ev.maize, maizeTrial: e.ev.maizeTrial || null, happened: e.ev.happened || {}, floodDay: e.ev.floodDay || null });
+        if (e.ev) Object.assign(world, { comet: e.ev.comet || null, c2Start: e.ev.c2Start ?? undefined, plagueDeadTot: e.ev.plagueDeadTot || 0, recovery: e.ev.recovery || null, plague: e.ev.plague || null, cityPlague: e.ev.cityPlague || null, maize: !!e.ev.maize, maizeTrial: e.ev.maizeTrial || null, happened: e.ev.happened || {}, floodDay: e.ev.floodDay || null });
         world.prayers = e.prayers || []; world.ctrl = e.ctrl || []; world.massLast = e.massLast || 0;
         (e.trees || []).forEach((t, i) => { if (TREES[i]) { TREES[i].state = t[0] ? 'stump' : 'tree'; TREES[i].regrowAt = t[1]; } });
       }
@@ -4284,6 +4692,7 @@
     drawCemetery();
     massUpdate();
     drawEvents();
+    drawMind();
     if (has('mulino')) {
       const mz = BUILDINGS.mulino.site.z;
       const rot = simClock * 1.3;
@@ -4530,6 +4939,7 @@
         if (!villagers[j].visible) continue;
         if (Math.abs(villagers[i].y - villagers[j].y) < 0.2 && Math.hypot(villagers[i].x - villagers[j].x, villagers[i].z - villagers[j].z) < 1.35) {
           contact(villagers[i], villagers[j], scaledDt);
+          mindContact(villagers[i], villagers[j], scaledDt);
           shareLessonBetween(villagers[i], villagers[j], simClock);
           shareLessonBetween(villagers[j], villagers[i], simClock);
         }
@@ -4910,6 +5320,9 @@
         ${cardHtml('ob-case', 'Abitanti e posti in casa', 'quando gli abitanti superano i posti comodi, serve spazio nuovo')}
         ${cardHtml('ob-preg', 'Pregiudizio medio degli adulti', 'una credenza falsa: cala vivendo vicini, lavorando insieme e vedendo i fatti')}
         ${cardHtml('ob-pelle', 'Abitanti per colore della pelle', 'nella simulazione il colore non cambia nessuna capacità')}
+        ${cardHtml('ob-sup', 'Superstizioni', 'quanto ci crede in media il borgo: si diffondono coi pettegolezzi, i fatti le smentiscono')}
+        ${cardHtml('ob-faz', 'Fazioni in vicinia', 'devoti (molta fede), pratici (poca fede o molta curiosità), prudenti')}
+        ${cardHtml('ob-storp', 'Regole storpiate in giro', 'regole passate di bocca in bocca e arrivate sbagliate')}
         ${cardHtml('ob-malati', 'Malati di peste', 'a letto o nel lazzaretto; il contagio passa in casa e tra i vicini')}
         ${cardHtml('ob-messa', 'Fedeli alla messa del mattino', 'quanti entrano in chiesa ogni giorno')}
         ${cardHtml('ob-preghiere', 'Preghiere e risposte', 'quota di casi in cui, un mese dopo, il bisogno è calato: con le preghiere e negli stessi periodi in generale')}
@@ -4943,6 +5356,9 @@
     lineChart($('ob-bis'), { series: NEEDS.map((n, i) => ({ name: n.name, col: OBS_COLS[i], pts: ser(n.id) })), yMax: 100, yFmt: fmtInt });
     lineChart($('ob-opere'), { series: [{ name: 'Opere', col: OBS_COLS[0], pts: ser('opere') }], yFmt: fmtInt });
     lineChart($('ob-preg'), { series: [{ name: 'Pregiudizio', col: OBS_COLS[0], pts: H.filter(h => h.preg != null).map(h => [h.d, h.preg]) }], yMax: 100, yFmt: fmtPct });
+    lineChart($('ob-sup'), { series: [{ name: 'Aria cattiva', col: OBS_COLS[0], pts: H.filter(h => h.sA != null).map(h => [h.d, h.sA]) }, { name: 'Comete', col: OBS_COLS[1], pts: H.filter(h => h.sC != null).map(h => [h.d, h.sC]) }, { name: 'Malocchio', col: OBS_COLS[2], pts: H.filter(h => h.sM != null).map(h => [h.d, h.sM]) }], yMax: 100, yFmt: fmtPct });
+    lineChart($('ob-faz'), { series: [{ name: 'Devoti', col: OBS_COLS[0], pts: H.filter(h => h.fD != null).map(h => [h.d, h.fD]) }, { name: 'Pratici', col: OBS_COLS[1], pts: H.filter(h => h.fP != null).map(h => [h.d, h.fP]) }, { name: 'Prudenti', col: OBS_COLS[2], pts: H.filter(h => h.fR != null).map(h => [h.d, h.fR]) }], yFmt: fmtInt });
+    lineChart($('ob-storp'), { series: [{ name: 'Regole storpiate', col: OBS_COLS[0], pts: H.filter(h => h.storp != null).map(h => [h.d, h.storp]) }], yFmt: fmtInt });
     lineChart($('ob-malati'), { series: [{ name: 'Malati', col: OBS_COLS[0], pts: H.filter(h => h.malati != null).map(h => [h.d, h.malati]) }], yFmt: fmtInt });
     lineChart($('ob-messa'), { series: [{ name: 'Fedeli', col: OBS_COLS[0], pts: H.filter(h => h.messa != null).map(h => [h.d, h.messa]) }], yFmt: fmtInt });
     lineChart($('ob-preghiere'), { series: [{ name: 'Dopo le preghiere', col: OBS_COLS[0], pts: H.filter(h => h.pEs != null).map(h => [h.d, h.pEs]) }, { name: 'Bisogni alti in generale', col: OBS_COLS[1], pts: H.filter(h => h.pCtrl != null).map(h => [h.d, h.pCtrl]) }], yMax: 100, yFmt: fmtPct });
@@ -5096,6 +5512,15 @@
       ['Pregiudizio (credenza falsa)', (v.prejudice || 0) * 100, `${Math.round((v.prejudice || 0) * 100)}%`],
       ['Fede religiosa', 0, confName(v)],
       ['Preghiere fatte', Math.min(100, (v.prayed || 0) * 5), `${v.prayed || 0} · sentite esaudite ${v.answered || 0}`],
+      ['Carattere', 0, characterOf(v)],
+      ...(v.traits ? [['Curiosità', v.traits.curio * 100, `${Math.round(v.traits.curio * 100)}%`], ['Prudenza', v.traits.prud * 100, `${Math.round(v.traits.prud * 100)}%`],
+        ['Testardaggine', v.traits.test * 100, `${Math.round(v.traits.test * 100)}%`], ['Parlantina', v.traits.loq * 100, `${Math.round(v.traits.loq * 100)}%`]] : []),
+      ['Fiducia del borgo', (v.rep ?? 0.5) * 100, `${Math.round((v.rep ?? 0.5) * 100)}%`],
+      ['Fazione in vicinia', 0, FAZ[factionOf(v)] || '—'],
+      ...(v.sup ? Object.keys(SUPS).map(k => ['Crede: ' + SUP_SHORT[k], (v.sup[k] || 0) * 100, `${Math.round((v.sup[k] || 0) * 100)}%`]) : []),
+      ['Amici', 0, Object.entries(v.rel || {}).filter(([, x]) => x > 0.3).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([id]) => (people.get(+id) || {}).name).filter(Boolean).join(', ') || '—'],
+      ['Rancori', 0, Object.entries(v.rel || {}).filter(([, x]) => x < -0.3).sort((a, b) => a[1] - b[1]).slice(0, 3).map(([id]) => (people.get(+id) || {}).name).filter(Boolean).join(', ') || '—'],
+      ['Invenzioni', Math.min(100, (v.inventions || 0) * 50), String(v.inventions || 0)],
     ];
     const aspHtml = asp.map(([n, p, t]) => `<div class="asp">${n}<b>${t}</b><div class="bar"><div style="width:${clamp(p, 0, 100).toFixed(0)}%"></div></div></div>`).join('');
     const aspEl = document.getElementById('pd-asp');
@@ -5127,7 +5552,8 @@
     lineChart(document.getElementById('pd-fede'), { series: [{ name: 'Fede', col: OBS_COLS[0], pts: hs.map(h => [h[0], h[1]]) }], yMax: 100, yFmt: fmtPct });
     lineChart(document.getElementById('pd-lez'), { series: [{ name: 'Regole', col: OBS_COLS[0], pts: hs.map(h => [h[0], h[4]]) }], yFmt: fmtInt });
     lineChart(document.getElementById('pd-en'), { series: [{ name: 'Energia', col: OBS_COLS[0], pts: hs.map(h => [h[0], h[2]]) }, { name: 'Sete', col: OBS_COLS[1], pts: hs.map(h => [h[0], h[3]]) }], yMax: 100, yFmt: fmtInt });
-    const rHtml = v.lessons.length ? v.lessons.map(l => `<li>${l.title} <i>— ${l.source}</i></li>`).join('') : '<li class="muted">Ancora nessuna regola: deve sbagliare o ascoltare qualcuno.</li>';
+    let rHtml = v.lessons.length ? v.lessons.map(l => `<li>${l.title} <i>— ${l.source}</i></li>`).join('') : '<li class="muted">Ancora nessuna regola: deve sbagliare o ascoltare qualcuno.</li>';
+    rHtml += (v.wrongs || []).map(w => `<li>✗ ${w.title} <i>— storpiata, ${w.source}</i></li>`).join('');
     const rEl = document.getElementById('pd-rules');
     if (rEl._h !== rHtml) { rEl.innerHTML = rHtml; rEl._h = rHtml; }
   }
@@ -5386,7 +5812,7 @@
   //  Avvio
   // ======================================================================
   const loaded = loadState();
-  for (const v of villagers) { if (v.conf == null) v.conf = 'cattolica'; if (v.tone == null) v.tone = randRange(0.06, 0.3); if (v.prejudice == null) v.prejudice = v.age < 14 ? 0.1 : randRange(0.2, 0.6); }
+  for (const v of villagers) { if (v.conf == null) v.conf = 'cattolica'; if (!v.traits) initMind(v); if (v.tone == null) v.tone = randRange(0.06, 0.3); if (v.prejudice == null) v.prejudice = v.age < 14 ? 0.1 : randRange(0.2, 0.6); }
   assignHouses();
   rebuildInstances();
   started = true;
@@ -5400,7 +5826,7 @@
 
   // Strumenti per osservare la simulazione dalla console del browser
   if (location.hash === '#osservatorio') openObs();
-  window.HYDROGEN = { ev: { startCityPlague, startPlague, famine, flood, maizeArrives }, world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, cam, clickAt: (x, y) => { handleCanvasClick(x, y); return selectedPlace ? (selectedPlace.type + ':' + (selectedPlace.ref.id ?? selectedPlace.ref)) : selectedVillager ? 'persona:' + selectedVillager.name : selectedBuilding ? 'opera:' + selectedBuilding : 'nulla'; }, view: (x, z, zoom) => { cam.fly = null; cam.panX = x; cam.panZ = z; cam.zoom = zoom; updateCameraMatrices(); }, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
+  window.HYDROGEN = { ev: { startComet, startCityPlague, startPlague, famine, flood, maizeArrives }, world, need, villagers, people, BUILDINGS, openObs, houses: HOUSES, places: PLACES, project: projectToScreen, cam, clickAt: (x, y) => { handleCanvasClick(x, y); return selectedPlace ? (selectedPlace.type + ':' + (selectedPlace.ref.id ?? selectedPlace.ref)) : selectedVillager ? 'persona:' + selectedVillager.name : selectedBuilding ? 'opera:' + selectedBuilding : 'nulla'; }, view: (x, z, zoom) => { cam.fly = null; cam.panX = x; cam.panZ = z; cam.zoom = zoom; updateCameraMatrices(); }, setSpeed: (s) => { timeSpeed = s; btnSpeed.textContent = `Velocità: ${s}×`; }, tick: (n = 1, dt = 0.1) => { for (let i = 0; i < n; i++) renderFrame(performance.now() * 0.001, dt); return simClock; } };
 
   let lastTime = performance.now();
   function loop(now) {

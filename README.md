@@ -134,6 +134,27 @@ Dalla scheda di un paesano nel borgo, il pulsante **📊 Scheda completa** apre 
   finché non si alzano gli **argini**. **Il mais** («sorgo turco») arriva dalla città verso metà secolo: il primo raccolto può fallire,
   poi rende più del frumento e accanto alla strada del mare cresce un campo che cambia colore con le stagioni.
 
+## Menti più profonde
+
+- **Carattere**: ognuno è più o meno curioso, prudente, testardo e chiacchierone (in parte come i genitori).
+  I chiacchieroni insegnano e spettegolano, i curiosi imparano e inventano, i testardi non cambiano idea, i prudenti votano «Rimandare».
+- **Regole storpiate**: passando di bocca in bocca una regola può arrivare sbagliata (es. «Mettere la sabbia sopra la vera del pozzo»):
+  chi la sa storpiata crede di sapere ma non sa, e la insegna storpiata, finché qualcuno che la sa giusta lo corregge.
+- **Superstizioni**: l'aria cattiva (chi ci crede non isola i malati), il malocchio (amuleti dei ciarlatani), le comete che annunciano sventure
+  (c'è la **Grande Cometa del 1577** nel cielo notturno). Si diffondono coi pettegolezzi; i fatti le smentiscono,
+  ma vale anche il **pregiudizio di conferma**: se dopo una cometa arriva una disgrazia, ci si crede di più.
+- **Fiducia, amicizie e rancori**: chi propone opere riuscite guadagna fiducia ed è più ascoltato e votato. Chi vive vicino diventa amico;
+  liti di vicinato, sconfitte in vicinia e affronti creano rancori, che si sciolgono solo piano piano.
+- **Fazioni in vicinia**: devoti, pratici e prudenti, ciascuna con la sua guida.
+- **Invenzioni**: un curioso combina due regole e ne scopre una nuova: la **gualchiera** (mulino + legno), la **fornace** per mattoni e coppi
+  (murare + ceduo, cantieri più economici), il mais irrigato, la distillazione delle erbe.
+
+## Il borgo diventa città
+
+- Dopo il Borgo Nuovo, una **seconda cerchia di mura**, il **Borgo di Ponente**, con la Porta di Ponente e dodici case (nuova licenza e tassa più alta).
+- Un **camposanto nuovo fuori dalle mura** quando il sagrato e l'ossario non bastano più (per le morti normali o dopo un'epidemia),
+  con muro, cappella, cipressi e una croce per ogni sepoltura; durante la peste, prima che ci sia, si scava una fossa comune.
+
 ## Case e luoghi
 
 Ogni casa ha la sua famiglia: le spose vanno a vivere dal marito, i figli restano coi genitori, chi arriva trova una casa libera.

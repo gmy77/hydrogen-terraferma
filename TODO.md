@@ -26,15 +26,15 @@ Ogni evento mette alla prova il sapere accumulato: chi è preparato passa, chi n
 - [ ] Calendario degli eventi tratto dai libri di storia, con nota storica come per gli edifici
 - [ ] Nuove opere legate agli eventi: lazzaretto, argini, torre di guardia, ospizio
 
-## 3. Menti più profonde
+## ✅ 3. Menti più profonde (fatto · 28/11/2026)
 
-- [ ] **Memoria che sbaglia**: una regola passata di bocca in bocca può arrivare storpiata (telefono senza fili)
-- [ ] **Superstizioni false** che si diffondono come quelle vere e vanno smentite dall'esperienza
-- [ ] **Invenzioni**: un paesano combina due regole che conosce e ne nasce una nuova (roggia + mulino → gualchiera per i panni)
-- [ ] **Fazioni in vicinia**: devoti, pratici, prudenti; leader d'opinione
-- [ ] **Fiducia tra le persone**: si dà più peso a chi ha avuto ragione in passato; chi ha proposto opere riuscite guadagna credito
-- [ ] **Carattere** di ogni paesano (curioso, prudente, testardo, chiacchierone) che cambia come impara e come insegna
-- [ ] **Amicizie e rancori** che decidono chi parla con chi
+- [x] **Memoria che sbaglia**: una regola passata di bocca in bocca può arrivare storpiata (telefono senza fili)
+- [x] **Superstizioni false** che si diffondono come quelle vere e vanno smentite dall'esperienza
+- [x] **Invenzioni**: un paesano combina due regole che conosce e ne nasce una nuova (roggia + mulino → gualchiera per i panni)
+- [x] **Fazioni in vicinia**: devoti, pratici, prudenti; leader d'opinione
+- [x] **Fiducia tra le persone**: si dà più peso a chi ha avuto ragione in passato; chi ha proposto opere riuscite guadagna credito
+- [x] **Carattere** di ogni paesano (curioso, prudente, testardo, chiacchierone) che cambia come impara e come insegna
+- [x] **Amicizie e rancori** che decidono chi parla con chi
 
 ## 4. Un'economia vera
 
@@ -59,9 +59,10 @@ Ogni evento mette alla prova il sapere accumulato: chi è preparato passa, chi n
 
 - [x] Nuove case negli ultimi lotti dentro le mura quando il borgo si affolla (27/11/2026)
 - [x] Allargamento delle mura col Borgo Nuovo, dopo supplica e tassa (27/11/2026)
-- [ ] Una seconda cerchia quando anche il Borgo Nuovo è pieno (oggi il borgo resta «stretto»)
+- [x] Seconda cerchia di mura: il Borgo di Ponente (28/11/2026)
+- [ ] Una terza cerchia o borghi fuori dalle mura quando anche Ponente è pieno
 - [ ] Le case vuote cadono in rovina se il borgo si spopola
-- [ ] Il cimitero accanto alla chiesa che si riempie con le generazioni
+- [x] Il camposanto del sagrato e quello nuovo fuori dalle mura (27-28/11/2026)
 - [ ] Nuove contrade fuori dalle mura
 - [x] Il monte a nord, la strada bianca e la città nuova sul grande mare (27/11/2026)
 - [x] Carri sulla strada e navi che entrano ed escono dal porto (28/11/2026)
