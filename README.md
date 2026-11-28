@@ -13,6 +13,9 @@ il parroco propone la sua devozione, tutti votano con le ballotte e poi si apre 
 Oppure scarica il repo e apri `index.html` con un browser recente (Chrome, Edge o Firefox).
 Il borgo si salva da solo nel browser: riaprendo la pagina la cronaca riprende da dove era rimasta.
 Per ricominciare usa il pulsante **Nuovo borgo** oppure apri `index.html?nuovo`.
+
+**💾 Salvataggi**: oltre al salvataggio automatico puoi tenere fino a 8 momenti precisi della storia (con un nome) e ripartire da lì con **Carica**,
+oppure **esportare** la storia in un file `.json` e **importarla** su un altro computer o passarla ad altri: si riprende dallo stesso istante.
 (HYDROGEN 3 usa un salvataggio nuovo: i borghi salvati con la versione 2 ripartono da capo.)
 
 ## Il ciclo bisogno → idea → vicinia → cantiere → verifica
